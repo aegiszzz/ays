@@ -35,12 +35,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithTwitter = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
+      options: {
+        redirectTo: window.location.origin,
+      },
     });
 
     if (error) {
       console.error('Twitter login error:', error);
+      alert('Login failed: ' + error.message);
     }
   };
 
