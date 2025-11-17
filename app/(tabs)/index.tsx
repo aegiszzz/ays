@@ -12,7 +12,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { Download } from 'lucide-react-native';
+import { Heart, MessageCircle, Share } from 'lucide-react-native';
 
 interface MediaShare {
   id: string;
@@ -73,39 +73,44 @@ export default function HomeScreen() {
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <View>
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>
+              {(item.users?.username || 'A').charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.userInfo}>
             <Text style={styles.username}>
               {item.users?.username || 'Anonymous'}
             </Text>
             <Text style={styles.timestamp}>
-              {new Date(item.created_at).toLocaleDateString()}
+              {new Date(item.created_at).toLocaleDateString('tr-TR', {
+                day: 'numeric',
+                month: 'long',
+              })}
             </Text>
           </View>
-          {item.is_public ? (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Public</Text>
-            </View>
-          ) : (
-            <View style={[styles.badge, styles.privateBadge]}>
-              <Text style={styles.badgeText}>Private</Text>
-            </View>
-          )}
         </View>
 
         <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
 
-        {item.caption && <Text style={styles.caption}>{item.caption}</Text>}
-
-        <View style={styles.footer}>
-          <Text style={styles.mediaType}>{item.media_type}</Text>
-          <TouchableOpacity style={styles.downloadButton}>
-            <Download size={20} color="#666" />
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.actionButton}>
+            <Heart size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <MessageCircle size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Share size={24} color="#000" />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.cid} numberOfLines={1} ellipsizeMode="middle">
-          IPFS: {item.ipfs_cid}
-        </Text>
+        {item.caption && (
+          <View style={styles.captionContainer}>
+            <Text style={styles.captionUsername}>{item.users?.username || 'Anonymous'}</Text>
+            <Text style={styles.caption}> {item.caption}</Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -125,19 +130,19 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Media Feed</Text>
-        <Text style={styles.subtitle}>Shared via IPFS</Text>
+        <Text style={styles.title}>AYS</Text>
+        <Text style={styles.subtitle}>Discover amazing content</Text>
       </View>
 
       <FlatList
-        data={media}
+        data={media.filter(item => item.is_public)}
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No media shared yet</Text>
+            <Text style={styles.emptyText}>No posts yet</Text>
             <Text style={styles.emptySubtext}>Start by uploading your first photo or video!</Text>
           </View>
         }
@@ -149,13 +154,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
   },
   header: {
     padding: 20,
@@ -165,89 +170,81 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5EA',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 4,
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 14,
     color: '#666',
   },
   list: {
-    padding: 16,
+    paddingBottom: 16,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
   },
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    padding: 16,
-    paddingBottom: 12,
+    alignItems: 'center',
+    padding: 12,
+  },
+  avatarContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  userInfo: {
+    flex: 1,
   },
   username: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   timestamp: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666',
     marginTop: 2,
   },
-  badge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  privateBadge: {
-    backgroundColor: '#FF9800',
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
   media: {
     width: '100%',
-    height: 300,
-    backgroundColor: '#ddd',
+    height: 400,
+    backgroundColor: '#f0f0f0',
+  },
+  actions: {
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 16,
+  },
+  actionButton: {
+    padding: 4,
+  },
+  captionContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  captionUsername: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   caption: {
-    padding: 16,
     fontSize: 14,
-    lineHeight: 20,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  mediaType: {
-    fontSize: 12,
-    color: '#666',
-    textTransform: 'uppercase',
-  },
-  downloadButton: {
-    padding: 8,
-  },
-  cid: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    fontSize: 11,
-    color: '#999',
-    fontFamily: 'monospace',
+    flex: 1,
   },
   emptyContainer: {
     padding: 40,
