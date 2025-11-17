@@ -11,7 +11,6 @@ import {
   Switch,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { uploadToIPFS } from '@/lib/ipfs';
@@ -76,17 +75,11 @@ export default function UploadScreen() {
 
     setUploading(true);
     try {
-      const fileInfo = await FileSystem.readAsStringAsync(selectedMedia, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      const uint8Array = Uint8Array.from(atob(fileInfo), c => c.charCodeAt(0));
-
-      const cid = await uploadToIPFS(uint8Array);
+      const cid = await uploadToIPFS(selectedMedia);
 
       const { error } = await supabase.from('media_shares').insert({
         user_id: user.id,
-        ipfs_cid: cid,
+        ipfs_cid: selectedMedia,
         media_type: mediaType,
         caption: caption.trim() || null,
         is_public: isPublic,
