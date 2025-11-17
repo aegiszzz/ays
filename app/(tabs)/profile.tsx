@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'expo-router';
 import { LogOut, Mail, Calendar, User as UserIcon } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +47,7 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     try {
       await signOut();
+      router.replace('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
