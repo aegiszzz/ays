@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithTwitter: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -61,14 +61,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUpWithEmail = async (email: string, password: string, username: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       throw error;
+    }
+
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          username,
+          email,
+        });
+
+      if (profileError) {
+        throw profileError;
+      }
     }
   };
 

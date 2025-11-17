@@ -9,6 +9,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,12 +26,17 @@ export default function LoginScreen() {
       return;
     }
 
+    if (isSignUp && !username) {
+      setError('Please enter a username');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
       if (isSignUp) {
-        await signUpWithEmail(email, password);
+        await signUpWithEmail(email, password, username);
       } else {
         await signInWithEmail(email, password);
       }
@@ -50,6 +56,15 @@ export default function LoginScreen() {
         </Text>
 
         <View style={styles.formContainer}>
+          {isSignUp && (
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+            />
+          )}
           <TextInput
             style={styles.input}
             placeholder="Email"

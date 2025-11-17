@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,38 @@ import {
   Alert,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Mail, Calendar } from 'lucide-react-native';
+import { supabase } from '@/lib/supabase';
+import { LogOut, Mail, Calendar, User as UserIcon } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const [username, setUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchUsername();
+    }
+  }, [user]);
+
+  const fetchUsername = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('username')
+        .eq('id', user!.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setUsername(data.username);
+      }
+    } catch (error) {
+      console.error('Error fetching username:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -52,6 +80,19 @@ export default function ProfileScreen() {
         <Text style={styles.sectionTitle}>Account Information</Text>
 
         <View style={styles.infoCard}>
+          {username && (
+            <>
+              <View style={styles.infoRow}>
+                <UserIcon size={20} color="#666" />
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Username</Text>
+                  <Text style={styles.infoValue}>@{username}</Text>
+                </View>
+              </View>
+              <View style={styles.divider} />
+            </>
+          )}
+
           <View style={styles.infoRow}>
             <Mail size={20} color="#666" />
             <View style={styles.infoContent}>
