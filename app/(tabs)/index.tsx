@@ -12,7 +12,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { Heart, MessageCircle, Share } from 'lucide-react-native';
+import { Heart, MessageCircle, Share, Search } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 interface MediaShare {
   id: string;
@@ -29,6 +30,7 @@ interface MediaShare {
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -130,8 +132,17 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>AYS</Text>
-        <Text style={styles.subtitle}>Discover amazing content</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.title}>AYS</Text>
+            <Text style={styles.subtitle}>Discover amazing content</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => router.push('/search-users')}>
+            <Search size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -163,11 +174,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    padding: 20,
     paddingTop: 60,
+    paddingBottom: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+  },
+  searchButton: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
   },
   title: {
     fontSize: 32,
