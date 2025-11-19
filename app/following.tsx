@@ -31,15 +31,16 @@ export default function FollowingScreen() {
     try {
       const { data, error } = await supabase
         .from('friends')
-        .select(`
-          id,
-          friend_id,
-          users!friends_friend_id_fkey(username)
-        `)
+        .select('id, friend_id, users!friend_id(username)')
         .eq('user_id', userId as string)
         .eq('status', 'accepted');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Following data:', data);
 
       const formattedData = data?.map((item: any) => ({
         id: item.id,
