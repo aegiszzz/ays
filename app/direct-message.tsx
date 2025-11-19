@@ -57,7 +57,7 @@ export default function DirectMessageScreen() {
 
   const handleSelectUser = (selectedUser: User) => {
     router.push({
-      pathname: '/send-message',
+      pathname: '/conversation',
       params: { userId: selectedUser.id, username: selectedUser.username },
     });
   };

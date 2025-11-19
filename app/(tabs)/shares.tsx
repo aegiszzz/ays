@@ -86,7 +86,7 @@ export default function SharesScreen() {
 
   const openConversation = (conversation: Conversation) => {
     if (conversation.type === 'direct' && conversation.other_user) {
-      router.push(`/direct-message?userId=${conversation.other_user.id}&username=${conversation.other_user.username}`);
+      router.push(`/conversation?userId=${conversation.other_user.id}&username=${conversation.other_user.username}`);
     }
   };
 
