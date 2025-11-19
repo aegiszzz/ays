@@ -328,6 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     overflow: 'hidden',
+    minHeight: 40,
   },
   myMessage: {
     alignSelf: 'flex-end',
@@ -342,8 +343,9 @@ const styles = StyleSheet.create({
     height: 250,
   },
   caption: {
-    padding: 8,
-    fontSize: 14,
+    padding: 12,
+    fontSize: 15,
+    lineHeight: 20,
   },
   myCaption: {
     color: '#fff',
