@@ -142,17 +142,20 @@ export default function ConversationScreen() {
   };
 
   const handleSend = async () => {
-    if (!selectedMedia || !user || !userId) return;
+    if ((!selectedMedia && !caption.trim()) || !user || !userId) return;
 
     setSending(true);
     try {
-      const cid = await uploadToIPFS(selectedMedia);
+      let cid = '';
+      if (selectedMedia) {
+        cid = await uploadToIPFS(selectedMedia);
+      }
 
       const { error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
-        ipfs_cid: cid,
-        media_type: mediaType,
+        ipfs_cid: cid || null,
+        media_type: selectedMedia ? mediaType : 'text',
         caption: caption.trim() || null,
         read: false,
       });
@@ -175,11 +178,13 @@ export default function ConversationScreen() {
 
     return (
       <View style={[styles.messageContainer, isMine ? styles.myMessage : styles.theirMessage]}>
-        <Image
-          source={{ uri: getIPFSGatewayUrl(item.ipfs_cid) }}
-          style={styles.messageImage}
-          resizeMode="cover"
-        />
+        {item.ipfs_cid && (
+          <Image
+            source={{ uri: getIPFSGatewayUrl(item.ipfs_cid) }}
+            style={styles.messageImage}
+            resizeMode="cover"
+          />
+        )}
         {item.caption && (
           <Text style={[styles.caption, isMine ? styles.myCaption : styles.theirCaption]}>
             {item.caption}
@@ -259,9 +264,9 @@ export default function ConversationScreen() {
             multiline
           />
           <TouchableOpacity
-            style={[styles.sendButton, (!selectedMedia || sending) && styles.sendButtonDisabled]}
+            style={[styles.sendButton, ((!selectedMedia && !caption.trim()) || sending) && styles.sendButtonDisabled]}
             onPress={handleSend}
-            disabled={!selectedMedia || sending}
+            disabled={(!selectedMedia && !caption.trim()) || sending}
           >
             {sending ? (
               <ActivityIndicator size="small" color="#fff" />
