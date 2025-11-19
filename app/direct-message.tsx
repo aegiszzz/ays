@@ -68,8 +68,7 @@ export default function DirectMessageScreen() {
         <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
       </View>
       <View style={styles.userInfo}>
-        <Text style={styles.username}>{item.username}</Text>
-        <Text style={styles.email}>{item.email}</Text>
+        <Text style={styles.username}>@{item.username}</Text>
       </View>
       <MessageCircle size={24} color="#666" />
     </TouchableOpacity>

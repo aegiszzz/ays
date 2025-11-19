@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
@@ -29,11 +30,14 @@ const ITEM_SIZE = (width - 48) / 3;
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -43,13 +47,15 @@ export default function ProfileScreen() {
 
   const fetchUserData = async () => {
     try {
-      const [userResult, mediaResult] = await Promise.all([
+      const [userResult, mediaResult, followersResult, followingResult] = await Promise.all([
         supabase.from('users').select('username').eq('id', user!.id).maybeSingle(),
         supabase
           .from('media_shares')
           .select('id, ipfs_cid, media_type, caption, created_at')
           .eq('user_id', user!.id)
           .order('created_at', { ascending: false }),
+        supabase.from('friends').select('id', { count: 'exact' }).eq('friend_id', user!.id).eq('status', 'accepted'),
+        supabase.from('friends').select('id', { count: 'exact' }).eq('user_id', user!.id).eq('status', 'accepted'),
       ]);
 
       if (userResult.data) {
@@ -59,6 +65,9 @@ export default function ProfileScreen() {
       if (mediaResult.data) {
         setMediaItems(mediaResult.data);
       }
+
+      setFollowersCount(followersResult.count || 0);
+      setFollowingCount(followingResult.count || 0);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -91,6 +100,20 @@ export default function ProfileScreen() {
             <Text style={styles.statNumber}>{mediaItems.length}</Text>
             <Text style={styles.statLabel}>Posts</Text>
           </View>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => router.push({ pathname: '/followers', params: { userId: user.id } })}
+          >
+            <Text style={styles.statNumber}>{followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statItem}
+            onPress={() => router.push({ pathname: '/following', params: { userId: user.id } })}
+          >
+            <Text style={styles.statNumber}>{followingCount}</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </TouchableOpacity>
         </View>
       </View>
 

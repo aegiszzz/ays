@@ -213,7 +213,7 @@ export default function ConversationScreen() {
         <View style={styles.avatarContainer}>
           <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
         </View>
-        <Text style={styles.username}>{username}</Text>
+        <Text style={styles.username}>@{username}</Text>
       </View>
 
       {loading ? (

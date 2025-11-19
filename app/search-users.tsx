@@ -95,8 +95,7 @@ export default function SearchUsersScreen() {
           <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
         </View>
         <View style={styles.userInfo}>
-          <Text style={styles.username}>{item.username}</Text>
-          <Text style={styles.email}>{item.email}</Text>
+          <Text style={styles.username}>@{item.username}</Text>
         </View>
         {isFriend ? (
           <View style={styles.friendBadge}>
