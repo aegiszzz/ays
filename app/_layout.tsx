@@ -17,8 +17,18 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(tabs)" />
+      {!session ? (
+        <Stack.Screen name="index" />
+      ) : (
+        <Stack.Screen name="(tabs)" />
+      )}
+      <Stack.Screen name="conversation" />
+      <Stack.Screen name="direct-message" />
+      <Stack.Screen name="send-message" />
+      <Stack.Screen name="group-share" />
+      <Stack.Screen name="search-users" />
+      <Stack.Screen name="followers" />
+      <Stack.Screen name="following" />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
