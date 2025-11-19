@@ -118,19 +118,18 @@ export default function ProfileScreen() {
                   style={styles.gridItem}
                   onPress={() => setSelectedImage(imageUri)}
                 >
-                  {isLoading && (
-                    <View style={styles.imageLoader}>
-                      <ActivityIndicator size="small" color="#000" />
-                    </View>
-                  )}
                   <Image
                     source={{ uri: imageUri }}
                     style={styles.gridImage}
                     resizeMode="cover"
                     onLoadStart={() => {
-                      setLoadingImages(prev => new Set(prev).add(item.id));
+                      setLoadingImages(prev => {
+                        const next = new Set(prev);
+                        next.add(item.id);
+                        return next;
+                      });
                     }}
-                    onLoadEnd={() => {
+                    onLoad={() => {
                       setLoadingImages(prev => {
                         const next = new Set(prev);
                         next.delete(item.id);
@@ -146,6 +145,11 @@ export default function ProfileScreen() {
                       });
                     }}
                   />
+                  {isLoading && (
+                    <View style={styles.imageLoader}>
+                      <ActivityIndicator size="small" color="#666" />
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             })}
