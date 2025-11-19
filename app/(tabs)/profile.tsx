@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { ImageIcon, X, Download } from 'lucide-react-native';
 
 interface MediaItem {
@@ -107,9 +108,7 @@ export default function ProfileScreen() {
         ) : (
           <View style={styles.grid}>
             {mediaItems.map((item) => {
-              const imageUri = item.ipfs_cid.startsWith('http')
-                ? item.ipfs_cid
-                : `https://gateway.pinata.cloud/ipfs/${item.ipfs_cid}`;
+              const imageUri = getIPFSGatewayUrl(item.ipfs_cid);
 
               return (
                 <TouchableOpacity
