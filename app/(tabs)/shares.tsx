@@ -46,7 +46,7 @@ export default function SharesScreen() {
     try {
       const { data: messagesData, error } = await supabase
         .from('direct_messages')
-        .select('id, sender_id, receiver_id, media_share_id, created_at')
+        .select('id, sender_id, receiver_id, ipfs_cid, created_at')
         .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });
 
@@ -62,25 +62,17 @@ export default function SharesScreen() {
             .from('users')
             .select('id, username')
             .eq('id', otherUserId)
-            .single();
+            .maybeSingle();
 
-          if (message.media_share_id) {
-            const { data: mediaData } = await supabase
-              .from('media_shares')
-              .select('ipfs_cid')
-              .eq('id', message.media_share_id)
-              .single();
-
-            conversationsMap.set(otherUserId, {
-              id: otherUserId,
-              type: 'direct',
-              other_user: userData || undefined,
-              last_message: mediaData ? {
-                ipfs_cid: mediaData.ipfs_cid,
-                created_at: message.created_at
-              } : undefined
-            });
-          }
+          conversationsMap.set(otherUserId, {
+            id: otherUserId,
+            type: 'direct',
+            other_user: userData || undefined,
+            last_message: message.ipfs_cid ? {
+              ipfs_cid: message.ipfs_cid,
+              created_at: message.created_at
+            } : undefined
+          });
         }
       }
 

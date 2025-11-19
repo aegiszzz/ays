@@ -77,27 +77,16 @@ export default function SendMessageScreen() {
     try {
       const cid = await uploadToIPFS(selectedMedia);
 
-      const { data: mediaShare, error: mediaError } = await supabase
-        .from('media_shares')
-        .insert({
-          user_id: user.id,
-          ipfs_cid: cid,
-          media_type: mediaType,
-          caption: caption.trim() || null,
-          is_public: false,
-        })
-        .select()
-        .single();
-
-      if (mediaError) throw mediaError;
-
-      const { error: messageError } = await supabase.from('direct_messages').insert({
+      const { error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
-        media_share_id: mediaShare.id,
+        ipfs_cid: cid,
+        media_type: mediaType,
+        caption: caption.trim() || null,
+        read: false,
       });
 
-      if (messageError) throw messageError;
+      if (error) throw error;
 
       alert(`Message sent to ${username} successfully!`);
       router.back();
