@@ -102,17 +102,21 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <View style={styles.grid}>
-            {mediaItems.map((item) => (
-              <View key={item.id} style={styles.gridItem}>
-                <Image
-                  source={{
-                    uri: `https://gateway.pinata.cloud/ipfs/${item.ipfs_cid}`,
-                  }}
-                  style={styles.gridImage}
-                  resizeMode="cover"
-                />
-              </View>
-            ))}
+            {mediaItems.map((item) => {
+              const imageUri = item.ipfs_cid.startsWith('http')
+                ? item.ipfs_cid
+                : `https://gateway.pinata.cloud/ipfs/${item.ipfs_cid}`;
+
+              return (
+                <View key={item.id} style={styles.gridItem}>
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={styles.gridImage}
+                    resizeMode="cover"
+                  />
+                </View>
+              );
+            })}
           </View>
         )}
       </View>
