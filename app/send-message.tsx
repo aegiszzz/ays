@@ -75,7 +75,9 @@ export default function SendMessageScreen() {
 
     setSending(true);
     try {
+      console.log('Starting upload, media URI:', selectedMedia);
       const cid = await uploadToIPFS(selectedMedia);
+      console.log('Upload successful, CID:', cid);
 
       const { error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
@@ -90,9 +92,10 @@ export default function SendMessageScreen() {
 
       alert(`Message sent to ${username} successfully!`);
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send error:', error);
-      alert('Failed to send message. Please try again.');
+      const errorMsg = error?.message || 'Unknown error';
+      alert(`Failed to send message: ${errorMsg}`);
     } finally {
       setSending(false);
     }

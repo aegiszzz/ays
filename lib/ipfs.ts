@@ -1,17 +1,27 @@
 const PINATA_JWT = process.env.EXPO_PUBLIC_PINATA_JWT;
 const PINATA_GATEWAY = process.env.EXPO_PUBLIC_PINATA_GATEWAY;
 
-export const uploadToIPFS = async (base64Data: string): Promise<string> => {
+export const uploadToIPFS = async (uri: string): Promise<string> => {
   try {
     if (!PINATA_JWT) {
       throw new Error('Pinata JWT not configured');
     }
 
-    const base64Content = base64Data.split(',')[1] || base64Data;
-    const blob = await fetch(`data:image/jpeg;base64,${base64Content}`).then(r => r.blob());
+    let blob: Blob;
+
+    if (uri.startsWith('data:')) {
+      const base64Content = uri.split(',')[1];
+      const response = await fetch(uri);
+      blob = await response.blob();
+    } else if (uri.startsWith('blob:') || uri.startsWith('http')) {
+      const response = await fetch(uri);
+      blob = await response.blob();
+    } else {
+      throw new Error('Unsupported URI format: ' + uri.substring(0, 50));
+    }
 
     const formData = new FormData();
-    formData.append('file', blob as any, 'image.jpg');
+    formData.append('file', blob as any, `image-${Date.now()}.jpg`);
 
     const metadata = JSON.stringify({
       name: `AYS-${Date.now()}.jpg`,
