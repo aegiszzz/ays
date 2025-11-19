@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -41,13 +41,15 @@ export default function ConversationScreen() {
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const flatListRef = useRef<FlatList>(null);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
+    if (!user?.id || !userId) return;
+
     try {
       const { data, error } = await supabase
         .from('direct_messages')
         .select('*')
         .or(
-          `and(sender_id.eq.${user?.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${user?.id})`
+          `and(sender_id.eq.${user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${user.id})`
         )
         .order('created_at', { ascending: true });
 
@@ -56,7 +58,7 @@ export default function ConversationScreen() {
       setMessages(data || []);
 
       const unreadMessages = (data || []).filter(
-        msg => msg.receiver_id === user?.id && !msg.read
+        msg => msg.receiver_id === user.id && !msg.read
       );
 
       if (unreadMessages.length > 0) {
@@ -73,13 +75,11 @@ export default function ConversationScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, userId]);
 
   useEffect(() => {
-    if (user && userId) {
-      fetchMessages();
-    }
-  }, [user?.id, userId]);
+    fetchMessages();
+  }, [fetchMessages]);
 
   useEffect(() => {
     if (!user || !userId) return;
@@ -253,7 +253,7 @@ export default function ConversationScreen() {
           </TouchableOpacity>
           <TextInput
             style={styles.input}
-            placeholder="Add a caption..."
+            placeholder="Send message..."
             value={caption}
             onChangeText={setCaption}
             multiline
