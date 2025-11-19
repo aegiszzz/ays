@@ -76,9 +76,24 @@ export default function UploadScreen() {
 
     setUploading(true);
     try {
-      const base64 = await FileSystem.readAsStringAsync(selectedMedia, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      let base64: string;
+
+      if (selectedMedia.startsWith('data:')) {
+        base64 = selectedMedia;
+      } else if (selectedMedia.startsWith('blob:') || selectedMedia.startsWith('http')) {
+        const response = await fetch(selectedMedia);
+        const blob = await response.blob();
+        base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        base64 = await FileSystem.readAsStringAsync(selectedMedia, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
 
       const cid = await uploadToIPFS(base64);
 
