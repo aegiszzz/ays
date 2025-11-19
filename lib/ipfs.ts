@@ -49,9 +49,9 @@ export const getIPFSGatewayUrl = (cid: string): string => {
     return cid;
   }
 
-  if (PINATA_GATEWAY) {
+  if (PINATA_GATEWAY && PINATA_GATEWAY !== 'your_gateway_url_here') {
     return `${PINATA_GATEWAY}/ipfs/${cid}`;
   }
 
-  return `https://gateway.pinata.cloud/ipfs/${cid}`;
+  return `https://ipfs.io/ipfs/${cid}`;
 };
