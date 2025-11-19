@@ -3,53 +3,60 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   Image,
-  Alert,
+  ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon } from 'lucide-react-native';
+import { ImageIcon } from 'lucide-react-native';
+
+interface MediaItem {
+  id: string;
+  ipfs_cid: string;
+  media_type: string;
+  caption: string | null;
+  created_at: string;
+}
+
+const { width } = Dimensions.get('window');
+const ITEM_SIZE = (width - 48) / 3;
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const [username, setUsername] = useState<string | null>(null);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      fetchUsername();
+      fetchUserData();
     }
   }, [user]);
 
-  const fetchUsername = async () => {
+  const fetchUserData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', user!.id)
-        .maybeSingle();
+      const [userResult, mediaResult] = await Promise.all([
+        supabase.from('users').select('username').eq('id', user!.id).maybeSingle(),
+        supabase
+          .from('media_shares')
+          .select('id, ipfs_cid, media_type, caption, created_at')
+          .eq('user_id', user!.id)
+          .order('created_at', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      if (data) {
-        setUsername(data.username);
+      if (userResult.data) {
+        setUsername(userResult.data.username);
+      }
+
+      if (mediaResult.data) {
+        setMediaItems(mediaResult.data);
       }
     } catch (error) {
-      console.error('Error fetching username:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.replace('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
     }
   };
 
@@ -58,13 +65,7 @@ export default function ProfileScreen() {
   }
 
   const userName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
-  const userHandle = user.user_metadata?.user_name || user.email?.split('@')[0] || '';
   const userAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
-  const createdAt = new Date(user.created_at).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 
   return (
     <ScrollView style={styles.container}>
@@ -77,55 +78,43 @@ export default function ProfileScreen() {
           </View>
         )}
         <Text style={styles.name}>{userName}</Text>
-        {userHandle && <Text style={styles.handle}>@{userHandle}</Text>}
-      </View>
+        {username && <Text style={styles.username}>@{username}</Text>}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account Information</Text>
-
-        <View style={styles.infoCard}>
-          {username && (
-            <>
-              <View style={styles.infoRow}>
-                <UserIcon size={20} color="#666" />
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Username</Text>
-                  <Text style={styles.infoValue}>@{username}</Text>
-                </View>
-              </View>
-              <View style={styles.divider} />
-            </>
-          )}
-
-          <View style={styles.infoRow}>
-            <Mail size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{user.email || 'Not specified'}</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.infoRow}>
-            <Calendar size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Member Since</Text>
-              <Text style={styles.infoValue}>{createdAt}</Text>
-            </View>
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{mediaItems.length}</Text>
+            <Text style={styles.statLabel}>Posts</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.section}>
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <LogOut size={20} color="#FF3B30" />
-          <Text style={styles.signOutText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>v1.0.0 - Social Media Platform</Text>
+        <Text style={styles.sectionTitle}>My Uploads</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#000" style={styles.loader} />
+        ) : mediaItems.length === 0 ? (
+          <View style={styles.emptyState}>
+            <ImageIcon size={48} color="#ccc" />
+            <Text style={styles.emptyText}>No uploads yet</Text>
+            <Text style={styles.emptySubtext}>
+              Your uploaded photos and videos will appear here
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.grid}>
+            {mediaItems.map((item) => (
+              <View key={item.id} style={styles.gridItem}>
+                <Image
+                  source={{
+                    uri: `https://gateway.pinata.cloud/ipfs/${item.ipfs_cid}`,
+                  }}
+                  style={styles.gridImage}
+                  resizeMode="cover"
+                />
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -138,107 +127,105 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#fff',
-    padding: 32,
+    padding: 24,
     paddingTop: 60,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 16,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 12,
   },
   avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   avatarText: {
-    fontSize: 48,
+    fontSize: 36,
     fontWeight: '700',
     color: '#fff',
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 4,
   },
-  handle: {
-    fontSize: 16,
+  username: {
+    fontSize: 14,
     color: '#666',
+    marginBottom: 16,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    gap: 32,
+    marginTop: 8,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
   },
   section: {
-    marginTop: 24,
+    marginTop: 16,
     paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1a1a1a',
     marginBottom: 12,
   },
-  infoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  loader: {
+    marginTop: 40,
   },
-  infoRow: {
-    flexDirection: 'row',
+  emptyState: {
     alignItems: 'center',
-    gap: 12,
+    paddingVertical: 60,
   },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: '#1a1a1a',
-    fontWeight: '500',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E5EA',
-    marginVertical: 16,
-  },
-  signOutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-  },
-  signOutText: {
-    color: '#FF3B30',
-    fontSize: 16,
+  emptyText: {
+    fontSize: 18,
     fontWeight: '600',
-  },
-  footer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
     color: '#999',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  gridItem: {
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
+    backgroundColor: '#ddd',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  gridImage: {
+    width: '100%',
+    height: '100%',
   },
 });
