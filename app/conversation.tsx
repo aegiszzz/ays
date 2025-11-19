@@ -41,43 +41,6 @@ export default function ConversationScreen() {
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const flatListRef = useRef<FlatList>(null);
 
-  useEffect(() => {
-    if (user && userId) {
-      fetchMessages();
-      const subscription = supabase
-        .channel('direct_messages')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `sender_id=eq.${userId},receiver_id=eq.${user.id}`,
-          },
-          () => {
-            fetchMessages();
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `sender_id=eq.${user.id},receiver_id=eq.${userId}`,
-          },
-          () => {
-            fetchMessages();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [user, userId]);
-
   const fetchMessages = async () => {
     try {
       const { data, error } = await supabase
@@ -111,6 +74,41 @@ export default function ConversationScreen() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user && userId) {
+      fetchMessages();
+    }
+  }, [user?.id, userId]);
+
+  useEffect(() => {
+    if (!user || !userId) return;
+
+    const subscription = supabase
+      .channel(`messages-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'direct_messages',
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+          if (
+            (newMessage.sender_id === userId && newMessage.receiver_id === user.id) ||
+            (newMessage.sender_id === user.id && newMessage.receiver_id === userId)
+          ) {
+            setMessages((prev) => [...prev, newMessage]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user?.id, userId]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
