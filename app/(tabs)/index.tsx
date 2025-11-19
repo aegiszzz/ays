@@ -14,11 +14,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  Clipboard,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { Heart, MessageCircle, Share, Search, Download, X, Send } from 'lucide-react-native';
+import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 interface Comment {
@@ -60,6 +62,10 @@ export default function HomeScreen() {
   const [commentText, setCommentText] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [postToShare, setPostToShare] = useState<MediaShare | null>(null);
+  const [friends, setFriends] = useState<Array<{ id: string; username: string }>>([]);
+  const [loadingFriends, setLoadingFriends] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -265,11 +271,68 @@ export default function HomeScreen() {
   };
 
   const handleShare = async (post: MediaShare) => {
+    setPostToShare(post);
+    setShareModalVisible(true);
+    fetchFriends();
+  };
+
+  const fetchFriends = async () => {
+    if (!user) return;
+    setLoadingFriends(true);
+
     try {
-      const url = getIPFSGatewayUrl(post.ipfs_cid);
-      await Linking.openURL(`https://twitter.com/intent/tweet?text=Check out this amazing photo!&url=${encodeURIComponent(url)}`);
+      const { data: friendsData, error } = await supabase
+        .from('friends')
+        .select('friend_id')
+        .eq('user_id', user.id)
+        .eq('status', 'accepted');
+
+      if (error) throw error;
+
+      const friendIds = friendsData?.map(f => f.friend_id) || [];
+
+      if (friendIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, username')
+          .in('id', friendIds);
+
+        if (usersError) throw usersError;
+        setFriends(usersData || []);
+      }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error('Error fetching friends:', error);
+    } finally {
+      setLoadingFriends(false);
+    }
+  };
+
+  const copyLink = () => {
+    if (!postToShare) return;
+    const url = getIPFSGatewayUrl(postToShare.ipfs_cid);
+    Clipboard.setString(url);
+    Alert.alert('Copied!', 'Link copied to clipboard');
+  };
+
+  const sendToFriend = async (friendId: string, friendUsername: string) => {
+    if (!user || !postToShare) return;
+
+    try {
+      const { error } = await supabase
+        .from('direct_messages')
+        .insert({
+          sender_id: user.id,
+          receiver_id: friendId,
+          media_share_id: postToShare.id,
+        });
+
+      if (error) throw error;
+
+      Alert.alert('Sent!', `Photo shared with ${friendUsername}`);
+      setShareModalVisible(false);
+    } catch (error) {
+      console.error('Error sending to friend:', error);
+      Alert.alert('Error', 'Failed to send photo');
     }
   };
 
@@ -470,6 +533,65 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={shareModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.shareModalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Share</Text>
+            <TouchableOpacity onPress={() => setShareModalVisible(false)}>
+              <X size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.shareOptionsContainer}>
+            <TouchableOpacity style={styles.shareOption} onPress={copyLink}>
+              <View style={styles.shareOptionIcon}>
+                <Copy size={24} color="#000" />
+              </View>
+              <Text style={styles.shareOptionText}>Copy Link</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.friendsSectionHeader}>
+            <Users size={20} color="#666" />
+            <Text style={styles.friendsSectionTitle}>Send to Friends</Text>
+          </View>
+
+          <ScrollView style={styles.friendsList}>
+            {loadingFriends ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000" />
+              </View>
+            ) : friends.length === 0 ? (
+              <View style={styles.emptyCommentsContainer}>
+                <Text style={styles.emptyCommentsText}>No friends yet</Text>
+                <Text style={styles.emptyCommentsSubtext}>Add friends to share photos with them!</Text>
+              </View>
+            ) : (
+              friends.map((friend) => (
+                <TouchableOpacity
+                  key={friend.id}
+                  style={styles.friendItem}
+                  onPress={() => sendToFriend(friend.id, friend.username)}
+                >
+                  <View style={styles.friendAvatar}>
+                    <Text style={styles.friendAvatarText}>
+                      {friend.username.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <Text style={styles.friendUsername}>{friend.username}</Text>
+                  <Send size={20} color="#666" />
+                </TouchableOpacity>
+              ))
+            )}
+          </ScrollView>
+        </View>
       </Modal>
     </View>
   );
@@ -710,5 +832,74 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: '#ccc',
+  },
+  shareModalContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  shareOptionsContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  shareOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+  },
+  shareOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  shareOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  friendsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 8,
+  },
+  friendsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  friendsList: {
+    flex: 1,
+  },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  friendAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  friendAvatarText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  friendUsername: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
