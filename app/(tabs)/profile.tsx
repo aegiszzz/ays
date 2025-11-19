@@ -7,10 +7,13 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Modal,
+  TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { ImageIcon } from 'lucide-react-native';
+import { ImageIcon, X, Download } from 'lucide-react-native';
 
 interface MediaItem {
   id: string;
@@ -28,6 +31,7 @@ export default function ProfileScreen() {
   const [username, setUsername] = useState<string | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -108,18 +112,65 @@ export default function ProfileScreen() {
                 : `https://gateway.pinata.cloud/ipfs/${item.ipfs_cid}`;
 
               return (
-                <View key={item.id} style={styles.gridItem}>
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.gridItem}
+                  onPress={() => setSelectedImage(imageUri)}
+                >
                   <Image
                     source={{ uri: imageUri }}
                     style={styles.gridImage}
                     resizeMode="cover"
                   />
-                </View>
+                </TouchableOpacity>
               );
             })}
           </View>
         )}
       </View>
+
+      <Modal
+        visible={!!selectedImage}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedImage(null)}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setSelectedImage(null)}
+          />
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (selectedImage) {
+                    Linking.openURL(selectedImage);
+                  }
+                }}
+                style={styles.downloadButton}
+              >
+                <Download size={24} color="#fff" />
+                <Text style={styles.downloadText}>Download</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSelectedImage(null)}
+                style={styles.closeButton}
+              >
+                <X size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            {selectedImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={styles.modalImage}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -231,5 +282,58 @@ const styles = StyleSheet.create({
   gridImage: {
     width: '100%',
     height: '100%',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContent: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalHeader: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    zIndex: 10,
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  downloadText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  closeButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 10,
+    borderRadius: 20,
+  },
+  modalImage: {
+    width: '90%',
+    height: '70%',
   },
 });

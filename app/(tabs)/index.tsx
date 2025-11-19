@@ -43,19 +43,30 @@ export default function HomeScreen() {
 
   const fetchMedia = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: mediaData, error: mediaError } = await supabase
         .from('media_shares')
-        .select(
-          `
-          *,
-          users:user_id (username)
-        `
-        )
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (mediaError) throw mediaError;
 
-      setMedia(data || []);
+      const userIds = [...new Set(mediaData?.map(m => m.user_id) || [])];
+
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('id, username')
+        .in('id', userIds);
+
+      if (usersError) throw usersError;
+
+      const usersMap = new Map(usersData?.map(u => [u.id, u]) || []);
+
+      const mediaWithUsers = mediaData?.map(m => ({
+        ...m,
+        users: usersMap.get(m.user_id)
+      })) || [];
+
+      setMedia(mediaWithUsers);
     } catch (error) {
       console.error('Error fetching media:', error);
     } finally {
