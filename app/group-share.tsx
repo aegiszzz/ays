@@ -142,6 +142,12 @@ export default function GroupShareScreen() {
     setCreating(true);
 
     try {
+      console.log('Creating group with user.id:', user.id);
+      console.log('Group name:', groupName.trim());
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Current session user:', sessionData.session?.user?.id);
+
       const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .insert({
@@ -151,7 +157,10 @@ export default function GroupShareScreen() {
         .select()
         .single();
 
-      if (groupError) throw groupError;
+      if (groupError) {
+        console.error('Group creation error details:', groupError);
+        throw groupError;
+      }
 
       const memberInserts = [
         { group_id: groupData.id, user_id: user.id },
