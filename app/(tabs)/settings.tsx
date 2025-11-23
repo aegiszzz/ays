@@ -7,15 +7,13 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import { useRouter } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, QrCode, Send, Key } from 'lucide-react-native';
-import { getWalletBalance } from '@/lib/wallet';
-import { Alert, Modal, TextInput, ActivityIndicator, Platform } from 'react-native';
+import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus } from 'lucide-react-native';
+import { generateWallet, encryptPrivateKey, shortenAddress } from '../../lib/wallet';
+import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import WithdrawModal from '@/components/WithdrawModal';
-import PrivateKeyModal from '@/components/PrivateKeyModal';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
@@ -23,11 +21,7 @@ export default function SettingsScreen() {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [balance, setBalance] = useState('0.0');
-  const [loadingBalance, setLoadingBalance] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false);
+  const [creatingWallet, setCreatingWallet] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -47,37 +41,50 @@ export default function SettingsScreen() {
       if (data) {
         setUsername(data.username);
         setWalletAddress(data.wallet_address);
-        if (data.wallet_address) {
-          fetchBalance(data.wallet_address);
-        }
       }
     } catch (error) {
-      console.error('Error fetching username:', error);
+      console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchBalance = async (address: string) => {
-    setLoadingBalance(true);
+  const createWallet = async () => {
+    if (creatingWallet) return;
+
+    setCreatingWallet(true);
     try {
-      const walletInfo = await getWalletBalance(address);
-      setBalance(walletInfo.balanceInEth);
+      const wallet = await generateWallet();
+      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          wallet_address: wallet.address,
+          encrypted_private_key: encryptedKey,
+        })
+        .eq('id', user!.id);
+
+      if (error) throw error;
+
+      setWalletAddress(wallet.address);
+      Alert.alert('Success', 'Crypto wallet created successfully!');
     } catch (error) {
-      console.error('Error fetching balance:', error);
+      console.error('Error creating wallet:', error);
+      Alert.alert('Error', 'Failed to create wallet. Please try again.');
     } finally {
-      setLoadingBalance(false);
+      setCreatingWallet(false);
     }
   };
 
-  const copyAddress = async () => {
+  const copyWalletAddress = async () => {
     if (walletAddress) {
       if (Platform.OS === 'web') {
         navigator.clipboard.writeText(walletAddress);
-        Alert.alert('Copied', 'Wallet address copied to clipboard');
+        Alert.alert('Copied!', 'Wallet address copied to clipboard');
       } else {
         await Clipboard.setStringAsync(walletAddress);
-        Alert.alert('Copied', 'Wallet address copied to clipboard');
+        Alert.alert('Copied!', 'Wallet address copied to clipboard');
       }
     }
   };
@@ -154,74 +161,53 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {walletAddress && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Wallet</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Crypto Wallet</Text>
 
-          <View style={styles.infoCard}>
+        {walletAddress ? (
+          <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
               <Wallet size={24} color="#000" />
-              <View style={styles.walletHeaderText}>
-                <Text style={styles.walletTitle}>Your Crypto Wallet</Text>
-                <Text style={styles.walletSubtitle}>EVM Compatible</Text>
-              </View>
+              <Text style={styles.walletTitle}>EVM Wallet</Text>
             </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.balanceContainer}>
-              <Text style={styles.balanceLabel}>Balance</Text>
-              {loadingBalance ? (
-                <ActivityIndicator size="small" color="#000" />
-              ) : (
-                <Text style={styles.balanceValue}>{balance} ETH</Text>
-              )}
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.addressContainer}>
-              <Text style={styles.addressLabel}>Address</Text>
-              <View style={styles.addressRow}>
-                <Text style={styles.addressValue} numberOfLines={1}>
-                  {walletAddress.slice(0, 12)}...{walletAddress.slice(-10)}
-                </Text>
-                <TouchableOpacity onPress={copyAddress} style={styles.iconButton}>
-                  <Copy size={18} color="#666" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.walletActions}>
-              <TouchableOpacity
-                style={styles.walletActionButton}
-                onPress={() => setShowDepositModal(true)}
-              >
-                <QrCode size={20} color="#000" />
-                <Text style={styles.walletActionText}>Deposit</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.walletActionButton}
-                onPress={() => setShowWithdrawModal(true)}
-              >
-                <Send size={20} color="#000" />
-                <Text style={styles.walletActionText}>Withdraw</Text>
+            <View style={styles.walletAddressContainer}>
+              <Text style={styles.walletAddress}>{shortenAddress(walletAddress)}</Text>
+              <TouchableOpacity onPress={copyWalletAddress} style={styles.copyButton}>
+                <Copy size={18} color="#007AFF" />
               </TouchableOpacity>
             </View>
-
-            <View style={styles.divider} />
-
+            <Text style={styles.walletNote}>
+              Compatible with Ethereum, Polygon, BSC, and all EVM chains.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.walletCard}>
+            <View style={styles.walletHeader}>
+              <Wallet size={24} color="#666" />
+              <Text style={styles.walletTitle}>No Wallet Yet</Text>
+            </View>
+            <Text style={styles.walletNote}>
+              Create a crypto wallet to receive and send tokens on EVM-compatible chains.
+            </Text>
             <TouchableOpacity
-              style={styles.privateKeyButton}
-              onPress={() => setShowPrivateKeyModal(true)}
+              style={styles.createWalletButton}
+              onPress={createWallet}
+              disabled={creatingWallet}
             >
-              <Key size={18} color="#FF3B30" />
-              <Text style={styles.privateKeyText}>Export Private Key</Text>
+              {creatingWallet ? (
+                <>
+                  <Text style={styles.createWalletButtonText}>Creating...</Text>
+                </>
+              ) : (
+                <>
+                  <Plus size={20} color="#fff" />
+                  <Text style={styles.createWalletButtonText}>Create Wallet</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
-        </View>
-      )}
+        )}
+      </View>
 
       <View style={styles.section}>
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -233,48 +219,6 @@ export default function SettingsScreen() {
       <View style={styles.footer}>
         <Text style={styles.footerText}>v1.0.0 - Social Media Platform</Text>
       </View>
-
-      <Modal visible={showDepositModal} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Deposit</Text>
-            <Text style={styles.modalDescription}>
-              Send ETH or ERC-20 tokens to this address:
-            </Text>
-            <View style={styles.modalAddressContainer}>
-              <Text style={styles.modalAddress}>{walletAddress}</Text>
-            </View>
-            <TouchableOpacity style={styles.modalButton} onPress={copyAddress}>
-              <Copy size={18} color="#fff" />
-              <Text style={styles.modalButtonText}>Copy Address</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalCloseButton}
-              onPress={() => setShowDepositModal(false)}
-            >
-              <Text style={styles.modalCloseText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <WithdrawModal
-        visible={showWithdrawModal}
-        onClose={() => setShowWithdrawModal(false)}
-        userId={user!.id}
-        currentBalance={balance}
-        onSuccess={() => {
-          if (walletAddress) {
-            fetchBalance(walletAddress);
-          }
-        }}
-      />
-
-      <PrivateKeyModal
-        visible={showPrivateKeyModal}
-        onClose={() => setShowPrivateKeyModal(false)}
-        userId={user!.id}
-      />
     </ScrollView>
   );
 }
@@ -389,128 +333,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
   },
+  walletCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   walletHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 4,
-  },
-  walletHeaderText: {
-    flex: 1,
+    marginBottom: 16,
   },
   walletTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1a1a1a',
   },
-  walletSubtitle: {
-    fontSize: 12,
-    color: '#666',
-  },
-  balanceContainer: {
-    paddingVertical: 8,
-  },
-  balanceLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  balanceValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
-  addressContainer: {
-    paddingVertical: 8,
-  },
-  addressLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  addressRow: {
+  walletAddressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  addressValue: {
-    flex: 1,
-    fontSize: 14,
-    color: '#1a1a1a',
-    fontFamily: 'monospace',
-  },
-  iconButton: {
-    padding: 8,
-  },
-  walletActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  walletActionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
     backgroundColor: '#f5f5f5',
     padding: 12,
     borderRadius: 8,
-  },
-  walletActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  privateKeyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 12,
-  },
-  privateKeyText: {
-    fontSize: 14,
-    color: '#FF3B30',
-    fontWeight: '500',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
     marginBottom: 12,
   },
-  modalDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-  },
-  modalAddressContainer: {
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  modalAddress: {
-    fontSize: 12,
-    fontFamily: 'monospace',
+  walletAddress: {
+    fontSize: 16,
+    fontWeight: '500',
     color: '#1a1a1a',
+    fontFamily: 'monospace',
   },
-  modalButton: {
+  copyButton: {
+    padding: 8,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 6,
+  },
+  walletNote: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 18,
+  },
+  createWalletButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -518,19 +387,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     padding: 14,
     borderRadius: 8,
-    marginBottom: 12,
+    marginTop: 16,
   },
-  modalButtonText: {
+  createWalletButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
-  },
-  modalCloseButton: {
-    padding: 14,
-    alignItems: 'center',
-  },
-  modalCloseText: {
-    fontSize: 16,
-    color: '#666',
   },
 });
