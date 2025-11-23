@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus } from 'lucide-react-native';
+import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle } from 'lucide-react-native';
 import { generateWallet, encryptPrivateKey, shortenAddress } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -22,6 +24,10 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [creatingWallet, setCreatingWallet] = useState(false);
+  const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false);
+  const [privateKey, setPrivateKey] = useState<string>('');
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
+  const [loadingPrivateKey, setLoadingPrivateKey] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -87,6 +93,49 @@ export default function SettingsScreen() {
         Alert.alert('Copied!', 'Wallet address copied to clipboard');
       }
     }
+  };
+
+  const exportPrivateKey = async () => {
+    setLoadingPrivateKey(true);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('encrypted_private_key')
+        .eq('id', user!.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data?.encrypted_private_key) {
+        setPrivateKey(data.encrypted_private_key);
+        setShowPrivateKeyModal(true);
+      } else {
+        Alert.alert('Error', 'Private key not found');
+      }
+    } catch (error) {
+      console.error('Error fetching private key:', error);
+      Alert.alert('Error', 'Failed to retrieve private key');
+    } finally {
+      setLoadingPrivateKey(false);
+    }
+  };
+
+  const copyPrivateKey = async () => {
+    if (privateKey) {
+      if (Platform.OS === 'web') {
+        navigator.clipboard.writeText(privateKey);
+        Alert.alert('Copied!', 'Private key copied to clipboard');
+      } else {
+        await Clipboard.setStringAsync(privateKey);
+        Alert.alert('Copied!', 'Private key copied to clipboard');
+      }
+    }
+  };
+
+  const closePrivateKeyModal = () => {
+    setShowPrivateKeyModal(false);
+    setPrivateKey('');
+    setShowPrivateKey(false);
   };
 
   const handleSignOut = async () => {
@@ -179,6 +228,20 @@ export default function SettingsScreen() {
             <Text style={styles.walletNote}>
               Compatible with Ethereum, Polygon, BSC, and all EVM chains.
             </Text>
+            <TouchableOpacity
+              style={styles.exportKeyButton}
+              onPress={exportPrivateKey}
+              disabled={loadingPrivateKey}
+            >
+              {loadingPrivateKey ? (
+                <ActivityIndicator size="small" color="#FF3B30" />
+              ) : (
+                <>
+                  <Key size={18} color="#FF3B30" />
+                  <Text style={styles.exportKeyText}>Export Private Key</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.walletCard}>
@@ -219,6 +282,59 @@ export default function SettingsScreen() {
       <View style={styles.footer}>
         <Text style={styles.footerText}>v1.0.0 - Social Media Platform</Text>
       </View>
+
+      <Modal
+        visible={showPrivateKeyModal}
+        transparent
+        animationType="fade"
+        onRequestClose={closePrivateKeyModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <AlertTriangle size={24} color="#FF3B30" />
+              <Text style={styles.modalTitle}>Private Key</Text>
+            </View>
+
+            <Text style={styles.warningText}>
+              Keep your private key safe! Anyone with access to it can control your wallet.
+            </Text>
+
+            <View style={styles.privateKeyContainer}>
+              <Text style={styles.privateKeyText}>
+                {showPrivateKey ? privateKey : '••••••••••••••••••••••••••••••••'}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowPrivateKey(!showPrivateKey)}
+                style={styles.eyeButton}
+              >
+                {showPrivateKey ? (
+                  <EyeOff size={20} color="#666" />
+                ) : (
+                  <Eye size={20} color="#666" />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.copyKeyButton}
+                onPress={copyPrivateKey}
+              >
+                <Copy size={18} color="#fff" />
+                <Text style={styles.copyKeyButtonText}>Copy Key</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.closeModalButton}
+                onPress={closePrivateKeyModal}
+              >
+                <Text style={styles.closeModalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -393,5 +509,111 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  exportKeyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+  },
+  exportKeyText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FF3B30',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 450,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  warningText: {
+    fontSize: 14,
+    color: '#FF3B30',
+    backgroundColor: '#FFEBEE',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  privateKeyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 20,
+    gap: 12,
+  },
+  privateKeyText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: 'monospace',
+    color: '#1a1a1a',
+    lineHeight: 18,
+  },
+  eyeButton: {
+    padding: 8,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  copyKeyButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#000',
+    padding: 14,
+    borderRadius: 8,
+  },
+  copyKeyButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  closeModalButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  closeModalButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
   },
 });
