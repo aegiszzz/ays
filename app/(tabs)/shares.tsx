@@ -59,8 +59,7 @@ export default function SharesScreen() {
           .from('group_members')
           .select(`
             group_id,
-            groups!inner(id, name),
-            group_messages(ipfs_cid, message_text, created_at)
+            groups!inner(id, name)
           `)
           .eq('user_id', user?.id)
       ]);
@@ -92,8 +91,14 @@ export default function SharesScreen() {
 
       for (const groupMember of groupsData.data || []) {
         const group = (groupMember as any).groups;
-        const messages = (groupMember as any).group_messages || [];
-        const lastMessage = messages[0];
+
+        const { data: lastMessageData } = await supabase
+          .from('group_messages')
+          .select('ipfs_cid, message_text, created_at')
+          .eq('group_id', group.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
         conversationsMap.set(`group-${group.id}`, {
           id: `group-${group.id}`,
@@ -102,10 +107,10 @@ export default function SharesScreen() {
             id: group.id,
             name: group.name
           },
-          last_message: lastMessage ? {
-            ipfs_cid: lastMessage.ipfs_cid,
-            message_text: lastMessage.message_text,
-            created_at: lastMessage.created_at
+          last_message: lastMessageData ? {
+            ipfs_cid: lastMessageData.ipfs_cid,
+            message_text: lastMessageData.message_text,
+            created_at: lastMessageData.created_at
           } : undefined
         });
       }
