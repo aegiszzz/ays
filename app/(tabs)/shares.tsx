@@ -22,8 +22,13 @@ interface Conversation {
     id: string;
     username: string;
   };
+  group?: {
+    id: string;
+    name: string;
+  };
   last_message?: {
-    ipfs_cid: string;
+    ipfs_cid: string | null;
+    message_text: string | null;
     created_at: string;
   };
   unread_count?: number;
@@ -44,17 +49,25 @@ export default function SharesScreen() {
 
   const fetchConversations = async () => {
     try {
-      const { data: messagesData, error } = await supabase
-        .from('direct_messages')
-        .select('id, sender_id, receiver_id, ipfs_cid, created_at')
-        .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const [directMessages, groupsData] = await Promise.all([
+        supabase
+          .from('direct_messages')
+          .select('id, sender_id, receiver_id, ipfs_cid, created_at')
+          .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('group_members')
+          .select(`
+            group_id,
+            groups!inner(id, name),
+            group_messages(ipfs_cid, message_text, created_at)
+          `)
+          .eq('user_id', user?.id)
+      ]);
 
       const conversationsMap = new Map<string, Conversation>();
 
-      for (const message of messagesData || []) {
+      for (const message of directMessages.data || []) {
         const otherUserId = message.sender_id === user?.id ? message.receiver_id : message.sender_id;
 
         if (!conversationsMap.has(otherUserId)) {
@@ -70,10 +83,31 @@ export default function SharesScreen() {
             other_user: userData || undefined,
             last_message: message.ipfs_cid ? {
               ipfs_cid: message.ipfs_cid,
+              message_text: null,
               created_at: message.created_at
             } : undefined
           });
         }
+      }
+
+      for (const groupMember of groupsData.data || []) {
+        const group = (groupMember as any).groups;
+        const messages = (groupMember as any).group_messages || [];
+        const lastMessage = messages[0];
+
+        conversationsMap.set(`group-${group.id}`, {
+          id: `group-${group.id}`,
+          type: 'group',
+          group: {
+            id: group.id,
+            name: group.name
+          },
+          last_message: lastMessage ? {
+            ipfs_cid: lastMessage.ipfs_cid,
+            message_text: lastMessage.message_text,
+            created_at: lastMessage.created_at
+          } : undefined
+        });
       }
 
       setConversations(Array.from(conversationsMap.values()));
@@ -87,6 +121,8 @@ export default function SharesScreen() {
   const openConversation = (conversation: Conversation) => {
     if (conversation.type === 'direct' && conversation.other_user) {
       router.push(`/conversation?userId=${conversation.other_user.id}&username=${conversation.other_user.username}`);
+    } else if (conversation.type === 'group' && conversation.group) {
+      router.push(`/group-conversation?groupId=${conversation.group.id}&groupName=${conversation.group.name}`);
     }
   };
 
@@ -160,19 +196,25 @@ export default function SharesScreen() {
             onPress={() => openConversation(item)}
           >
             <View style={styles.conversationAvatar}>
-              <Text style={styles.conversationAvatarText}>
-                {item.other_user?.username.charAt(0).toUpperCase() || '?'}
-              </Text>
+              {item.type === 'group' ? (
+                <Users size={24} color="#fff" />
+              ) : (
+                <Text style={styles.conversationAvatarText}>
+                  {item.other_user?.username.charAt(0).toUpperCase() || '?'}
+                </Text>
+              )}
             </View>
             <View style={styles.conversationContent}>
               <Text style={styles.conversationName}>
-                {item.other_user?.username || 'Unknown User'}
+                {item.type === 'group' ? item.group?.name : item.other_user?.username || 'Unknown User'}
               </Text>
               <Text style={styles.conversationPreview}>
-                {item.last_message ? 'Sent a photo' : 'No messages yet'}
+                {item.last_message
+                  ? item.last_message.message_text || 'Sent a photo'
+                  : 'No messages yet'}
               </Text>
             </View>
-            {item.last_message && (
+            {item.last_message?.ipfs_cid && (
               <Image
                 source={{ uri: getIPFSGatewayUrl(item.last_message.ipfs_cid) }}
                 style={styles.conversationThumbnail}
