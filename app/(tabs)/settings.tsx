@@ -98,19 +98,24 @@ export default function SettingsScreen() {
   const exportPrivateKey = async () => {
     setLoadingPrivateKey(true);
     try {
+      console.log('Fetching private key for user:', user!.id);
       const { data, error } = await supabase
         .from('users')
         .select('encrypted_private_key')
         .eq('id', user!.id)
         .maybeSingle();
 
+      console.log('Query result:', { data, error });
+
       if (error) throw error;
 
       if (data?.encrypted_private_key) {
+        console.log('Private key found, showing modal');
         setPrivateKey(data.encrypted_private_key);
         setShowPrivateKeyModal(true);
       } else {
-        Alert.alert('Error', 'Private key not found');
+        console.log('No private key found');
+        Alert.alert('Error', 'Private key not found. Please create a wallet first.');
       }
     } catch (error) {
       console.error('Error fetching private key:', error);
@@ -148,6 +153,14 @@ export default function SettingsScreen() {
 
   if (!user) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
   }
 
   const userName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
