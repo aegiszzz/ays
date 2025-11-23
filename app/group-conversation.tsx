@@ -81,6 +81,20 @@ export default function GroupConversationScreen() {
       }));
 
       setMessages(formattedMessages);
+
+      if (user?.id) {
+        await supabase
+          .from('conversation_reads')
+          .upsert({
+            user_id: user.id,
+            conversation_type: 'group',
+            conversation_id: groupId as string,
+            last_read_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,conversation_type,conversation_id'
+          });
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {

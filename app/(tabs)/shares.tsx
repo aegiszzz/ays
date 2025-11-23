@@ -49,12 +49,10 @@ export default function SharesScreen() {
 
   const fetchConversations = async () => {
     try {
-      console.log('Fetching conversations for user:', user?.id);
-
-      const [directMessages, groupsData] = await Promise.all([
+      const [directMessages, groupsData, readStatus] = await Promise.all([
         supabase
           .from('direct_messages')
-          .select('id, sender_id, receiver_id, ipfs_cid, created_at')
+          .select('id, sender_id, receiver_id, ipfs_cid, message_text, created_at')
           .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
           .order('created_at', { ascending: false }),
         supabase
@@ -63,56 +61,91 @@ export default function SharesScreen() {
             group_id,
             groups!inner(id, name)
           `)
+          .eq('user_id', user?.id),
+        supabase
+          .from('conversation_reads')
+          .select('*')
           .eq('user_id', user?.id)
       ]);
 
-      console.log('Direct messages result:', directMessages.data?.length || 0);
-      console.log('Groups data result:', groupsData);
+      const conversationsMap = new Map<string, Conversation>();
+      const readStatusMap = new Map<string, string>();
 
-      if (groupsData.error) {
-        console.error('Groups fetch error:', groupsData.error);
+      for (const read of readStatus.data || []) {
+        const key = `${read.conversation_type}-${read.conversation_id}`;
+        readStatusMap.set(key, read.last_read_at);
       }
 
-      const conversationsMap = new Map<string, Conversation>();
+      const directConvMap = new Map<string, any>();
 
       for (const message of directMessages.data || []) {
         const otherUserId = message.sender_id === user?.id ? message.receiver_id : message.sender_id;
 
-        if (!conversationsMap.has(otherUserId)) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('id, username')
-            .eq('id', otherUserId)
-            .maybeSingle();
-
-          conversationsMap.set(otherUserId, {
-            id: otherUserId,
-            type: 'direct',
-            other_user: userData || undefined,
-            last_message: message.ipfs_cid ? {
-              ipfs_cid: message.ipfs_cid,
-              message_text: null,
-              created_at: message.created_at
-            } : undefined
+        if (!directConvMap.has(otherUserId)) {
+          directConvMap.set(otherUserId, {
+            otherUserId,
+            lastMessage: message,
+            messages: [message]
           });
+        } else {
+          directConvMap.get(otherUserId).messages.push(message);
         }
       }
 
-      console.log('Processing groups, count:', groupsData.data?.length || 0);
+      for (const [otherUserId, convData] of directConvMap.entries()) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('id, username')
+          .eq('id', otherUserId)
+          .maybeSingle();
+
+        const lastReadKey = `direct-${otherUserId}`;
+        const lastReadAt = readStatusMap.get(lastReadKey);
+
+        let unreadCount = 0;
+        if (lastReadAt) {
+          unreadCount = convData.messages.filter((msg: any) =>
+            msg.sender_id !== user?.id && new Date(msg.created_at) > new Date(lastReadAt)
+          ).length;
+        } else {
+          unreadCount = convData.messages.filter((msg: any) => msg.sender_id !== user?.id).length;
+        }
+
+        conversationsMap.set(otherUserId, {
+          id: otherUserId,
+          type: 'direct',
+          other_user: userData || undefined,
+          last_message: convData.lastMessage.ipfs_cid || convData.lastMessage.message_text ? {
+            ipfs_cid: convData.lastMessage.ipfs_cid,
+            message_text: convData.lastMessage.message_text,
+            created_at: convData.lastMessage.created_at
+          } : undefined,
+          unread_count: unreadCount
+        });
+      }
 
       for (const groupMember of groupsData.data || []) {
         const group = (groupMember as any).groups;
-        console.log('Processing group:', group);
 
-        const { data: lastMessageData } = await supabase
+        const { data: allMessages } = await supabase
           .from('group_messages')
-          .select('ipfs_cid, message_text, created_at')
+          .select('id, sender_id, ipfs_cid, message_text, created_at')
           .eq('group_id', group.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .order('created_at', { ascending: false });
 
-        console.log('Last message for group', group.name, ':', lastMessageData);
+        const lastMessage = allMessages?.[0];
+
+        const lastReadKey = `group-${group.id}`;
+        const lastReadAt = readStatusMap.get(lastReadKey);
+
+        let unreadCount = 0;
+        if (lastReadAt && allMessages) {
+          unreadCount = allMessages.filter((msg) =>
+            msg.sender_id !== user?.id && new Date(msg.created_at) > new Date(lastReadAt)
+          ).length;
+        } else if (allMessages) {
+          unreadCount = allMessages.filter((msg) => msg.sender_id !== user?.id).length;
+        }
 
         conversationsMap.set(`group-${group.id}`, {
           id: `group-${group.id}`,
@@ -121,16 +154,21 @@ export default function SharesScreen() {
             id: group.id,
             name: group.name
           },
-          last_message: lastMessageData ? {
-            ipfs_cid: lastMessageData.ipfs_cid,
-            message_text: lastMessageData.message_text,
-            created_at: lastMessageData.created_at
-          } : undefined
+          last_message: lastMessage ? {
+            ipfs_cid: lastMessage.ipfs_cid,
+            message_text: lastMessage.message_text,
+            created_at: lastMessage.created_at
+          } : undefined,
+          unread_count: unreadCount
         });
       }
 
-      const finalConversations = Array.from(conversationsMap.values());
-      console.log('Final conversations:', finalConversations);
+      const finalConversations = Array.from(conversationsMap.values()).sort((a, b) => {
+        const aTime = a.last_message?.created_at ? new Date(a.last_message.created_at).getTime() : 0;
+        const bTime = b.last_message?.created_at ? new Date(b.last_message.created_at).getTime() : 0;
+        return bTime - aTime;
+      });
+
       setConversations(finalConversations);
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -226,9 +264,16 @@ export default function SharesScreen() {
               )}
             </View>
             <View style={styles.conversationContent}>
-              <Text style={styles.conversationName}>
-                {item.type === 'group' ? item.group?.name : item.other_user?.username || 'Unknown User'}
-              </Text>
+              <View style={styles.conversationHeader}>
+                <Text style={styles.conversationName}>
+                  {item.type === 'group' ? item.group?.name : item.other_user?.username || 'Unknown User'}
+                </Text>
+                {item.unread_count && item.unread_count > 0 && (
+                  <View style={styles.unreadBadge}>
+                    <Text style={styles.unreadText}>{item.unread_count}</Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.conversationPreview}>
                 {item.last_message
                   ? item.last_message.message_text || 'Sent a photo'
@@ -359,10 +404,29 @@ const styles = StyleSheet.create({
   conversationContent: {
     flex: 1,
   },
+  conversationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   conversationName: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 4,
+    marginRight: 8,
+  },
+  unreadBadge: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    minWidth: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  unreadText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   conversationPreview: {
     fontSize: 14,
