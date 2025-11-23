@@ -52,7 +52,7 @@ export default function SharesScreen() {
       const [directMessages, groupsData, readStatus] = await Promise.all([
         supabase
           .from('direct_messages')
-          .select('id, sender_id, receiver_id, ipfs_cid, message_text, created_at')
+          .select('id, sender_id, receiver_id, ipfs_cid, caption, created_at')
           .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
           .order('created_at', { ascending: false }),
         supabase
@@ -115,9 +115,9 @@ export default function SharesScreen() {
           id: otherUserId,
           type: 'direct',
           other_user: userData || undefined,
-          last_message: convData.lastMessage.ipfs_cid || convData.lastMessage.message_text ? {
+          last_message: convData.lastMessage.ipfs_cid || convData.lastMessage.caption ? {
             ipfs_cid: convData.lastMessage.ipfs_cid,
-            message_text: convData.lastMessage.message_text,
+            message_text: convData.lastMessage.caption,
             created_at: convData.lastMessage.created_at
           } : undefined,
           unread_count: unreadCount
