@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { createWallet } from '@/lib/wallet';
 
 interface AuthContextType {
   session: Session | null;
@@ -72,12 +73,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (data.user) {
+      const walletAddress = await createWallet(data.user.id);
+
       const { error: profileError } = await supabase
         .from('users')
         .insert({
           id: data.user.id,
           username,
           email,
+          wallet_address: walletAddress,
         });
 
       if (profileError) {
