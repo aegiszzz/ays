@@ -188,7 +188,7 @@ export default function GroupShareScreen() {
       }
 
       Alert.alert('Success', 'Group created successfully!');
-      router.push(`/group-conversation?groupId=${groupData.id}&groupName=${groupData.name}`);
+      router.replace(`/group-conversation?groupId=${groupData.id}&groupName=${groupData.name}`);
     } catch (error) {
       console.error('Group creation error:', error);
       Alert.alert('Error', 'Failed to create group. Please try again.');

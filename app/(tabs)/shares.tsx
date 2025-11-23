@@ -49,6 +49,8 @@ export default function SharesScreen() {
 
   const fetchConversations = async () => {
     try {
+      console.log('Fetching conversations for user:', user?.id);
+
       const [directMessages, groupsData] = await Promise.all([
         supabase
           .from('direct_messages')
@@ -63,6 +65,13 @@ export default function SharesScreen() {
           `)
           .eq('user_id', user?.id)
       ]);
+
+      console.log('Direct messages result:', directMessages.data?.length || 0);
+      console.log('Groups data result:', groupsData);
+
+      if (groupsData.error) {
+        console.error('Groups fetch error:', groupsData.error);
+      }
 
       const conversationsMap = new Map<string, Conversation>();
 
@@ -89,8 +98,11 @@ export default function SharesScreen() {
         }
       }
 
+      console.log('Processing groups, count:', groupsData.data?.length || 0);
+
       for (const groupMember of groupsData.data || []) {
         const group = (groupMember as any).groups;
+        console.log('Processing group:', group);
 
         const { data: lastMessageData } = await supabase
           .from('group_messages')
@@ -99,6 +111,8 @@ export default function SharesScreen() {
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
+
+        console.log('Last message for group', group.name, ':', lastMessageData);
 
         conversationsMap.set(`group-${group.id}`, {
           id: `group-${group.id}`,
@@ -115,7 +129,9 @@ export default function SharesScreen() {
         });
       }
 
-      setConversations(Array.from(conversationsMap.values()));
+      const finalConversations = Array.from(conversationsMap.values());
+      console.log('Final conversations:', finalConversations);
+      setConversations(finalConversations);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     } finally {
