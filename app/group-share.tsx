@@ -28,13 +28,11 @@ export default function GroupShareScreen() {
   const router = useRouter();
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  const [caption, setCaption] = useState('');
-  const [uploading, setUploading] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<Set<string>>(new Set());
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [groupName, setGroupName] = useState('');
-  const [showGroupCreation, setShowGroupCreation] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -139,13 +137,11 @@ export default function GroupShareScreen() {
       return;
     }
 
-    if (!selectedMedia || !user) return;
+    if (!user) return;
 
-    setUploading(true);
+    setCreating(true);
 
     try {
-      const cid = await uploadToIPFS(selectedMedia, mediaType);
-
       const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .insert({
@@ -169,103 +165,31 @@ export default function GroupShareScreen() {
 
       if (membersError) throw membersError;
 
-      const { error: messageError } = await supabase.from('group_messages').insert({
-        group_id: groupData.id,
-        sender_id: user.id,
-        message_text: caption.trim() || null,
-        media_type: mediaType,
-        ipfs_cid: cid,
-      });
+      if (selectedMedia) {
+        const cid = await uploadToIPFS(selectedMedia, mediaType);
 
-      if (messageError) throw messageError;
+        const { error: messageError } = await supabase.from('group_messages').insert({
+          group_id: groupData.id,
+          sender_id: user.id,
+          media_type: mediaType,
+          ipfs_cid: cid,
+        });
 
-      Alert.alert('Success', 'Group created and media shared!');
-      router.back();
+        if (messageError) throw messageError;
+      }
+
+      Alert.alert('Success', 'Group created successfully!');
+      router.push(`/group-conversation?groupId=${groupData.id}&groupName=${groupData.name}`);
     } catch (error) {
       console.error('Group creation error:', error);
       Alert.alert('Error', 'Failed to create group. Please try again.');
     } finally {
-      setUploading(false);
+      setCreating(false);
     }
-  };
-
-  const handleNext = () => {
-    if (selectedFriends.size === 0) {
-      Alert.alert('Error', 'Please select at least one friend to create a group');
-      return;
-    }
-    setShowGroupCreation(true);
   };
 
   if (!user) {
     return null;
-  }
-
-  if (showGroupCreation && selectedMedia) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => setShowGroupCreation(false)}
-            style={styles.backButton}
-          >
-            <ArrowLeft size={24} color="#000" />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Create Group</Text>
-            <Text style={styles.subtitle}>
-              {selectedFriends.size} friend{selectedFriends.size !== 1 ? 's' : ''} selected
-            </Text>
-          </View>
-        </View>
-
-        <ScrollView style={styles.content}>
-          <View style={styles.previewContainer}>
-            {mediaType === 'video' ? (
-              <View style={styles.videoPreview}>
-                <VideoIcon size={48} color="#666" />
-                <Text style={styles.videoText}>Video selected</Text>
-              </View>
-            ) : (
-              <Image source={{ uri: selectedMedia }} style={styles.preview} resizeMode="cover" />
-            )}
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.label}>Group Name</Text>
-            <TextInput
-              style={styles.input}
-              value={groupName}
-              onChangeText={setGroupName}
-              placeholder="Enter group name..."
-              maxLength={50}
-            />
-
-            <Text style={styles.label}>Caption (optional)</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={caption}
-              onChangeText={setCaption}
-              placeholder="Add a caption..."
-              multiline
-              maxLength={500}
-            />
-
-            <TouchableOpacity
-              style={[styles.createButton, uploading && styles.createButtonDisabled]}
-              onPress={handleCreateGroup}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.createButtonText}>Create Group & Share</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
-    );
   }
 
   return (
@@ -275,24 +199,12 @@ export default function GroupShareScreen() {
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Share with Group</Text>
+          <Text style={styles.title}>Create Group</Text>
           <Text style={styles.subtitle}>Select friends to create a group</Text>
         </View>
       </View>
 
-      {!selectedMedia ? (
-        <View style={styles.pickerContainer}>
-          <TouchableOpacity style={styles.pickerButton} onPress={pickFromCamera}>
-            <Camera size={32} color="#000" />
-            <Text style={styles.pickerButtonText}>Take Photo/Video</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.pickerButton} onPress={pickFromGallery}>
-            <ImageIcon size={32} color="#000" />
-            <Text style={styles.pickerButtonText}>Choose from Gallery</Text>
-          </TouchableOpacity>
-        </View>
-      ) : loadingFriends ? (
+      {loadingFriends ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#000" />
         </View>
@@ -303,15 +215,24 @@ export default function GroupShareScreen() {
           <Text style={styles.emptySubtext}>Add friends to create groups</Text>
         </View>
       ) : (
-        <View style={styles.content}>
-          <View style={styles.selectionHeader}>
-            <Text style={styles.selectionTitle}>Select Friends</Text>
-            <Text style={styles.selectionCount}>
-              {selectedFriends.size} selected
-            </Text>
+        <ScrollView style={styles.content}>
+          <View style={styles.formSection}>
+            <Text style={styles.label}>Group Name</Text>
+            <TextInput
+              style={styles.input}
+              value={groupName}
+              onChangeText={setGroupName}
+              placeholder="Enter group name..."
+              maxLength={50}
+            />
           </View>
 
-          <ScrollView style={styles.friendsList}>
+          <View style={styles.selectionHeader}>
+            <Text style={styles.selectionTitle}>Select Friends</Text>
+            <Text style={styles.selectionCount}>{selectedFriends.size} selected</Text>
+          </View>
+
+          <View style={styles.friendsList}>
             {friends.map((friend) => {
               const isSelected = selectedFriends.has(friend.id);
 
@@ -338,29 +259,61 @@ export default function GroupShareScreen() {
                     )}
                     <Text style={styles.friendUsername}>@{friend.username}</Text>
                   </View>
-                  <View
-                    style={[styles.checkbox, isSelected && styles.checkboxSelected]}
-                  >
+                  <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
                     {isSelected && <Check size={16} color="#fff" />}
                   </View>
                 </TouchableOpacity>
               );
             })}
-          </ScrollView>
+          </View>
+
+          <View style={styles.mediaSection}>
+            <Text style={styles.sectionTitle}>Share Media (Optional)</Text>
+            {!selectedMedia ? (
+              <View style={styles.mediaButtons}>
+                <TouchableOpacity style={styles.mediaButton} onPress={pickFromCamera}>
+                  <Camera size={24} color="#000" />
+                  <Text style={styles.mediaButtonText}>Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.mediaButton} onPress={pickFromGallery}>
+                  <ImageIcon size={24} color="#000" />
+                  <Text style={styles.mediaButtonText}>Gallery</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.mediaPreview}>
+                {mediaType === 'video' ? (
+                  <View style={styles.videoPreview}>
+                    <VideoIcon size={32} color="#666" />
+                    <Text style={styles.videoText}>Video selected</Text>
+                  </View>
+                ) : (
+                  <Image source={{ uri: selectedMedia }} style={styles.previewImage} resizeMode="cover" />
+                )}
+                <TouchableOpacity style={styles.removeButton} onPress={() => setSelectedMedia(null)}>
+                  <X size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
 
           <View style={styles.footer}>
             <TouchableOpacity
               style={[
-                styles.nextButton,
-                selectedFriends.size === 0 && styles.nextButtonDisabled,
+                styles.createButton,
+                (selectedFriends.size === 0 || !groupName.trim() || creating) && styles.createButtonDisabled,
               ]}
-              onPress={handleNext}
-              disabled={selectedFriends.size === 0}
+              onPress={handleCreateGroup}
+              disabled={selectedFriends.size === 0 || !groupName.trim() || creating}
             >
-              <Text style={styles.nextButtonText}>Next</Text>
+              {creating ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.createButtonText}>Create Group</Text>
+              )}
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -395,26 +348,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  pickerContainer: {
-    padding: 20,
-    gap: 16,
-  },
-  pickerButton: {
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  pickerButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -440,6 +373,26 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  formSection: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#1a1a1a',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#f8f8f8',
+  },
   selectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -458,7 +411,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   friendsList: {
-    flex: 1,
+    backgroundColor: '#fff',
   },
   friendItem: {
     flexDirection: 'row',
@@ -512,80 +465,84 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     borderColor: '#000',
   },
-  footer: {
-    padding: 16,
+  mediaSection: {
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
-  },
-  nextButton: {
-    backgroundColor: '#000',
     padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+    marginTop: 16,
   },
-  nextButtonDisabled: {
-    opacity: 0.4,
-  },
-  nextButtonText: {
-    color: '#fff',
+  sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 12,
+    color: '#1a1a1a',
   },
-  previewContainer: {
-    margin: 16,
+  mediaButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  mediaButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#f8f8f8',
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  mediaButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  mediaPreview: {
+    position: 'relative',
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#000',
   },
-  preview: {
+  previewImage: {
     width: '100%',
-    height: 300,
+    height: 200,
+    borderRadius: 12,
   },
   videoPreview: {
     width: '100%',
-    height: 300,
+    height: 200,
+    backgroundColor: '#1a1a1a',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
   },
   videoText: {
     color: '#fff',
-    fontSize: 16,
-    marginTop: 12,
+    fontSize: 14,
+    marginTop: 8,
   },
-  form: {
+  removeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footer: {
     padding: 16,
     backgroundColor: '#fff',
-    margin: 16,
-    borderRadius: 12,
-    gap: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
+    marginTop: 16,
   },
   createButton: {
     backgroundColor: '#000',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 8,
   },
   createButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.4,
   },
   createButtonText: {
     color: '#fff',
