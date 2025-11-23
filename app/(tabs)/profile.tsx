@@ -44,7 +44,6 @@ export default function ProfileScreen() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
@@ -191,7 +190,6 @@ export default function ProfileScreen() {
           <View style={styles.grid}>
             {mediaItems.map((item) => {
               const imageUri = getIPFSGatewayUrl(item.ipfs_cid);
-              const isLoading = loadingImages.has(item.id);
 
               return (
                 <TouchableOpacity
@@ -203,34 +201,7 @@ export default function ProfileScreen() {
                     source={{ uri: imageUri }}
                     style={styles.gridImage}
                     resizeMode="cover"
-                    onLoadStart={() => {
-                      setLoadingImages(prev => {
-                        const next = new Set(prev);
-                        next.add(item.id);
-                        return next;
-                      });
-                    }}
-                    onLoad={() => {
-                      setLoadingImages(prev => {
-                        const next = new Set(prev);
-                        next.delete(item.id);
-                        return next;
-                      });
-                    }}
-                    onError={(error) => {
-                      console.error('Image load error:', imageUri, error.nativeEvent.error);
-                      setLoadingImages(prev => {
-                        const next = new Set(prev);
-                        next.delete(item.id);
-                        return next;
-                      });
-                    }}
                   />
-                  {isLoading && (
-                    <View style={styles.imageLoader}>
-                      <ActivityIndicator size="small" color="#666" />
-                    </View>
-                  )}
                 </TouchableOpacity>
               );
             })}
@@ -437,17 +408,6 @@ const styles = StyleSheet.create({
   gridImage: {
     width: '100%',
     height: '100%',
-  },
-  imageLoader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    zIndex: 1,
   },
   modalContainer: {
     flex: 1,
