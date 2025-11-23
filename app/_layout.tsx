@@ -1,11 +1,26 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { useFrameworkReady } from '../hooks/useFrameworkReady';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
 
 function RootNavigator() {
   const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === '(tabs)';
+
+    if (!session && inAuthGroup) {
+      router.replace('/');
+    } else if (session && !inAuthGroup) {
+      router.replace('/(tabs)');
+    }
+  }, [session, segments, loading]);
 
   if (loading) {
     return (
@@ -17,11 +32,8 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {!session ? (
-        <Stack.Screen name="index" />
-      ) : (
-        <Stack.Screen name="(tabs)" />
-      )}
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen name="conversation" />
       <Stack.Screen name="direct-message" />
       <Stack.Screen name="send-message" />
@@ -29,6 +41,8 @@ function RootNavigator() {
       <Stack.Screen name="search-users" />
       <Stack.Screen name="followers" />
       <Stack.Screen name="following" />
+      <Stack.Screen name="group-conversation" />
+      <Stack.Screen name="edit-profile" />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
