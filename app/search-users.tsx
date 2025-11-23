@@ -42,7 +42,11 @@ export default function SearchUsersScreen() {
     try {
       const [usersResult, friendsResult] = await Promise.all([
         supabase.from('users').select('id, username, email').neq('id', user?.id),
-        supabase.from('friends').select('friend_id').eq('user_id', user?.id),
+        supabase
+          .from('friends')
+          .select('friend_id')
+          .eq('user_id', user?.id)
+          .eq('status', 'accepted'),
       ]);
 
       if (usersResult.error) throw usersResult.error;

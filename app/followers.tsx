@@ -31,7 +31,11 @@ export default function FollowersScreen() {
     try {
       const { data, error } = await supabase
         .from('friends')
-        .select('id, user_id, users!user_id(username)')
+        .select(`
+          id,
+          user_id,
+          users!friends_user_id_fkey(username)
+        `)
         .eq('friend_id', userId as string)
         .eq('status', 'accepted');
 
