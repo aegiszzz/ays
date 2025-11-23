@@ -174,6 +174,18 @@ export default function ConversationScreen() {
 
       if (error) throw error;
 
+      await supabase
+        .from('conversation_reads')
+        .upsert({
+          user_id: user.id,
+          conversation_type: 'direct',
+          conversation_id: userId as string,
+          last_read_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,conversation_type,conversation_id'
+        });
+
       setSelectedMedia(null);
       setCaption('');
       setMediaType('image');

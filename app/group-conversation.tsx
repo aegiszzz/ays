@@ -156,6 +156,18 @@ export default function GroupConversationScreen() {
 
       if (error) throw error;
 
+      await supabase
+        .from('conversation_reads')
+        .upsert({
+          user_id: user.id,
+          conversation_type: 'group',
+          conversation_id: groupId as string,
+          last_read_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,conversation_type,conversation_id'
+        });
+
       setMessageText('');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -189,6 +201,18 @@ export default function GroupConversationScreen() {
       });
 
       if (error) throw error;
+
+      await supabase
+        .from('conversation_reads')
+        .upsert({
+          user_id: user!.id,
+          conversation_type: 'group',
+          conversation_id: groupId as string,
+          last_read_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,conversation_type,conversation_id'
+        });
     } catch (error) {
       console.error('Error sending media:', error);
       Alert.alert('Error', 'Failed to send media');

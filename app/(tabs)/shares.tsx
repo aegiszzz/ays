@@ -44,6 +44,58 @@ export default function SharesScreen() {
   useEffect(() => {
     if (user) {
       fetchConversations();
+
+      const directMessagesChannel = supabase
+        .channel('direct_messages_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'direct_messages'
+          },
+          () => {
+            fetchConversations();
+          }
+        )
+        .subscribe();
+
+      const groupMessagesChannel = supabase
+        .channel('group_messages_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'group_messages'
+          },
+          () => {
+            fetchConversations();
+          }
+        )
+        .subscribe();
+
+      const conversationReadsChannel = supabase
+        .channel('conversation_reads_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'conversation_reads',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            fetchConversations();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(directMessagesChannel);
+        supabase.removeChannel(groupMessagesChannel);
+        supabase.removeChannel(conversationReadsChannel);
+      };
     }
   }, [user]);
 
