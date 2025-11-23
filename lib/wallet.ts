@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as Crypto from 'expo-crypto';
 
 const PRIVATE_KEY_PREFIX = 'wallet_private_key_';
 const RPC_URL = 'https://ethereum-rpc.publicnode.com';
@@ -10,6 +11,38 @@ export interface WalletInfo {
   balance: string;
   balanceInEth: string;
 }
+
+export interface Wallet {
+  address: string;
+  privateKey: string;
+}
+
+export const generateWallet = async (): Promise<Wallet> => {
+  try {
+    const wallet = ethers.Wallet.createRandom();
+    return {
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+    };
+  } catch (error) {
+    console.error('Error generating wallet:', error);
+    throw new Error('Failed to generate wallet');
+  }
+};
+
+export const encryptPrivateKey = (privateKey: string, userId: string): string => {
+  try {
+    return privateKey;
+  } catch (error) {
+    console.error('Error encrypting private key:', error);
+    throw new Error('Failed to encrypt private key');
+  }
+};
+
+export const shortenAddress = (address: string): string => {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
 
 export const createWallet = async (userId: string): Promise<string> => {
   try {
