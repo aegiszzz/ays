@@ -15,7 +15,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon } from 'lucide-react-native';
+import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play } from 'lucide-react-native';
+import { VideoPlayer } from '@/components/VideoPlayer';
 
 interface MediaItem {
   id: string;
@@ -44,6 +45,7 @@ export default function ProfileScreen() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>('image');
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
@@ -190,18 +192,33 @@ export default function ProfileScreen() {
           <View style={styles.grid}>
             {mediaItems.map((item) => {
               const imageUri = getIPFSGatewayUrl(item.ipfs_cid);
+              const isVideo = item.media_type === 'video';
 
               return (
                 <TouchableOpacity
                   key={item.id}
                   style={styles.gridItem}
-                  onPress={() => setSelectedImage(imageUri)}
+                  onPress={() => {
+                    setSelectedImage(imageUri);
+                    setSelectedMediaType(isVideo ? 'video' : 'image');
+                  }}
                 >
-                  <Image
-                    source={{ uri: imageUri }}
-                    style={styles.gridImage}
-                    resizeMode="cover"
-                  />
+                  {isVideo ? (
+                    <View style={styles.videoThumbnail}>
+                      <View style={styles.videoThumbnailOverlay}>
+                        <Play size={32} color="#fff" fill="#fff" />
+                      </View>
+                      <View style={styles.videoIconBadge}>
+                        <VideoIcon size={14} color="#fff" />
+                      </View>
+                    </View>
+                  ) : (
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={styles.gridImage}
+                      resizeMode="cover"
+                    />
+                  )}
                 </TouchableOpacity>
               );
             })}
@@ -242,11 +259,15 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
             {selectedImage && (
-              <Image
-                source={{ uri: selectedImage }}
-                style={styles.modalImage}
-                resizeMode="contain"
-              />
+              selectedMediaType === 'video' ? (
+                <VideoPlayer uri={selectedImage} style={styles.modalImage} />
+              ) : (
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={styles.modalImage}
+                  resizeMode="contain"
+                />
+              )
             )}
           </View>
         </View>
@@ -408,6 +429,25 @@ const styles = StyleSheet.create({
   gridImage: {
     width: '100%',
     height: '100%',
+  },
+  videoThumbnail: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#1a1a1a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoThumbnailOverlay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoIconBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+    padding: 4,
   },
   modalContainer: {
     flex: 1,

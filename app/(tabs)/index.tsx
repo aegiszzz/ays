@@ -20,8 +20,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users } from 'lucide-react-native';
+import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { VideoPlayer } from '@/components/VideoPlayer';
 
 interface Comment {
   id: string;
@@ -360,7 +361,16 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
+        {item.media_type === 'video' ? (
+          <View style={styles.videoContainer}>
+            <VideoPlayer uri={imageUrl} style={styles.media} />
+            <View style={styles.videoIndicator}>
+              <VideoIcon size={20} color="#fff" />
+            </View>
+          </View>
+        ) : (
+          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
+        )}
 
         <View style={styles.actions}>
           <View style={styles.leftActions}>
@@ -680,6 +690,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 400,
     backgroundColor: '#f0f0f0',
+  },
+  videoContainer: {
+    position: 'relative',
+    width: '100%',
+    height: 400,
+  },
+  videoIndicator: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   actions: {
     flexDirection: 'row',

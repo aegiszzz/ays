@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,15 @@ import {
   ScrollView,
   ActivityIndicator,
   Switch,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { uploadToIPFS } from '@/lib/ipfs';
-import { Camera, Image as ImageIcon, X } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, X, Video as VideoIcon, Play } from 'lucide-react-native';
+import { WebView } from 'react-native-webview';
 
 export default function UploadScreen() {
   const { user } = useAuth();
@@ -148,7 +150,17 @@ export default function UploadScreen() {
       ) : (
         <View style={styles.uploadContainer}>
           <View style={styles.previewContainer}>
-            <Image source={{ uri: selectedMedia }} style={styles.preview} resizeMode="cover" />
+            {mediaType === 'video' ? (
+              <View style={styles.videoPreviewContainer}>
+                <View style={styles.videoPlaceholder}>
+                  <VideoIcon size={48} color="#666" />
+                  <Text style={styles.videoText}>Video selected</Text>
+                  <Text style={styles.videoSubtext}>Ready to upload</Text>
+                </View>
+              </View>
+            ) : (
+              <Image source={{ uri: selectedMedia }} style={styles.preview} resizeMode="cover" />
+            )}
             <TouchableOpacity
               style={styles.removeButton}
               onPress={() => setSelectedMedia(null)}>
@@ -252,6 +264,30 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 12,
     backgroundColor: '#ddd',
+  },
+  videoPreviewContainer: {
+    width: '100%',
+    height: 300,
+    borderRadius: 12,
+    backgroundColor: '#000',
+    overflow: 'hidden',
+  },
+  videoPlaceholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+  },
+  videoText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  videoSubtext: {
+    color: '#999',
+    fontSize: 14,
+    marginTop: 4,
   },
   removeButton: {
     position: 'absolute',
