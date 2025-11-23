@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { ImageIcon, X, Download } from 'lucide-react-native';
+import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon } from 'lucide-react-native';
 
 interface MediaItem {
   id: string;
@@ -25,13 +25,22 @@ interface MediaItem {
   created_at: string;
 }
 
+interface UserProfile {
+  username: string;
+  bio: string | null;
+  avatar_url: string | null;
+  cover_image_url: string | null;
+  website: string | null;
+  location: string | null;
+}
+
 const { width } = Dimensions.get('window');
 const ITEM_SIZE = (width - 48) / 3;
 
 export default function ProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -48,7 +57,11 @@ export default function ProfileScreen() {
   const fetchUserData = async () => {
     try {
       const [userResult, mediaResult, followersResult, followingResult] = await Promise.all([
-        supabase.from('users').select('username').eq('id', user!.id).maybeSingle(),
+        supabase
+          .from('users')
+          .select('username, bio, avatar_url, cover_image_url, website, location')
+          .eq('id', user!.id)
+          .maybeSingle(),
         supabase
           .from('media_shares')
           .select('id, ipfs_cid, media_type, caption, created_at')
@@ -59,7 +72,7 @@ export default function ProfileScreen() {
       ]);
 
       if (userResult.data) {
-        setUsername(userResult.data.username);
+        setProfile(userResult.data);
       }
 
       if (mediaResult.data) {
@@ -79,11 +92,19 @@ export default function ProfileScreen() {
     return null;
   }
 
-  const userName = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
-  const userAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+  const userName = user.user_metadata?.full_name || user.user_metadata?.name || profile?.username || 'User';
+  const userAvatar = profile?.avatar_url
+    ? `https://gateway.pinata.cloud/ipfs/${profile.avatar_url}`
+    : user.user_metadata?.avatar_url || user.user_metadata?.picture;
+  const coverImage = profile?.cover_image_url
+    ? `https://gateway.pinata.cloud/ipfs/${profile.cover_image_url}`
+    : null;
 
   return (
     <ScrollView style={styles.container}>
+      {coverImage && (
+        <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
+      )}
       <View style={styles.header}>
         {userAvatar ? (
           <Image source={{ uri: userAvatar }} style={styles.avatar} />
@@ -93,7 +114,44 @@ export default function ProfileScreen() {
           </View>
         )}
         <Text style={styles.name}>{userName}</Text>
-        {username && <Text style={styles.username}>@{username}</Text>}
+        {profile?.username && <Text style={styles.username}>@{profile.username}</Text>}
+
+        {profile?.bio && (
+          <Text style={styles.bio}>{profile.bio}</Text>
+        )}
+
+        <View style={styles.infoContainer}>
+          {profile?.location && (
+            <View style={styles.infoItem}>
+              <MapPin size={14} color="#666" />
+              <Text style={styles.infoText}>{profile.location}</Text>
+            </View>
+          )}
+          {profile?.website && (
+            <TouchableOpacity
+              style={styles.infoItem}
+              onPress={() => {
+                if (profile.website) {
+                  const url = profile.website.startsWith('http')
+                    ? profile.website
+                    : `https://${profile.website}`;
+                  require('react-native').Linking.openURL(url);
+                }
+              }}
+            >
+              <LinkIcon size={14} color="#007AFF" />
+              <Text style={[styles.infoText, styles.linkText]}>{profile.website}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => router.push('/edit-profile')}
+        >
+          <Edit size={16} color="#000" />
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
 
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -231,10 +289,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  coverImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#f0f0f0',
+  },
   header: {
     backgroundColor: '#fff',
     padding: 24,
-    paddingTop: 60,
+    paddingTop: 12,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
@@ -268,7 +331,48 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 8,
+  },
+  bio: {
+    fontSize: 14,
+    color: '#1a1a1a',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 12,
+    paddingHorizontal: 20,
+  },
+  infoContainer: {
+    alignItems: 'center',
     marginBottom: 16,
+    gap: 4,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#666',
+  },
+  linkText: {
+    color: '#007AFF',
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  editButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
   },
   statsContainer: {
     flexDirection: 'row',
