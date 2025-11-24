@@ -4,6 +4,7 @@ import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useEffect } from 'react';
+import InstallPrompt from '../components/InstallPrompt';
 
 function RootNavigator() {
   const { session, loading } = useAuth();
@@ -31,20 +32,23 @@ function RootNavigator() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="conversation" />
-      <Stack.Screen name="direct-message" />
-      <Stack.Screen name="send-message" />
-      <Stack.Screen name="group-share" />
-      <Stack.Screen name="search-users" />
-      <Stack.Screen name="followers" />
-      <Stack.Screen name="following" />
-      <Stack.Screen name="group-conversation" />
-      <Stack.Screen name="edit-profile" />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <>
+      <InstallPrompt />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="conversation" />
+        <Stack.Screen name="direct-message" />
+        <Stack.Screen name="send-message" />
+        <Stack.Screen name="group-share" />
+        <Stack.Screen name="search-users" />
+        <Stack.Screen name="followers" />
+        <Stack.Screen name="following" />
+        <Stack.Screen name="group-conversation" />
+        <Stack.Screen name="edit-profile" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </>
   );
 }
 

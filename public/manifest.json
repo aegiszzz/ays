@@ -1,0 +1,22 @@
+{
+  "name": "Social Media PWA",
+  "short_name": "SocialPWA",
+  "description": "A decentralized social media platform with crypto wallet integration",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/images/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "entertainment"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
