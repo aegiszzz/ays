@@ -23,6 +23,7 @@ import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import InstallPrompt from '@/components/InstallPrompt';
 
 interface Comment {
   id: string;
@@ -436,6 +437,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <InstallPrompt />
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
