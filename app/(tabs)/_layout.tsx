@@ -1,14 +1,20 @@
 import { Tabs } from 'expo-router';
 import { Home, User, Upload, Share2, Settings } from 'lucide-react-native';
+import { useWindowDimensions, Platform } from 'react-native';
 
 export default function TabLayout() {
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width > 768;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#000000',
         tabBarInactiveTintColor: '#8E8E93',
-        tabBarStyle: {
+        tabBarStyle: isDesktop ? {
+          display: 'none',
+        } : {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',

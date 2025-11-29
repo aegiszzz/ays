@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { uploadToIPFS } from '@/lib/ipfs';
 import { Camera, Image as ImageIcon, X, Video as VideoIcon, Play } from 'lucide-react-native';
 import { WebView } from 'react-native-webview';
+import ResponsiveContainer from '@/components/ResponsiveContainer';
 
 export default function UploadScreen() {
   const { user } = useAuth();
@@ -129,7 +130,8 @@ export default function UploadScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ResponsiveContainer style={styles.container} maxWidth={600}>
+      <ScrollView>
       <View style={styles.header}>
         <Text style={styles.title}>Upload Media</Text>
         <Text style={styles.subtitle}>Share photos and videos via IPFS</Text>
@@ -209,7 +211,8 @@ export default function UploadScreen() {
           </View>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </ResponsiveContainer>
   );
 }
 

@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Users, MessageCircle, Plus, X } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
+import { useResponsive } from '@/lib/responsive';
 
 interface Conversation {
   id: string;
@@ -37,6 +39,7 @@ interface Conversation {
 export default function SharesScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { isDesktop } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
@@ -287,8 +290,8 @@ export default function SharesScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+      <View style={[styles.header, isDesktop && styles.headerDesktop]}>
         <Text style={styles.title}>Messages</Text>
         <TouchableOpacity
           style={styles.addButton}
@@ -400,6 +403,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  containerDesktop: {
+    marginLeft: 240,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -415,6 +424,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
+  },
+  headerDesktop: {
+    paddingHorizontal: 40,
   },
   title: {
     fontSize: 28,

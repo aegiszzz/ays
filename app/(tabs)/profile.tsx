@@ -10,11 +10,13 @@ import {
   Modal,
   TouchableOpacity,
   Linking,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
+import { useResponsive } from '@/lib/responsive';
 import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
 
@@ -35,12 +37,11 @@ interface UserProfile {
   location: string | null;
 }
 
-const { width } = Dimensions.get('window');
-const ITEM_SIZE = (width - 48) / 3;
-
 export default function ProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const { isDesktop } = useResponsive();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,8 @@ export default function ProfileScreen() {
   const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>('image');
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+
+  const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
 
   useEffect(() => {
     if (user) {
@@ -102,7 +105,7 @@ export default function ProfileScreen() {
     : null;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
       {coverImage && (
         <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
       )}
@@ -280,6 +283,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  containerDesktop: {
+    marginLeft: 240,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
   },
   coverImage: {
     width: '100%',
