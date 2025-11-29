@@ -200,7 +200,7 @@ export default function ProfileScreen() {
               return (
                 <TouchableOpacity
                   key={item.id}
-                  style={styles.gridItem}
+                  style={[styles.gridItem, { width: ITEM_SIZE, height: ITEM_SIZE }]}
                   onPress={() => {
                     setSelectedImage(imageUri);
                     setSelectedMediaType(isVideo ? 'video' : 'image');
@@ -429,8 +429,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridItem: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE,
     backgroundColor: '#ddd',
     borderRadius: 8,
     overflow: 'hidden',
