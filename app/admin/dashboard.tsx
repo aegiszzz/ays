@@ -29,8 +29,35 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    fetchStats();
+    checkAdminAndFetchStats();
   }, []);
+
+  const checkAdminAndFetchStats = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.replace('/admin/login');
+        return;
+      }
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!userData?.is_admin) {
+        router.replace('/admin/login');
+        return;
+      }
+
+      await fetchStats();
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      router.replace('/admin/login');
+    }
+  };
 
   const fetchStats = async () => {
     try {
