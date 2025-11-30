@@ -12,7 +12,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle } from 'lucide-react-native';
+import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield } from 'lucide-react-native';
 import { generateWallet, encryptPrivateKey, shortenAddress } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -29,6 +29,7 @@ export default function SettingsScreen() {
   const [privateKey, setPrivateKey] = useState<string>('');
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [loadingPrivateKey, setLoadingPrivateKey] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -40,7 +41,7 @@ export default function SettingsScreen() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('username, wallet_address')
+        .select('username, wallet_address, is_admin')
         .eq('id', user!.id)
         .maybeSingle();
 
@@ -48,6 +49,7 @@ export default function SettingsScreen() {
       if (data) {
         setUsername(data.username);
         setWalletAddress(data.wallet_address);
+        setIsAdmin(data.is_admin || false);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -288,6 +290,18 @@ export default function SettingsScreen() {
         )}
       </View>
 
+      {isAdmin && (
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.adminButton}
+            onPress={() => router.push('/admin/login')}
+          >
+            <Shield size={20} color="#007AFF" />
+            <Text style={styles.adminButtonText}>Admin Panel</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <View style={styles.section}>
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <LogOut size={20} color="#FF3B30" />
@@ -455,6 +469,22 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     color: '#FF3B30',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  adminButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  adminButtonText: {
+    color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
   },
