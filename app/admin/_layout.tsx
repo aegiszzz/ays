@@ -16,9 +16,13 @@ export default function AdminLayout() {
   const checkAdminStatus = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      const currentPath = segments.join('/');
 
       if (!user) {
-        router.replace('/admin/login');
+        if (currentPath !== 'admin/login') {
+          router.replace('/admin/login');
+        }
+        setLoading(false);
         return;
       }
 
@@ -29,13 +33,22 @@ export default function AdminLayout() {
         .maybeSingle();
 
       if (!userData?.is_admin) {
-        router.replace('/admin/login');
+        if (currentPath !== 'admin/login') {
+          router.replace('/admin/login');
+        }
+        setLoading(false);
         return;
       }
 
       setIsAdmin(true);
+
+      if (currentPath === 'admin/login') {
+        router.replace('/admin/dashboard');
+      }
     } catch (error) {
-      router.replace('/admin/login');
+      if (segments.join('/') !== 'admin/login') {
+        router.replace('/admin/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,10 +60,6 @@ export default function AdminLayout() {
         <ActivityIndicator size="large" color="#000" />
       </View>
     );
-  }
-
-  if (!isAdmin) {
-    return null;
   }
 
   return (

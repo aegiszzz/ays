@@ -294,7 +294,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <TouchableOpacity
             style={styles.adminButton}
-            onPress={() => router.push('/admin/login')}
+            onPress={() => router.push('/admin/dashboard')}
           >
             <Shield size={20} color="#007AFF" />
             <Text style={styles.adminButtonText}>Admin Panel</Text>
