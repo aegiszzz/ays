@@ -41,6 +41,7 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="admin" />
         <Stack.Screen name="conversation" />
         <Stack.Screen name="direct-message" />
         <Stack.Screen name="send-message" />
