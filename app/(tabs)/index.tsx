@@ -450,7 +450,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity
             style={styles.searchButton}
-            onPress={() => router.navigate('/search-users')}>
+            onPress={() => router.push('/search-users')}>
             <Search size={24} color="#000" />
           </TouchableOpacity>
         </View>

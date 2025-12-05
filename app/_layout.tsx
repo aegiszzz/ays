@@ -16,10 +16,23 @@ function RootNavigator() {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(tabs)';
+    const inAdminGroup = segments[0] === 'admin';
+    const allowedAuthenticatedRoutes = [
+      'conversation',
+      'direct-message',
+      'send-message',
+      'group-share',
+      'search-users',
+      'followers',
+      'following',
+      'group-conversation',
+      'edit-profile',
+    ];
+    const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
 
     if (!session && inAuthGroup) {
       router.replace('/');
-    } else if (session && !inAuthGroup) {
+    } else if (session && !inAuthGroup && !inAdminGroup && !isAllowedRoute && segments[0] !== undefined) {
       router.replace('/(tabs)');
     }
   }, [session, segments, loading]);
