@@ -27,6 +27,7 @@ function RootNavigator() {
       'following',
       'group-conversation',
       'edit-profile',
+      'user-profile',
     ];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
 
@@ -64,6 +65,7 @@ function RootNavigator() {
         <Stack.Screen name="following" />
         <Stack.Screen name="group-conversation" />
         <Stack.Screen name="edit-profile" />
+        <Stack.Screen name="user-profile" />
         <Stack.Screen name="+not-found" />
       </Stack>
     </>
