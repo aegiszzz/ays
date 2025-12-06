@@ -24,6 +24,7 @@ import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon, Plus, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
@@ -225,11 +226,19 @@ export default function HomeScreen() {
         URL.revokeObjectURL(blobUrl);
         Alert.alert('Success', 'Image downloaded successfully!');
       } else {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+
+        if (status !== 'granted') {
+          Alert.alert('Permission Required', 'We need permission to save photos to your gallery.');
+          return;
+        }
+
         const fileUri = FileSystem.documentDirectory + `ays-${ipfsCid.slice(-8)}.jpg`;
         const downloadResult = await FileSystem.downloadAsync(url, fileUri);
 
         if (downloadResult.status === 200) {
-          Alert.alert('Success', 'Image saved to your device!');
+          await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
+          Alert.alert('Success', 'Photo saved to your gallery!');
         } else {
           throw new Error('Download failed');
         }
