@@ -209,9 +209,34 @@ export default function HomeScreen() {
   const handleDownload = async (ipfsCid: string) => {
     try {
       const url = getIPFSGatewayUrl(ipfsCid);
-      await Linking.openURL(url);
+
+      if (Platform.OS === 'web') {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `ays-${ipfsCid.slice(-8)}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(blobUrl);
+        Alert.alert('Success', 'Image downloaded successfully!');
+      } else {
+        const fileUri = FileSystem.documentDirectory + `ays-${ipfsCid.slice(-8)}.jpg`;
+        const downloadResult = await FileSystem.downloadAsync(url, fileUri);
+
+        if (downloadResult.status === 200) {
+          Alert.alert('Success', 'Image saved to your device!');
+        } else {
+          throw new Error('Download failed');
+        }
+      }
     } catch (error) {
       console.error('Error downloading image:', error);
+      Alert.alert('Error', 'Failed to download image. Please try again.');
     }
   };
 
