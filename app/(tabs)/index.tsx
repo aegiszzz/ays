@@ -479,15 +479,20 @@ export default function HomeScreen() {
     return (
       <View style={[styles.card, isDesktop && styles.cardDesktop]}>
         <View style={styles.cardHeader}>
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}
+          >
             <Text style={styles.avatarText}>
               {(item.users?.username || 'A').charAt(0).toUpperCase()}
             </Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.userInfo}>
-            <Text style={styles.username}>
-              {item.users?.username || 'Anonymous'}
-            </Text>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}>
+              <Text style={styles.username}>
+                {item.users?.username || 'Anonymous'}
+              </Text>
+            </TouchableOpacity>
             <Text style={styles.timestamp}>
               {new Date(item.created_at).toLocaleDateString('tr-TR', {
                 day: 'numeric',
@@ -550,7 +555,9 @@ export default function HomeScreen() {
 
         {item.caption && (
           <View style={styles.captionContainer}>
-            <Text style={styles.captionUsername}>{item.users?.username || 'Anonymous'}</Text>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}>
+              <Text style={styles.captionUsername}>{item.users?.username || 'Anonymous'}</Text>
+            </TouchableOpacity>
             <Text style={styles.caption}> {item.caption}</Text>
           </View>
         )}
@@ -638,15 +645,28 @@ export default function HomeScreen() {
             ) : (
               comments.map((comment) => (
                 <View key={comment.id} style={styles.commentItem}>
-                  <View style={styles.commentAvatar}>
+                  <TouchableOpacity
+                    style={styles.commentAvatar}
+                    onPress={() => {
+                      setCommentsModalVisible(false);
+                      router.push({ pathname: '/user-profile', params: { userId: comment.user_id } });
+                    }}
+                  >
                     <Text style={styles.commentAvatarText}>
                       {(comment.users?.username || 'A').charAt(0).toUpperCase()}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                   <View style={styles.commentContent}>
-                    <Text style={styles.commentUsername}>
-                      {comment.users?.username || 'Anonymous'}
-                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCommentsModalVisible(false);
+                        router.push({ pathname: '/user-profile', params: { userId: comment.user_id } });
+                      }}
+                    >
+                      <Text style={styles.commentUsername}>
+                        {comment.users?.username || 'Anonymous'}
+                      </Text>
+                    </TouchableOpacity>
                     <Text style={styles.commentText}>{comment.content}</Text>
                     <Text style={styles.commentTime}>
                       {new Date(comment.created_at).toLocaleDateString('tr-TR', {
