@@ -18,7 +18,7 @@ import ResponsiveContainer from '@/components/ResponsiveContainer';
 interface Notification {
   id: string;
   user_id: string;
-  type: 'friend_add' | 'like' | 'comment' | 'message' | 'group_invite';
+  type: 'friend_add' | 'follow' | 'like' | 'comment' | 'message' | 'group_invite';
   related_user_id: string | null;
   related_item_id: string | null;
   content: string | null;
@@ -50,18 +50,24 @@ export default function NotificationsScreen() {
     try {
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          related_user:auth.users!notifications_related_user_id_fkey(username)
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      const userIds = [...new Set(data?.map(n => n.related_user_id).filter(Boolean) || [])];
+
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, username')
+        .in('id', userIds);
+
+      const usersMap = new Map(usersData?.map(u => [u.id, u]) || []);
+
       const formattedData = data?.map(notif => ({
         ...notif,
-        related_user: notif.related_user ? { username: notif.related_user.username } : undefined
+        related_user: notif.related_user_id ? usersMap.get(notif.related_user_id) : undefined
       })) || [];
 
       setNotifications(formattedData);
@@ -150,8 +156,9 @@ export default function NotificationsScreen() {
 
     switch (notification.type) {
       case 'friend_add':
+      case 'follow':
         if (notification.related_user_id) {
-          router.push(`/profile?userId=${notification.related_user_id}`);
+          router.push(`/user-profile?userId=${notification.related_user_id}`);
         }
         break;
       case 'like':
@@ -173,6 +180,7 @@ export default function NotificationsScreen() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'friend_add':
+      case 'follow':
         return <UserPlus size={24} color="#3b82f6" />;
       case 'like':
         return <Heart size={24} color="#ef4444" />;
@@ -192,6 +200,7 @@ export default function NotificationsScreen() {
 
     switch (notification.type) {
       case 'friend_add':
+      case 'follow':
         return `${username} started following you`;
       case 'like':
         return `${username} liked your post`;
