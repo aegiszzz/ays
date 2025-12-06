@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, User, Upload, Share2, Settings } from 'lucide-react-native';
+import { Home, User, Bell, Share2, Settings } from 'lucide-react-native';
 import { useWindowDimensions, Platform } from 'react-native';
 
 export default function TabLayout() {
@@ -35,10 +35,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="upload"
+        name="notifications"
         options={{
-          title: 'Upload',
-          tabBarIcon: ({ size, color }) => <Upload size={size} color={color} />,
+          title: 'Notifications',
+          tabBarIcon: ({ size, color }) => <Bell size={size} color={color} />,
         }}
       />
       <Tabs.Screen

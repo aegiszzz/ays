@@ -73,6 +73,14 @@ export default function SearchUsersScreen() {
 
       if (error) throw error;
 
+      await supabase.from('notifications').insert({
+        user_id: friendId,
+        type: 'friend_add',
+        related_user_id: user.id,
+        related_item_id: null,
+        content: null,
+      });
+
       setFriends(prev => new Set([...prev, friendId]));
       alert('Friend added successfully!');
     } catch (error) {

@@ -17,11 +17,14 @@ import {
   Alert,
   Clipboard,
   useWindowDimensions,
+  Switch,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon } from 'lucide-react-native';
+import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon, Plus, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
@@ -70,6 +73,13 @@ export default function HomeScreen() {
   const [postToShare, setPostToShare] = useState<MediaShare | null>(null);
   const [friends, setFriends] = useState<Array<{ id: string; username: string }>>([]);
   const [loadingFriends, setLoadingFriends] = useState(false);
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+  const [uploadMediaType, setUploadMediaType] = useState<'image' | 'video'>('image');
+  const [uploadCaption, setUploadCaption] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const isDesktop = width > 768;
 
@@ -168,6 +178,17 @@ export default function HomeScreen() {
           .from('likes')
           .insert({ media_share_id: mediaId, user_id: user.id });
 
+        const post = media.find(m => m.id === mediaId);
+        if (post && post.user_id !== user.id) {
+          await supabase.from('notifications').insert({
+            user_id: post.user_id,
+            type: 'like',
+            related_user_id: user.id,
+            related_item_id: mediaId,
+            content: null,
+          });
+        }
+
         setMedia(prev => prev.map(item =>
           item.id === mediaId
             ? { ...item, likes: (item.likes || 0) + 1, is_liked: true }
@@ -250,6 +271,16 @@ export default function HomeScreen() {
 
       if (error) throw error;
 
+      if (selectedPost.user_id !== user.id) {
+        await supabase.from('notifications').insert({
+          user_id: selectedPost.user_id,
+          type: 'comment',
+          related_user_id: user.id,
+          related_item_id: selectedPost.id,
+          content: commentText.trim().substring(0, 50),
+        });
+      }
+
       const { data: userData } = await supabase
         .from('users')
         .select('username')
@@ -329,7 +360,9 @@ export default function HomeScreen() {
         .insert({
           sender_id: user.id,
           receiver_id: friendId,
-          media_share_id: postToShare.id,
+          ipfs_cid: postToShare.ipfs_cid,
+          media_type: postToShare.media_type,
+          caption: postToShare.caption,
         });
 
       if (error) throw error;
@@ -339,6 +372,104 @@ export default function HomeScreen() {
     } catch (error) {
       console.error('Error sending to friend:', error);
       Alert.alert('Error', 'Failed to send photo');
+    }
+  };
+
+  const requestPermissions = async () => {
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
+      Alert.alert('Permission Required', 'We need camera and media library permissions to upload photos and videos.');
+      return false;
+    }
+    return true;
+  };
+
+  const pickFromCamera = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedMedia(result.assets[0].uri);
+      setUploadMediaType(result.assets[0].type === 'video' ? 'video' : 'image');
+    }
+  };
+
+  const pickFromGallery = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedMedia(result.assets[0].uri);
+      setUploadMediaType(result.assets[0].type === 'video' ? 'video' : 'image');
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedMedia || !user) return;
+
+    setUploading(true);
+    try {
+      let base64: string;
+
+      if (selectedMedia.startsWith('data:')) {
+        base64 = selectedMedia;
+      } else if (selectedMedia.startsWith('blob:') || selectedMedia.startsWith('http')) {
+        const response = await fetch(selectedMedia);
+        const blob = await response.blob();
+        base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        base64 = await FileSystem.readAsStringAsync(selectedMedia, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
+
+      const cid = await uploadToIPFS(base64);
+
+      const { error } = await supabase.from('media_shares').insert({
+        user_id: user.id,
+        ipfs_cid: cid,
+        media_type: uploadMediaType,
+        caption: uploadCaption.trim() || null,
+        is_public: isPublic,
+      });
+
+      if (error) throw error;
+
+      setUploadSuccess(true);
+      setTimeout(() => {
+        setSelectedMedia(null);
+        setUploadCaption('');
+        setIsPublic(true);
+        setUploadSuccess(false);
+        setUploadModalVisible(false);
+        fetchMedia();
+      }, 1500);
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Error', 'Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -448,11 +579,18 @@ export default function HomeScreen() {
             <Text style={styles.title}>AYS</Text>
             <Text style={styles.subtitle}>Discover amazing content</Text>
           </View>
-          <TouchableOpacity
-            style={styles.searchButton}
-            onPress={() => router.push('/search-users')}>
-            <Search size={24} color="#000" />
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setUploadModalVisible(true)}>
+              <Plus size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/search-users')}>
+              <Search size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -549,6 +687,104 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={uploadModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setUploadModalVisible(false);
+          setSelectedMedia(null);
+          setUploadCaption('');
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Upload Media</Text>
+            <TouchableOpacity onPress={() => {
+              setUploadModalVisible(false);
+              setSelectedMedia(null);
+              setUploadCaption('');
+            }}>
+              <X size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+
+          {!selectedMedia ? (
+            <View style={styles.uploadPickerContainer}>
+              <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromCamera}>
+                <Camera size={32} color="#000" />
+                <Text style={styles.uploadPickerButtonText}>Take Photo/Video</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromGallery}>
+                <ImageIcon size={32} color="#000" />
+                <Text style={styles.uploadPickerButtonText}>Choose from Gallery</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ScrollView style={styles.uploadFormContainer}>
+              <View style={styles.uploadPreviewContainer}>
+                {uploadMediaType === 'video' ? (
+                  <View style={styles.videoPlaceholder}>
+                    <VideoIcon size={48} color="#666" />
+                    <Text style={styles.videoText}>Video selected</Text>
+                    <Text style={styles.videoSubtext}>Ready to upload</Text>
+                  </View>
+                ) : (
+                  <Image source={{ uri: selectedMedia }} style={styles.uploadPreview} resizeMode="cover" />
+                )}
+                <TouchableOpacity
+                  style={styles.removeButton}
+                  onPress={() => setSelectedMedia(null)}>
+                  <X size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.uploadForm}>
+                <Text style={styles.uploadLabel}>Caption (optional)</Text>
+                <TextInput
+                  style={styles.uploadInput}
+                  value={uploadCaption}
+                  onChangeText={setUploadCaption}
+                  placeholder="Add a caption..."
+                  placeholderTextColor="#999"
+                  multiline
+                  maxLength={500}
+                />
+
+                <View style={styles.uploadSwitchContainer}>
+                  <Text style={styles.uploadLabel}>Public</Text>
+                  <Switch value={isPublic} onValueChange={setIsPublic} />
+                </View>
+
+                <Text style={styles.uploadHelperText}>
+                  {isPublic
+                    ? 'Anyone can view this media'
+                    : 'Only users you share with can view'}
+                </Text>
+
+                {uploadSuccess ? (
+                  <View style={styles.uploadSuccessContainer}>
+                    <Text style={styles.uploadSuccessText}>✓ Uploaded successfully!</Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.uploadButton, uploading && styles.uploadButtonDisabled]}
+                    onPress={handleUpload}
+                    disabled={uploading}>
+                    {uploading ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.uploadButtonText}>Upload to IPFS</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
+            </ScrollView>
+          )}
+        </View>
       </Modal>
 
       <Modal
@@ -958,5 +1194,117 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  headerButton: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+  },
+  uploadPickerContainer: {
+    padding: 20,
+    gap: 16,
+  },
+  uploadPickerButton: {
+    backgroundColor: '#f5f5f5',
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+  },
+  uploadPickerButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  uploadFormContainer: {
+    flex: 1,
+  },
+  uploadPreviewContainer: {
+    position: 'relative',
+    margin: 20,
+  },
+  uploadPreview: {
+    width: '100%',
+    height: 300,
+    borderRadius: 12,
+    backgroundColor: '#ddd',
+  },
+  uploadForm: {
+    padding: 20,
+    gap: 16,
+  },
+  uploadLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  uploadInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  uploadSwitchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  uploadHelperText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: -8,
+  },
+  uploadSuccessContainer: {
+    backgroundColor: '#4CAF50',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  uploadSuccessText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  uploadButton: {
+    backgroundColor: '#000',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  uploadButtonDisabled: {
+    opacity: 0.6,
+  },
+  uploadButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  videoPlaceholder: {
+    width: '100%',
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+  },
+  videoText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  videoSubtext: {
+    color: '#999',
+    fontSize: 14,
+    marginTop: 4,
   },
 });
