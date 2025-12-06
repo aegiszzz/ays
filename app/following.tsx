@@ -61,14 +61,17 @@ export default function FollowingScreen() {
   };
 
   const renderFollowing = ({ item }: { item: Following }) => (
-    <View style={styles.userItem}>
+    <TouchableOpacity
+      style={styles.userItem}
+      onPress={() => router.push(`/user-profile?userId=${item.friend_id}`)}
+    >
       <View style={styles.avatarContainer}>
         <Text style={styles.avatarText}>
           {item.username.charAt(0).toUpperCase()}
         </Text>
       </View>
       <Text style={styles.username}>@{item.username}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

@@ -103,12 +103,17 @@ export default function SearchUsersScreen() {
 
     return (
       <View style={styles.userCard}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
-        </View>
-        <View style={styles.userInfo}>
-          <Text style={styles.username}>@{item.username}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.userClickable}
+          onPress={() => router.push(`/user-profile?userId=${item.id}`)}
+        >
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={styles.userInfo}>
+            <Text style={styles.username}>@{item.username}</Text>
+          </View>
+        </TouchableOpacity>
         {isFriend ? (
           <View style={styles.friendBadge}>
             <Check size={16} color="#fff" />
@@ -263,6 +268,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   userInfo: {
+    flex: 1,
+  },
+  userClickable: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
   username: {

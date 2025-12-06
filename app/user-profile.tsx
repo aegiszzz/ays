@@ -51,14 +51,13 @@ interface UserProfile {
 }
 
 export default function UserProfileScreen() {
-  const { userId } = useLocalSearchParams<{ userId: string }>();
+  const params = useLocalSearchParams();
+  const userId = params.userId as string;
   const { user } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { isDesktop } = useResponsive();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  console.log('UserProfileScreen - userId:', userId, 'currentUser:', user?.id);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -71,9 +70,13 @@ export default function UserProfileScreen() {
   const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
 
   useEffect(() => {
+    console.log('UserProfileScreen - All params:', params);
+    console.log('UserProfileScreen - userId:', userId, 'currentUser:', user?.id);
     if (userId) {
       fetchUserData();
       checkFriendshipStatus();
+    } else {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -180,26 +183,67 @@ export default function UserProfileScreen() {
     router.push({ pathname: '/send-message', params: { userId } });
   };
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+  };
+
   if (!userId) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>User not found</Text>
+      <View style={styles.wrapper}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle}>Profile</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>User not found</Text>
+          <TouchableOpacity style={styles.errorButton} onPress={handleBack}>
+            <Text style={styles.errorButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#000" />
+      <View style={styles.wrapper}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle}>Profile</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#000" />
+        </View>
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>User not found</Text>
+      <View style={styles.wrapper}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle}>Profile</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>User not found</Text>
+          <TouchableOpacity style={styles.errorButton} onPress={handleBack}>
+            <Text style={styles.errorButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -210,7 +254,7 @@ export default function UserProfileScreen() {
   return (
     <View style={styles.wrapper}>
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>{profile.username}</Text>
@@ -409,6 +453,18 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: '#999',
+    marginBottom: 16,
+  },
+  errorButton: {
+    backgroundColor: '#000',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  errorButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   container: {
     flex: 1,
