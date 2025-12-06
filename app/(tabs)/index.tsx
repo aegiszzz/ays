@@ -481,14 +481,17 @@ export default function HomeScreen() {
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
-            onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}
+            onPress={() => {
+              console.log('Navigating to user profile:', item.user_id);
+              router.push(`/user-profile?userId=${item.user_id}`);
+            }}
           >
             <Text style={styles.avatarText}>
               {(item.users?.username || 'A').charAt(0).toUpperCase()}
             </Text>
           </TouchableOpacity>
           <View style={styles.userInfo}>
-            <TouchableOpacity onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}>
+            <TouchableOpacity onPress={() => router.push(`/user-profile?userId=${item.user_id}`)}>
               <Text style={styles.username}>
                 {item.users?.username || 'Anonymous'}
               </Text>
@@ -555,7 +558,7 @@ export default function HomeScreen() {
 
         {item.caption && (
           <View style={styles.captionContainer}>
-            <TouchableOpacity onPress={() => router.push({ pathname: '/user-profile', params: { userId: item.user_id } })}>
+            <TouchableOpacity onPress={() => router.push(`/user-profile?userId=${item.user_id}`)}>
               <Text style={styles.captionUsername}>{item.users?.username || 'Anonymous'}</Text>
             </TouchableOpacity>
             <Text style={styles.caption}> {item.caption}</Text>
@@ -649,7 +652,7 @@ export default function HomeScreen() {
                     style={styles.commentAvatar}
                     onPress={() => {
                       setCommentsModalVisible(false);
-                      router.push({ pathname: '/user-profile', params: { userId: comment.user_id } });
+                      router.push(`/user-profile?userId=${comment.user_id}`);
                     }}
                   >
                     <Text style={styles.commentAvatarText}>
@@ -660,7 +663,7 @@ export default function HomeScreen() {
                     <TouchableOpacity
                       onPress={() => {
                         setCommentsModalVisible(false);
-                        router.push({ pathname: '/user-profile', params: { userId: comment.user_id } });
+                        router.push(`/user-profile?userId=${comment.user_id}`);
                       }}
                     >
                       <Text style={styles.commentUsername}>

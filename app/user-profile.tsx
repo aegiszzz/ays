@@ -57,6 +57,8 @@ export default function UserProfileScreen() {
   const { width } = useWindowDimensions();
   const { isDesktop } = useResponsive();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  console.log('UserProfileScreen - userId:', userId, 'currentUser:', user?.id);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
