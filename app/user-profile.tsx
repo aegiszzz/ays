@@ -82,12 +82,30 @@ export default function UserProfileScreen() {
 
   const fetchUserData = async () => {
     try {
-      const [userResult, mediaResult, followersResult, followingResult] = await Promise.all([
-        supabase
-          .from('users')
-          .select('id, username, bio, avatar_url, cover_image_url, website, location')
-          .eq('id', userId)
-          .maybeSingle(),
+      console.log('fetchUserData - Starting fetch for userId:', userId);
+
+      const userResult = await supabase
+        .from('users')
+        .select('id, username, bio, avatar_url, cover_image_url, website, location')
+        .eq('id', userId)
+        .maybeSingle();
+
+      console.log('fetchUserData - User result:', userResult);
+
+      if (userResult.error) {
+        console.error('fetchUserData - User query error:', userResult.error);
+      }
+
+      if (!userResult.data) {
+        console.log('fetchUserData - No user data found for userId:', userId);
+        setLoading(false);
+        return;
+      }
+
+      setProfile(userResult.data);
+      console.log('fetchUserData - Profile set:', userResult.data);
+
+      const [mediaResult, followersResult, followingResult] = await Promise.all([
         supabase
           .from('media_shares')
           .select('id, ipfs_cid, media_type, caption, created_at')
@@ -98,10 +116,6 @@ export default function UserProfileScreen() {
         supabase.from('friends').select('id', { count: 'exact' }).eq('user_id', userId).eq('status', 'accepted'),
       ]);
 
-      if (userResult.data) {
-        setProfile(userResult.data);
-      }
-
       if (mediaResult.data) {
         setMediaItems(mediaResult.data);
       }
@@ -109,8 +123,9 @@ export default function UserProfileScreen() {
       setFollowersCount(followersResult.count || 0);
       setFollowingCount(followingResult.count || 0);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('fetchUserData - Error:', error);
     } finally {
+      console.log('fetchUserData - Finished loading');
       setLoading(false);
     }
   };
