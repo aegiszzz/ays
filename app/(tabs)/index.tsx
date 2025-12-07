@@ -922,7 +922,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 12,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
@@ -934,7 +934,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   headerTopDesktop: {
     maxWidth: 600,
@@ -946,13 +946,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 4,
-    letterSpacing: 1,
+    marginBottom: 2,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
   },
   list: {
@@ -979,20 +979,20 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 10,
   },
   avatarContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   avatarText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   userInfo: {
@@ -1009,16 +1009,16 @@ const styles = StyleSheet.create({
   },
   media: {
     width: '100%',
-    height: 400,
+    height: 300,
     backgroundColor: '#f0f0f0',
   },
   mediaDesktop: {
-    height: 600,
+    height: 400,
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
-    height: 400,
+    height: 300,
   },
   videoIndicator: {
     position: 'absolute',
@@ -1034,12 +1034,12 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   leftActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
   },
   actionButton: {
     padding: 4,
@@ -1054,8 +1054,8 @@ const styles = StyleSheet.create({
   },
   captionContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 10,
   },
   captionUsername: {
     fontSize: 14,

@@ -50,7 +50,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.title}>AYS</Text>
         <Text style={styles.subtitle}>
           {isSignUp ? 'Create your account' : 'Sign in to continue'}
         </Text>
@@ -129,66 +129,69 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     padding: 20,
+    alignItems: 'center',
   },
   content: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 32,
+    padding: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    width: '100%',
+    maxWidth: 400,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
     color: '#1a1a1a',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   formContainer: {
     width: '100%',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   input: {
     width: '100%',
     backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 12,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    fontSize: 15,
+    marginBottom: 10,
   },
   emailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 8,
     backgroundColor: '#007AFF',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     width: '100%',
-    marginTop: 8,
+    marginTop: 4,
   },
   twitterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 8,
     backgroundColor: '#000000',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     width: '100%',
   },
   buttonDisabled: {
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '600',
   },
   switchText: {
@@ -214,7 +217,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginVertical: 24,
+    marginVertical: 20,
   },
   dividerLine: {
     flex: 1,
