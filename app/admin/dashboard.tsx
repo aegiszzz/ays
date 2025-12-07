@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { Users, Image as ImageIcon, MessageCircle, LogOut, BarChart3 } from 'lucide-react-native';
+import { Users, Image as ImageIcon, MessageCircle, LogOut, BarChart3, Home } from 'lucide-react-native';
 
 interface Stats {
   totalUsers: number;
@@ -101,10 +101,19 @@ export default function AdminDashboard() {
           <Text style={styles.title}>Admin Dashboard</Text>
           <Text style={styles.subtitle}>AYS Platform Overview</Text>
         </View>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-          <LogOut size={20} color="#fff" />
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push('/')}
+          >
+            <Home size={20} color="#000" />
+            <Text style={styles.backButtonText}>Back to App</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
+            <LogOut size={20} color="#fff" />
+            <Text style={styles.logoutText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -187,6 +196,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  backButtonText: {
+    color: '#000',
+    fontWeight: '600',
   },
   title: {
     fontSize: 28,

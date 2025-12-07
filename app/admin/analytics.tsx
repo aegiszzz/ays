@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, TrendingUp, Users, Image as ImageIcon, Heart, MessageCircle } from 'lucide-react-native';
+import { ArrowLeft, TrendingUp, Users, Image as ImageIcon, Heart, MessageCircle, Home } from 'lucide-react-native';
 
 interface Analytics {
   totalUsers: number;
@@ -103,13 +103,21 @@ export default function AnalyticsDashboard() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.title}>Analytics</Text>
-          <Text style={styles.subtitle}>Platform Statistics</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.title}>Analytics</Text>
+            <Text style={styles.subtitle}>Platform Statistics</Text>
+          </View>
         </View>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={() => router.push('/')}
+        >
+          <Home size={20} color="#000" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
@@ -228,7 +236,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5EA',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
+  },
+  homeButton: {
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
   },
   backButton: {
     padding: 8,

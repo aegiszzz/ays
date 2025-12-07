@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Search, Ban, Shield, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Search, Ban, Shield, Trash2, Home } from 'lucide-react-native';
 
 interface User {
   id: string;
@@ -175,13 +175,21 @@ export default function UsersManagement() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.title}>User Management</Text>
-          <Text style={styles.subtitle}>{users.length} total users</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.title}>User Management</Text>
+            <Text style={styles.subtitle}>{users.length} total users</Text>
+          </View>
         </View>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={() => router.push('/')}
+        >
+          <Home size={20} color="#000" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -228,7 +236,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5EA',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
+  },
+  homeButton: {
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
   },
   backButton: {
     padding: 8,
