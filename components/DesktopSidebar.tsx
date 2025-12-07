@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from 'react-native';
-import { Home, User, Upload, Share2, Settings } from 'lucide-react-native';
+import { Home, User, Bell, Share2, Settings } from 'lucide-react-native';
 import { useRouter, usePathname } from 'expo-router';
 
 export default function DesktopSidebar() {
@@ -13,9 +13,9 @@ export default function DesktopSidebar() {
   }
 
   const tabs = [
-    { name: 'Home', path: '/(tabs)', icon: Home },
+    { name: 'Home', path: '/(tabs)/', icon: Home },
     { name: 'Shares', path: '/(tabs)/shares', icon: Share2 },
-    { name: 'Upload', path: '/(tabs)/upload', icon: Upload },
+    { name: 'Notifications', path: '/(tabs)/notifications', icon: Bell },
     { name: 'Profile', path: '/(tabs)/profile', icon: User },
     { name: 'Settings', path: '/(tabs)/settings', icon: Settings },
   ];
@@ -26,7 +26,8 @@ export default function DesktopSidebar() {
       <View style={styles.nav}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = pathname === tab.path || (tab.path === '/(tabs)' && pathname === '/(tabs)/');
+          const isActive = pathname === tab.path ||
+            (tab.path === '/(tabs)/' && (pathname === '/(tabs)' || pathname === '/(tabs)/'));
 
           return (
             <TouchableOpacity
@@ -34,7 +35,7 @@ export default function DesktopSidebar() {
               style={[styles.navItem, isActive && styles.navItemActive]}
               onPress={() => router.push(tab.path as any)}
             >
-              <Icon size={24} color={isActive ? '#000' : '#666'} />
+              <Icon size={20} color={isActive ? '#000' : '#666'} />
               <Text style={[styles.navText, isActive && styles.navTextActive]}>
                 {tab.name}
               </Text>
@@ -52,33 +53,33 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 240,
+    width: 220,
     backgroundColor: '#fff',
     borderRightWidth: 1,
     borderRightColor: '#E5E5EA',
-    padding: 20,
+    padding: 16,
   },
   logo: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 40,
-    letterSpacing: 1,
+    marginBottom: 24,
+    letterSpacing: 0.5,
   },
   nav: {
-    gap: 8,
+    gap: 4,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    padding: 12,
+    gap: 12,
+    padding: 10,
     borderRadius: 8,
   },
   navItemActive: {
     backgroundColor: '#f0f0f0',
   },
   navText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#666',
   },
   navTextActive: {
