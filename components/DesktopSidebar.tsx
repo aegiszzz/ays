@@ -13,11 +13,11 @@ export default function DesktopSidebar() {
   }
 
   const tabs = [
-    { name: 'Home', path: '/(tabs)/', icon: Home },
-    { name: 'Shares', path: '/(tabs)/shares', icon: Share2 },
-    { name: 'Notifications', path: '/(tabs)/notifications', icon: Bell },
-    { name: 'Profile', path: '/(tabs)/profile', icon: User },
-    { name: 'Settings', path: '/(tabs)/settings', icon: Settings },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Shares', path: '/shares', icon: Share2 },
+    { name: 'Notifications', path: '/notifications', icon: Bell },
+    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
@@ -27,7 +27,7 @@ export default function DesktopSidebar() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = pathname === tab.path ||
-            (tab.path === '/(tabs)/' && (pathname === '/(tabs)' || pathname === '/(tabs)/'));
+            (tab.path === '/' && (pathname === '/(tabs)' || pathname === '/(tabs)/' || pathname === '/'));
 
           return (
             <TouchableOpacity
@@ -35,7 +35,7 @@ export default function DesktopSidebar() {
               style={[styles.navItem, isActive && styles.navItemActive]}
               onPress={() => router.push(tab.path as any)}
             >
-              <Icon size={20} color={isActive ? '#000' : '#666'} />
+              <Icon size={24} color={isActive ? '#fff' : '#888'} />
               <Text style={[styles.navText, isActive && styles.navTextActive]}>
                 {tab.name}
               </Text>
@@ -53,37 +53,41 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: 220,
-    backgroundColor: '#fff',
+    width: 240,
+    backgroundColor: '#000',
     borderRightWidth: 1,
-    borderRightColor: '#E5E5EA',
-    padding: 16,
+    borderRightColor: '#1f1f1f',
+    padding: 20,
+    paddingTop: 32,
+    zIndex: 1000,
   },
   logo: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 24,
+    marginBottom: 40,
     letterSpacing: 0.5,
+    color: '#fff',
   },
   nav: {
-    gap: 4,
+    gap: 8,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    padding: 10,
-    borderRadius: 8,
+    gap: 16,
+    padding: 14,
+    borderRadius: 12,
   },
   navItemActive: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1a1a1a',
   },
   navText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 17,
+    color: '#888',
+    fontWeight: '500',
   },
   navTextActive: {
-    color: '#000',
+    color: '#fff',
     fontWeight: '600',
   },
 });

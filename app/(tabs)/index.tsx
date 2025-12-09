@@ -916,7 +916,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   containerDesktop: {
-    marginLeft: 220,
+    marginLeft: 240,
   },
   centerContainer: {
     flex: 1,

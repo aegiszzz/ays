@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   containerDesktop: {
-    marginLeft: 220,
+    marginLeft: 240,
     maxWidth: 800,
     alignSelf: 'center',
     width: '100%',

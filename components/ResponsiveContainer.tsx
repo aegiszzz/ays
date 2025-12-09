@@ -28,7 +28,7 @@ export default function ResponsiveContainer({
 
 const styles = StyleSheet.create({
   desktopContainer: {
-    marginLeft: 220,
+    marginLeft: 240,
     alignSelf: 'center',
     width: '100%',
   },
