@@ -13,6 +13,7 @@ import {
   useWindowDimensions,
   TextInput,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,6 +61,8 @@ export default function ProfileScreen() {
   const [editingPost, setEditingPost] = useState<MediaItem | null>(null);
   const [editCaption, setEditCaption] = useState('');
   const [updatingPost, setUpdatingPost] = useState(false);
+  const [feedModalVisible, setFeedModalVisible] = useState(false);
+  const [selectedPostIndex, setSelectedPostIndex] = useState(0);
 
   const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
 
@@ -252,87 +255,7 @@ export default function ProfileScreen() {
     ? `https://gateway.pinata.cloud/ipfs/${profile.cover_image_url}`
     : null;
 
-  const renderHeader = () => (
-    <>
-      {coverImage && (
-        <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
-      )}
-      <View style={styles.header}>
-        {userAvatar ? (
-          <Image source={{ uri: userAvatar }} style={styles.avatar} />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
-          </View>
-        )}
-        <Text style={styles.name}>{userName}</Text>
-        {profile?.username && <Text style={styles.username}>@{profile.username}</Text>}
-
-        {profile?.bio && (
-          <Text style={styles.bio}>{profile.bio}</Text>
-        )}
-
-        <View style={styles.infoContainer}>
-          {profile?.location && (
-            <View style={styles.infoItem}>
-              <MapPin size={14} color="#666" />
-              <Text style={styles.infoText}>{profile.location}</Text>
-            </View>
-          )}
-          {profile?.website && (
-            <TouchableOpacity
-              style={styles.infoItem}
-              onPress={() => {
-                if (profile.website) {
-                  const url = profile.website.startsWith('http')
-                    ? profile.website
-                    : `https://${profile.website}`;
-                  require('react-native').Linking.openURL(url);
-                }
-              }}
-            >
-              <LinkIcon size={14} color="#007AFF" />
-              <Text style={[styles.infoText, styles.linkText]}>{profile.website}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => router.push('/edit-profile')}
-        >
-          <Edit size={16} color="#000" />
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{mediaItems.length}</Text>
-            <Text style={styles.statLabel}>Posts</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => router.push({ pathname: '/followers', params: { userId: user.id } })}
-          >
-            <Text style={styles.statNumber}>{followersCount}</Text>
-            <Text style={styles.statLabel}>Followers</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.statItem}
-            onPress={() => router.push({ pathname: '/following', params: { userId: user.id } })}
-          >
-            <Text style={styles.statNumber}>{followingCount}</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>My Posts</Text>
-      </View>
-    </>
-  );
-
-  const renderPost = ({ item }: { item: MediaItem }) => {
+  const renderPostInModal = ({ item, index }: { item: MediaItem; index: number }) => {
     const imageUri = getIPFSGatewayUrl(item.ipfs_cid);
     const isVideo = item.media_type === 'video';
 
@@ -352,13 +275,19 @@ export default function ProfileScreen() {
           <View style={styles.postActions}>
             <TouchableOpacity
               style={styles.postActionButton}
-              onPress={() => handleEditPost(item)}
+              onPress={() => {
+                setFeedModalVisible(false);
+                setTimeout(() => handleEditPost(item), 300);
+              }}
             >
               <Edit2 size={20} color="#666" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.postActionButton}
-              onPress={() => handleDeletePost(item.id)}
+              onPress={() => {
+                setFeedModalVisible(false);
+                setTimeout(() => handleDeletePost(item.id), 300);
+              }}
             >
               <Trash2 size={20} color="#FF3B30" />
             </TouchableOpacity>
@@ -397,30 +326,161 @@ export default function ProfileScreen() {
   return (
     <>
       <DesktopSidebar />
-      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#000" />
+      <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
+        {coverImage && (
+          <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
+        )}
+        <View style={styles.header}>
+          {userAvatar ? (
+            <Image source={{ uri: userAvatar }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
+            </View>
+          )}
+          <Text style={styles.name}>{userName}</Text>
+          {profile?.username && <Text style={styles.username}>@{profile.username}</Text>}
+
+          {profile?.bio && (
+            <Text style={styles.bio}>{profile.bio}</Text>
+          )}
+
+          <View style={styles.infoContainer}>
+            {profile?.location && (
+              <View style={styles.infoItem}>
+                <MapPin size={14} color="#666" />
+                <Text style={styles.infoText}>{profile.location}</Text>
+              </View>
+            )}
+            {profile?.website && (
+              <TouchableOpacity
+                style={styles.infoItem}
+                onPress={() => {
+                  if (profile.website) {
+                    const url = profile.website.startsWith('http')
+                      ? profile.website
+                      : `https://${profile.website}`;
+                    require('react-native').Linking.openURL(url);
+                  }
+                }}
+              >
+                <LinkIcon size={14} color="#007AFF" />
+                <Text style={[styles.infoText, styles.linkText]}>{profile.website}</Text>
+              </TouchableOpacity>
+            )}
           </View>
-        ) : (
+
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push('/edit-profile')}
+          >
+            <Edit size={16} color="#000" />
+            <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{mediaItems.length}</Text>
+              <Text style={styles.statLabel}>Posts</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.statItem}
+              onPress={() => router.push({ pathname: '/followers', params: { userId: user.id } })}
+            >
+              <Text style={styles.statNumber}>{followersCount}</Text>
+              <Text style={styles.statLabel}>Followers</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.statItem}
+              onPress={() => router.push({ pathname: '/following', params: { userId: user.id } })}
+            >
+              <Text style={styles.statNumber}>{followingCount}</Text>
+              <Text style={styles.statLabel}>Following</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Uploads</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#000" style={styles.loader} />
+          ) : mediaItems.length === 0 ? (
+            <View style={styles.emptyState}>
+              <ImageIcon size={48} color="#ccc" />
+              <Text style={styles.emptyText}>No uploads yet</Text>
+              <Text style={styles.emptySubtext}>
+                Your uploaded photos and videos will appear here
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.grid}>
+              {mediaItems.map((item, index) => {
+                const imageUri = getIPFSGatewayUrl(item.ipfs_cid);
+                const isVideo = item.media_type === 'video';
+
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.gridItem, { width: ITEM_SIZE, height: ITEM_SIZE }]}
+                    onPress={() => {
+                      setSelectedPostIndex(index);
+                      setFeedModalVisible(true);
+                    }}
+                  >
+                    {isVideo ? (
+                      <View style={styles.videoThumbnail}>
+                        <View style={styles.videoThumbnailOverlay}>
+                          <Play size={32} color="#fff" fill="#fff" />
+                        </View>
+                        <View style={styles.videoIconBadge}>
+                          <VideoIcon size={14} color="#fff" />
+                        </View>
+                      </View>
+                    ) : (
+                      <Image
+                        source={{ uri: imageUri }}
+                        style={styles.gridImage}
+                        resizeMode="cover"
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      <Modal
+        visible={feedModalVisible}
+        animationType="slide"
+        onRequestClose={() => setFeedModalVisible(false)}
+      >
+        <View style={styles.feedModalContainer}>
+          <View style={styles.feedModalHeader}>
+            <TouchableOpacity
+              onPress={() => setFeedModalVisible(false)}
+              style={styles.feedModalCloseButton}
+            >
+              <X size={24} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.feedModalTitle}>Posts</Text>
+            <View style={{ width: 24 }} />
+          </View>
           <FlatList
             data={mediaItems}
-            renderItem={renderPost}
+            renderItem={({ item, index }) => renderPostInModal({ item, index })}
             keyExtractor={item => item.id}
-            ListHeaderComponent={renderHeader}
-            ListEmptyComponent={
-              <View style={styles.emptyState}>
-                <ImageIcon size={48} color="#ccc" />
-                <Text style={styles.emptyText}>No posts yet</Text>
-                <Text style={styles.emptySubtext}>
-                  Your posts will appear here
-                </Text>
-              </View>
-            }
-            contentContainerStyle={styles.listContent}
+            initialScrollIndex={selectedPostIndex}
+            getItemLayout={(data, index) => ({
+              length: 600,
+              offset: 600 * index,
+              index,
+            })}
+            onScrollToIndexFailed={() => {}}
           />
-        )}
-      </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={editModalVisible}
@@ -590,29 +650,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
-  sectionHeader: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
-  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#1a1a1a',
+    marginBottom: 12,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  listContent: {
-    paddingBottom: 80,
+  loader: {
+    marginTop: 40,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  gridItem: {
+    backgroundColor: '#ddd',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  gridImage: {
+    width: '100%',
+    height: '100%',
+  },
+  videoThumbnail: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#1a1a1a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoThumbnailOverlay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoIconBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+    padding: 4,
   },
   emptyText: {
     fontSize: 18,
@@ -768,5 +850,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  feedModalContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  feedModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  feedModalCloseButton: {
+    padding: 4,
+  },
+  feedModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
 });
