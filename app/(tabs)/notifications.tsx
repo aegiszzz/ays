@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import { Heart, MessageCircle, UserPlus, Users, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import ResponsiveContainer from '@/components/ResponsiveContainer';
+import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Notification {
   id: string;
@@ -262,7 +263,9 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <ResponsiveContainer>
+    <>
+      <DesktopSidebar />
+      <ResponsiveContainer>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Notifications</Text>
@@ -295,7 +298,8 @@ export default function NotificationsScreen() {
           />
         )}
       </View>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </>
   );
 }
 

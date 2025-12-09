@@ -29,6 +29,7 @@ import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Vi
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
+import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Comment {
   id: string;
@@ -615,8 +616,10 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-      <InstallPrompt />
+    <>
+      <DesktopSidebar />
+      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+        <InstallPrompt />
       <View style={[styles.header, isDesktop && styles.headerDesktop]}>
         <View style={[styles.headerTop, isDesktop && styles.headerTopDesktop]}>
           <View>
@@ -902,7 +905,8 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
       </Modal>
-    </View>
+      </View>
+    </>
   );
 }
 

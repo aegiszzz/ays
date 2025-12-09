@@ -19,6 +19,7 @@ import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { useResponsive } from '@/lib/responsive';
 import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface MediaItem {
   id: string;
@@ -105,7 +106,9 @@ export default function ProfileScreen() {
     : null;
 
   return (
-    <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
+    <>
+      <DesktopSidebar />
+      <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
       {coverImage && (
         <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
       )}
@@ -275,7 +278,8 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 

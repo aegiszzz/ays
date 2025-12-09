@@ -16,6 +16,7 @@ import { Users, MessageCircle, Plus, X } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { useResponsive } from '@/lib/responsive';
+import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Conversation {
   id: string;
@@ -254,7 +255,9 @@ export default function SharesScreen() {
 
   if (conversations.length === 0) {
     return (
-    <View style={styles.container}>
+    <>
+      <DesktopSidebar />
+      <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Shares</Text>
         <Text style={styles.subtitle}>Choose how to share your media</Text>
@@ -286,11 +289,14 @@ export default function SharesScreen() {
         </TouchableOpacity>
       </View>
       </View>
+    </>
     );
   }
 
   return (
-    <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+    <>
+      <DesktopSidebar />
+      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
       <View style={[styles.header, isDesktop && styles.headerDesktop]}>
         <Text style={styles.title}>Messages</Text>
         <TouchableOpacity
@@ -394,7 +400,8 @@ export default function SharesScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+      </View>
+    </>
   );
 }
 
