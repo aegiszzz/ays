@@ -21,6 +21,7 @@ import { uploadToIPFS } from '@/lib/ipfs';
 
 interface UserProfile {
   username: string;
+  name: string | null;
   bio: string | null;
   avatar_url: string | null;
   cover_image_url: string | null;
@@ -37,6 +38,7 @@ export default function EditProfileScreen() {
   const [uploadingCover, setUploadingCover] = useState(false);
 
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [website, setWebsite] = useState('');
   const [location, setLocation] = useState('');
@@ -53,7 +55,7 @@ export default function EditProfileScreen() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('username, bio, avatar_url, cover_image_url, website, location')
+        .select('username, name, bio, avatar_url, cover_image_url, website, location')
         .eq('id', user!.id)
         .maybeSingle();
 
@@ -61,6 +63,7 @@ export default function EditProfileScreen() {
 
       if (data) {
         setUsername(data.username || '');
+        setName(data.name || '');
         setBio(data.bio || '');
         setWebsite(data.website || '');
         setLocation(data.location || '');
@@ -117,11 +120,6 @@ export default function EditProfileScreen() {
   const handleSave = async () => {
     if (!user) return;
 
-    if (!username.trim()) {
-      Alert.alert('Error', 'Username is required');
-      return;
-    }
-
     if (bio.length > 200) {
       Alert.alert('Error', 'Bio must be 200 characters or less');
       return;
@@ -133,7 +131,7 @@ export default function EditProfileScreen() {
       const { error } = await supabase
         .from('users')
         .update({
-          username: username.trim(),
+          name: name.trim() || null,
           bio: bio.trim() || null,
           website: website.trim() || null,
           location: location.trim() || null,
@@ -149,11 +147,7 @@ export default function EditProfileScreen() {
       router.back();
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      if (error.code === '23505') {
-        Alert.alert('Error', 'Username already taken');
-      } else {
-        Alert.alert('Error', 'Failed to update profile');
-      }
+      Alert.alert('Error', 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -245,15 +239,21 @@ export default function EditProfileScreen() {
         <View style={styles.form}>
           <View style={styles.formGroup}>
             <Text style={styles.label}>Username</Text>
+            <View style={styles.disabledInput}>
+              <Text style={styles.disabledInputText}>@{username || 'username'}</Text>
+            </View>
+            <Text style={styles.helper}>Username cannot be changed</Text>
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Name</Text>
             <TextInput
               style={styles.input}
-              value={username}
-              onChangeText={setUsername}
-              placeholder="Enter username"
-              autoCapitalize="none"
-              maxLength={30}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your name"
+              maxLength={50}
             />
-            <Text style={styles.helper}>@{username || 'username'}</Text>
           </View>
 
           <View style={styles.formGroup}>
@@ -471,5 +471,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginTop: 4,
+  },
+  disabledInput: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  disabledInputText: {
+    fontSize: 16,
+    color: '#666',
   },
 });

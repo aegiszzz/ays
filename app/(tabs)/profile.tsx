@@ -31,6 +31,7 @@ interface MediaItem {
 
 interface UserProfile {
   username: string;
+  name: string | null;
   bio: string | null;
   avatar_url: string | null;
   cover_image_url: string | null;
@@ -64,7 +65,7 @@ export default function ProfileScreen() {
       const [userResult, mediaResult, followersResult, followingResult] = await Promise.all([
         supabase
           .from('users')
-          .select('username, bio, avatar_url, cover_image_url, website, location')
+          .select('username, name, bio, avatar_url, cover_image_url, website, location')
           .eq('id', user!.id)
           .maybeSingle(),
         supabase
@@ -97,7 +98,7 @@ export default function ProfileScreen() {
     return null;
   }
 
-  const userName = user.user_metadata?.full_name || user.user_metadata?.name || profile?.username || 'User';
+  const userName = profile?.name || profile?.username || 'User';
   const userAvatar = profile?.avatar_url
     ? `https://gateway.pinata.cloud/ipfs/${profile.avatar_url}`
     : user.user_metadata?.avatar_url || user.user_metadata?.picture;

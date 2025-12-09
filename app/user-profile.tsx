@@ -43,6 +43,7 @@ interface MediaItem {
 interface UserProfile {
   id: string;
   username: string;
+  name: string | null;
   bio: string | null;
   avatar_url: string | null;
   cover_image_url: string | null;
@@ -86,7 +87,7 @@ export default function UserProfileScreen() {
 
       const userResult = await supabase
         .from('users')
-        .select('id, username, bio, avatar_url, cover_image_url, website, location')
+        .select('id, username, name, bio, avatar_url, cover_image_url, website, location')
         .eq('id', userId)
         .maybeSingle();
 
@@ -272,7 +273,7 @@ export default function UserProfileScreen() {
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>{profile.username}</Text>
+        <Text style={styles.topBarTitle}>{profile.name || profile.username}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -283,10 +284,10 @@ export default function UserProfileScreen() {
             <Image source={{ uri: userAvatar }} style={styles.avatar} />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>{profile.username.charAt(0).toUpperCase()}</Text>
+              <Text style={styles.avatarText}>{(profile.name || profile.username).charAt(0).toUpperCase()}</Text>
             </View>
           )}
-          <Text style={styles.name}>{profile.username}</Text>
+          <Text style={styles.name}>{profile.name || profile.username}</Text>
           <Text style={styles.username}>@{profile.username}</Text>
 
           {profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
