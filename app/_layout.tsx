@@ -34,7 +34,7 @@ function RootNavigator() {
     if (!session && inAuthGroup) {
       router.replace('/');
     } else if (session && !inAuthGroup && !inAdminGroup && !isAllowedRoute && segments[0] !== undefined) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/');
     }
   }, [session, segments, loading]);
 
