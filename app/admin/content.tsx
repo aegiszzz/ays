@@ -23,10 +23,8 @@ interface MediaPost {
   media_type: string;
   is_public: boolean;
   created_at: string;
-  users: {
-    username: string;
-    email: string;
-  };
+  user_id: string;
+  username?: string;
 }
 
 export default function ContentModeration() {
@@ -42,27 +40,30 @@ export default function ContentModeration() {
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: mediaData, error: mediaError } = await supabase
         .from('media_shares')
-        .select(`
-          id,
-          ipfs_cid,
-          caption,
-          media_type,
-          is_public,
-          created_at,
-          users:user_id (
-            username,
-            email
-          )
-        `)
+        .select('id, ipfs_cid, caption, media_type, is_public, created_at, user_id')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
-      setPosts(data || []);
+      if (mediaError) throw mediaError;
+
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('id, username');
+
+      const postsWithUsernames = mediaData?.map(post => {
+        const user = usersData?.find(u => u.id === post.user_id);
+        return {
+          ...post,
+          username: user?.username || 'Unknown',
+        };
+      }) || [];
+
+      setPosts(postsWithUsernames);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -110,12 +111,11 @@ export default function ContentModeration() {
           <View style={styles.postInfo}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
-                {(item.users?.username || 'U').charAt(0).toUpperCase()}
+                {(item.username || 'U').charAt(0).toUpperCase()}
               </Text>
             </View>
             <View>
-              <Text style={styles.username}>{item.users?.username || 'Unknown'}</Text>
-              <Text style={styles.email}>{item.users?.email || 'No email'}</Text>
+              <Text style={styles.username}>{item.username || 'Unknown'}</Text>
               <Text style={styles.date}>
                 {new Date(item.created_at).toLocaleDateString()} at{' '}
                 {new Date(item.created_at).toLocaleTimeString()}

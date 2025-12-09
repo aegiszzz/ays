@@ -34,33 +34,35 @@ export default function UsersManagement() {
 
   const fetchUsers = async () => {
     try {
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
+      const { data: dbUsers, error } = await supabase
+        .from('users')
+        .select('id, username, created_at, is_admin, wallet_address')
+        .order('created_at', { ascending: false });
 
-      if (!authUsers?.users) {
+      if (error) {
+        console.error('Error fetching users:', error);
         setUsers([]);
         return;
       }
 
-      const { data: dbUsers } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data: authData } = await supabase.auth.admin.listUsers();
 
-      const combinedUsers = authUsers.users.map(authUser => {
-        const dbUser = dbUsers?.find(u => u.id === authUser.id);
+      const usersWithEmail = dbUsers?.map(dbUser => {
+        const authUser = authData?.users?.find(u => u.id === dbUser.id);
         return {
-          id: authUser.id,
-          email: authUser.email || 'No email',
-          username: dbUser?.username || 'No username',
-          created_at: authUser.created_at,
-          is_admin: dbUser?.is_admin || false,
-          wallet_address: dbUser?.wallet_address || null,
+          id: dbUser.id,
+          email: authUser?.email || 'No email',
+          username: dbUser.username || 'No username',
+          created_at: dbUser.created_at,
+          is_admin: dbUser.is_admin || false,
+          wallet_address: dbUser.wallet_address || null,
         };
-      });
+      }) || [];
 
-      setUsers(combinedUsers);
+      setUsers(usersWithEmail);
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }

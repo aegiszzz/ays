@@ -16,7 +16,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
-import { ArrowLeft, Camera, MapPin, Link as LinkIcon, User as UserIcon } from 'lucide-react-native';
+import { ArrowLeft, Camera, Link as LinkIcon, User as UserIcon } from 'lucide-react-native';
 import { uploadToIPFS } from '@/lib/ipfs';
 
 interface UserProfile {
@@ -26,7 +26,6 @@ interface UserProfile {
   avatar_url: string | null;
   cover_image_url: string | null;
   website: string | null;
-  location: string | null;
 }
 
 export default function EditProfileScreen() {
@@ -41,7 +40,6 @@ export default function EditProfileScreen() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [website, setWebsite] = useState('');
-  const [location, setLocation] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
 
@@ -55,7 +53,7 @@ export default function EditProfileScreen() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('username, name, bio, avatar_url, cover_image_url, website, location')
+        .select('username, name, bio, avatar_url, cover_image_url, website')
         .eq('id', user!.id)
         .maybeSingle();
 
@@ -66,7 +64,6 @@ export default function EditProfileScreen() {
         setName(data.name || '');
         setBio(data.bio || '');
         setWebsite(data.website || '');
-        setLocation(data.location || '');
         setAvatarUrl(data.avatar_url);
         setCoverImageUrl(data.cover_image_url);
       }
@@ -134,7 +131,6 @@ export default function EditProfileScreen() {
           name: name.trim() || null,
           bio: bio.trim() || null,
           website: website.trim() || null,
-          location: location.trim() || null,
           avatar_url: avatarUrl,
           cover_image_url: coverImageUrl,
           updated_at: new Date().toISOString(),
@@ -271,20 +267,6 @@ export default function EditProfileScreen() {
               numberOfLines={4}
               textAlignVertical="top"
             />
-          </View>
-
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Location</Text>
-            <View style={styles.inputWithIcon}>
-              <MapPin size={20} color="#666" />
-              <TextInput
-                style={styles.inputField}
-                value={location}
-                onChangeText={setLocation}
-                placeholder="City, Country"
-                maxLength={50}
-              />
-            </View>
           </View>
 
           <View style={styles.formGroup}>
