@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   containerDesktop: {
-    marginLeft: 240,
+    marginLeft: 220,
     maxWidth: 800,
     alignSelf: 'center',
     width: '100%',
