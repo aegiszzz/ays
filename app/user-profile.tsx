@@ -11,12 +11,15 @@ import {
   Linking,
   useWindowDimensions,
   Alert,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { useResponsive } from '@/lib/responsive';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import {
   ImageIcon,
   X,
@@ -62,6 +65,7 @@ export default function UserProfileScreen() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedCid, setSelectedCid] = useState<string | null>(null);
   const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>('image');
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -197,6 +201,48 @@ export default function UserProfileScreen() {
   const handleMessage = () => {
     if (!userId) return;
     router.push({ pathname: '/send-message', params: { userId } });
+  };
+
+  const handleDownload = async (ipfsCid: string) => {
+    try {
+      const url = getIPFSGatewayUrl(ipfsCid);
+
+      if (Platform.OS === 'web') {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `ays-${ipfsCid.slice(-8)}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(blobUrl);
+        Alert.alert('Success', 'Image downloaded successfully!');
+      } else {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+
+        if (status !== 'granted') {
+          Alert.alert('Permission Required', 'We need permission to save photos to your gallery.');
+          return;
+        }
+
+        const fileUri = FileSystem.documentDirectory + `ays-${ipfsCid.slice(-8)}.jpg`;
+        const downloadResult = await FileSystem.downloadAsync(url, fileUri);
+
+        if (downloadResult.status === 200) {
+          await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
+          Alert.alert('Success', 'Photo saved to your gallery!');
+        } else {
+          throw new Error('Download failed');
+        }
+      }
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      Alert.alert('Error', 'Failed to download image. Please try again.');
+    }
   };
 
   const handleBack = () => {
@@ -376,6 +422,7 @@ export default function UserProfileScreen() {
                     style={[styles.gridItem, { width: ITEM_SIZE, height: ITEM_SIZE }]}
                     onPress={() => {
                       setSelectedImage(imageUri);
+                      setSelectedCid(item.ipfs_cid);
                       setSelectedMediaType(isVideo ? 'video' : 'image');
                     }}
                   >
@@ -410,8 +457,8 @@ export default function UserProfileScreen() {
               <View style={styles.modalHeader}>
                 <TouchableOpacity
                   onPress={() => {
-                    if (selectedImage) {
-                      Linking.openURL(selectedImage);
+                    if (selectedCid) {
+                      handleDownload(selectedCid);
                     }
                   }}
                   style={styles.downloadButton}
