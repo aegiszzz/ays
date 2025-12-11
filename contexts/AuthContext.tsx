@@ -73,12 +73,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithTwitter = async () => {
     try {
-      const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'https://aysapp.xyz';
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: 'https://aysapp.xyz',
         },
       });
 
@@ -86,6 +84,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Twitter login error:', error);
         console.error('Error details:', JSON.stringify(error, null, 2));
         alert('Login failed: ' + error.message);
+      } else if (data?.url) {
+        console.log('Redirecting to:', data.url);
+        window.location.href = data.url;
       }
     } catch (err) {
       console.error('Unexpected error:', err);
