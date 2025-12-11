@@ -29,9 +29,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!existingUser) {
+          const walletAddress = await createWallet(session.user.id);
+
+          let username = session.user.email?.split('@')[0] ||
+                        session.user.user_metadata?.user_name ||
+                        session.user.user_metadata?.name ||
+                        `user_${session.user.id.substring(0, 8)}`;
+
+          const { data: existingUsername } = await supabase
+            .from('users')
+            .select('username')
+            .eq('username', username)
+            .single();
+
+          if (existingUsername) {
+            username = `${username}_${Math.floor(Math.random() * 1000)}`;
+          }
+
+          await supabase.from('users').insert({
+            id: session.user.id,
+            email: session.user.email,
+            username,
+            wallet_address: walletAddress,
+          });
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
