@@ -72,10 +72,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithTwitter = async () => {
+    const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8081';
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
+        skipBrowserRedirect: false,
       },
     });
 
