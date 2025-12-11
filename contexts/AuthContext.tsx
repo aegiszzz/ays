@@ -72,19 +72,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithTwitter = async () => {
-    const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'https://aysapp.xyz';
+    try {
+      const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'https://aysapp.xyz';
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: {
-        redirectTo: redirectUrl,
-        skipBrowserRedirect: false,
-      },
-    });
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
 
-    if (error) {
-      console.error('Twitter login error:', error);
-      alert('Login failed: ' + error.message);
+      if (error) {
+        console.error('Twitter login error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        alert('Login failed: ' + error.message);
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      alert('An unexpected error occurred');
     }
   };
 
