@@ -12,15 +12,16 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: '#000000',
         tabBarInactiveTintColor: '#8E8E93',
+        tabBarShowLabel: false,
         tabBarStyle: isDesktop ? {
           display: 'none',
         } : {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
+          paddingBottom: 5,
+          paddingTop: 5,
+          height: 55,
         },
       }}>
       <Tabs.Screen
