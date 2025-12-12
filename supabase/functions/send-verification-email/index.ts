@@ -53,8 +53,8 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           from: 'onboarding@resend.dev',
           to: email,
-          subject: 'Doğrulama Kodunuz',
-          html: `<h1>Doğrulama Kodunuz</h1><p>Kodunuz: <strong>${code}</strong></p><p>Bu kod 10 dakika içinde geçerlidir.</p>`,
+          subject: 'Verification Code',
+          html: `<h1>Your Verification Code</h1><p>Your code: <strong>${code}</strong></p><p>This code is valid for 10 minutes.</p>`,
         }),
       });
 

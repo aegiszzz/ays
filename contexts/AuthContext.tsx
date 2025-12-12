@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!data.user) {
-      throw new Error('Kullanıcı oluşturulamadı');
+      throw new Error('Failed to create user');
     }
 
     const walletAddress = await createWallet(data.user.id);
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     if (!response.ok) {
-      throw new Error('Doğrulama kodu gönderilemedi');
+      throw new Error('Failed to send verification code');
     }
 
     await supabase.auth.signOut();

@@ -23,7 +23,7 @@ export default function VerifyEmail() {
 
   const verifyCode = async () => {
     if (code.length !== 6) {
-      Alert.alert('Hata', 'Lütfen 6 haneli kodu girin');
+      Alert.alert('Error', 'Please enter the 6-digit code');
       return;
     }
 
@@ -41,7 +41,7 @@ export default function VerifyEmail() {
         .maybeSingle();
 
       if (error || !data) {
-        Alert.alert('Hata', 'Geçersiz veya süresi dolmuş kod');
+        Alert.alert('Error', 'Invalid or expired code');
         return;
       }
 
@@ -54,11 +54,11 @@ export default function VerifyEmail() {
         throw updateError;
       }
 
-      Alert.alert('Başarılı', 'Email adresiniz doğrulandı', [
-        { text: 'Tamam', onPress: () => router.replace('/') }
+      Alert.alert('Success', 'Your email has been verified', [
+        { text: 'OK', onPress: () => router.replace('/') }
       ]);
     } catch (error) {
-      Alert.alert('Hata', error.message);
+      Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
@@ -80,13 +80,13 @@ export default function VerifyEmail() {
       );
 
       if (!response.ok) {
-        throw new Error('Kod gönderilemedi');
+        throw new Error('Failed to send code');
       }
 
       setCountdown(60);
-      Alert.alert('Başarılı', 'Yeni doğrulama kodu gönderildi');
+      Alert.alert('Success', 'New verification code sent');
     } catch (error) {
-      Alert.alert('Hata', error.message);
+      Alert.alert('Error', error.message);
     } finally {
       setResending(false);
     }
@@ -95,9 +95,9 @@ export default function VerifyEmail() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Email Doğrulama</Text>
+        <Text style={styles.title}>Email Verification</Text>
         <Text style={styles.subtitle}>
-          {email} adresine gönderilen 6 haneli kodu girin
+          Enter the 6-digit code sent to {email}
         </Text>
 
         <TextInput
@@ -118,7 +118,7 @@ export default function VerifyEmail() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Doğrula</Text>
+            <Text style={styles.buttonText}>Verify</Text>
           )}
         </TouchableOpacity>
 
@@ -131,7 +131,7 @@ export default function VerifyEmail() {
             <ActivityIndicator color="#007AFF" />
           ) : (
             <Text style={[styles.resendText, countdown > 0 && styles.resendTextDisabled]}>
-              {countdown > 0 ? `Yeniden gönder (${countdown}s)` : 'Kodu yeniden gönder'}
+              {countdown > 0 ? `Resend (${countdown}s)` : 'Resend code'}
             </Text>
           )}
         </TouchableOpacity>
