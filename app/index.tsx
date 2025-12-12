@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { Twitter, Mail } from 'lucide-react-native';
+import { Mail } from 'lucide-react-native';
 
 export default function LoginScreen() {
-  const { signInWithTwitter, signInWithEmail, signUpWithEmail, session } = useAuth();
+  const { signInWithEmail, signUpWithEmail, session } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,17 +104,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <TouchableOpacity style={styles.twitterButton} onPress={signInWithTwitter}>
-          <Twitter size={24} color="#fff" fill="#fff" />
-          <Text style={styles.buttonText}>Sign in with X</Text>
-        </TouchableOpacity>
-
         <Text style={styles.infoText}>
           By signing in, you agree to our Terms of Service and Privacy Policy
         </Text>
@@ -183,17 +172,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 4,
   },
-  twitterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#000000',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    width: '100%',
-  },
   buttonDisabled: {
     opacity: 0.6,
   },
@@ -212,22 +190,6 @@ const styles = StyleSheet.create({
     color: '#ff3b30',
     fontSize: 14,
     marginBottom: 8,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#e0e0e0',
-  },
-  dividerText: {
-    color: '#999',
-    paddingHorizontal: 16,
-    fontSize: 14,
   },
   infoText: {
     fontSize: 12,

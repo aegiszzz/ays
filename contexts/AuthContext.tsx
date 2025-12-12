@@ -7,7 +7,6 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signInWithTwitter: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -71,29 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithTwitter = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          redirectTo: 'https://aysapp.xyz',
-        },
-      });
-
-      if (error) {
-        console.error('Twitter login error:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
-        alert('Login failed: ' + error.message);
-      } else if (data?.url) {
-        console.log('Redirecting to:', data.url);
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      alert('An unexpected error occurred');
-    }
-  };
-
   const signInWithEmail = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -143,7 +119,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         user,
         loading,
-        signInWithTwitter,
         signInWithEmail,
         signUpWithEmail,
         signOut,
