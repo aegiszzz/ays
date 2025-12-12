@@ -35,34 +35,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && session?.user) {
         const { data: existingUser } = await supabase
           .from('users')
-          .select('id')
+          .select('wallet_address')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
-        if (!existingUser) {
+        if (existingUser && !existingUser.wallet_address) {
           const walletAddress = await createWallet(session.user.id);
 
-          let username = session.user.email?.split('@')[0] ||
-                        session.user.user_metadata?.user_name ||
-                        session.user.user_metadata?.name ||
-                        `user_${session.user.id.substring(0, 8)}`;
-
-          const { data: existingUsername } = await supabase
+          await supabase
             .from('users')
-            .select('username')
-            .eq('username', username)
-            .single();
-
-          if (existingUsername) {
-            username = `${username}_${Math.floor(Math.random() * 1000)}`;
-          }
-
-          await supabase.from('users').insert({
-            id: session.user.id,
-            email: session.user.email,
-            username,
-            wallet_address: walletAddress,
-          });
+            .update({ wallet_address: walletAddress })
+            .eq('id', session.user.id);
         }
       }
     });
@@ -85,6 +68,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username: username,
+        }
+      }
     });
 
     if (error) {
@@ -94,17 +82,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.user) {
       const walletAddress = await createWallet(data.user.id);
 
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: data.user.id,
-          username,
-          email,
-          wallet_address: walletAddress,
-        });
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (profileError) {
-        throw profileError;
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ wallet_address: walletAddress, username })
+        .eq('id', data.user.id);
+
+      if (updateError) {
+        console.error('Wallet update error:', updateError);
       }
     }
   };
