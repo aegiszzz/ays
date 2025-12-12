@@ -71,7 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       options: {
         data: {
           username: username,
-        }
+        },
+        emailRedirectTo: undefined,
       }
     });
 
@@ -82,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.user) {
       const walletAddress = await createWallet(data.user.id);
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       const { error: updateError } = await supabase
         .from('users')
