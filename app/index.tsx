@@ -36,7 +36,11 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        await signUpWithEmail(email, password, username);
+        const result = await signUpWithEmail(email, password, username);
+        router.push({
+          pathname: '/verify-email',
+          params: { email: result.email, userId: result.userId }
+        });
       } else {
         await signInWithEmail(email, password);
       }

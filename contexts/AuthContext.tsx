@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ userId: string; email: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -80,20 +80,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     }
 
-    if (data.user) {
-      const walletAddress = await createWallet(data.user.id);
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ wallet_address: walletAddress, username })
-        .eq('id', data.user.id);
-
-      if (updateError) {
-        console.error('Wallet update error:', updateError);
-      }
+    if (!data.user) {
+      throw new Error('Kullanıcı oluşturulamadı');
     }
+
+    const walletAddress = await createWallet(data.user.id);
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ wallet_address: walletAddress, username })
+      .eq('id', data.user.id);
+
+    if (updateError) {
+      console.error('Wallet update error:', updateError);
+    }
+
+    const response = await fetch(
+      `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, userId: data.user.id }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Doğrulama kodu gönderilemedi');
+    }
+
+    await supabase.auth.signOut();
+
+    return { userId: data.user.id, email };
   };
 
   const signOut = async () => {
