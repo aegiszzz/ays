@@ -88,6 +88,8 @@ export default function HomeScreen() {
   useEffect(() => {
     if (user) {
       fetchMedia();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
