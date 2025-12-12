@@ -22,11 +22,27 @@ Deno.serve(async (req: Request) => {
   try {
     const { email, userId }: RequestBody = await req.json();
 
+    if (!email || !userId) {
+      throw new Error('Email and userId are required');
+    }
+
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+
+    if (userError || !userData) {
+      console.error('User check error:', userError);
+      throw new Error('User not found. Please try again.');
+    }
 
     const { error: insertError } = await supabase
       .from('verification_codes')
@@ -38,6 +54,7 @@ Deno.serve(async (req: Request) => {
       });
 
     if (insertError) {
+      console.error('Insert error:', insertError);
       throw new Error(`Failed to save verification code: ${insertError.message}`);
     }
 
