@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'noreply@yourdomain.com',
+          from: 'onboarding@resend.dev',
           to: email,
           subject: 'Doğrulama Kodunuz',
           html: `<h1>Doğrulama Kodunuz</h1><p>Kodunuz: <strong>${code}</strong></p><p>Bu kod 10 dakika içinde geçerlidir.</p>`,
