@@ -2,9 +2,31 @@ import { ethers } from 'ethers';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
+import { Platform } from 'react-native';
 
 const PRIVATE_KEY_PREFIX = 'wallet_private_key_';
 const RPC_URL = 'https://ethereum-rpc.publicnode.com';
+
+const setSecureItem = async (key: string, value: string): Promise<void> => {
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, value);
+    }
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+};
+
+const getSecureItem = async (key: string): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(key);
+    }
+    return null;
+  } else {
+    return await SecureStore.getItemAsync(key);
+  }
+};
 
 export interface WalletInfo {
   address: string;
@@ -50,7 +72,7 @@ export const createWallet = async (userId: string): Promise<string> => {
     const privateKey = wallet.privateKey;
     const address = wallet.address;
 
-    await SecureStore.setItemAsync(`${PRIVATE_KEY_PREFIX}${userId}`, privateKey);
+    await setSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, privateKey);
 
     return address;
   } catch (error) {
@@ -61,7 +83,7 @@ export const createWallet = async (userId: string): Promise<string> => {
 
 export const getWalletAddress = async (userId: string): Promise<string | null> => {
   try {
-    const privateKey = await SecureStore.getItemAsync(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
     if (!privateKey) return null;
 
     const wallet = new ethers.Wallet(privateKey);
@@ -125,7 +147,7 @@ export const exportPrivateKey = async (userId: string): Promise<string | null> =
       throw new Error('Authentication failed');
     }
 
-    const privateKey = await SecureStore.getItemAsync(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
     return privateKey;
   } catch (error) {
     console.error('Error exporting private key:', error);
@@ -144,7 +166,7 @@ export const sendTransaction = async (
       throw new Error('Authentication failed');
     }
 
-    const privateKey = await SecureStore.getItemAsync(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
     if (!privateKey) {
       throw new Error('Wallet not found');
     }
