@@ -79,6 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     if (error) {
+      if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+        throw new Error('Bu email zaten kayıtlı. Giriş yapmayı deneyin.');
+      }
       throw error;
     }
 
