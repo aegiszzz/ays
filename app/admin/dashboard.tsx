@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -83,7 +84,11 @@ export default function AdminDashboard() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.replace('/admin/login');
+    if (Platform.OS === 'web') {
+      window.location.href = '/admin/login';
+    } else {
+      router.replace('/admin/login');
+    }
   };
 
   if (loading) {

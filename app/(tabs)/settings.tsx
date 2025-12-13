@@ -202,7 +202,12 @@ export default function SettingsScreen() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await supabase.auth.signOut();
+      if (Platform.OS === 'web') {
+        window.location.href = '/';
+      } else {
+        router.replace('/');
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     }

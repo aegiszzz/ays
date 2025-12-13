@@ -32,14 +32,10 @@ function RootNavigator() {
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
     const onIndexPage = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
 
-    console.log('Navigation check:', { session: !!session, segments, inAuthGroup, inAdminGroup, isAllowedRoute, onIndexPage });
-
     if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute)) {
-      console.log('Redirecting to index (no session)');
-      setTimeout(() => router.replace('/'), 100);
+      router.replace('/');
     } else if (session && onIndexPage) {
-      console.log('Redirecting to tabs (has session)');
-      setTimeout(() => router.replace('/(tabs)/'), 100);
+      router.replace('/(tabs)/');
     }
   }, [session, segments, loading]);
 
