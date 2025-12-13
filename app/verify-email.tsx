@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { ArrowLeft } from 'lucide-react-native';
 
 export default function VerifyEmail() {
   const params = useLocalSearchParams();
@@ -107,6 +108,13 @@ export default function VerifyEmail() {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.replace('/')}
+      >
+        <ArrowLeft color="#fff" size={24} />
+      </TouchableOpacity>
+
       <View style={styles.content}>
         <Text style={styles.title}>Email Verification</Text>
         <Text style={styles.subtitle}>
@@ -157,6 +165,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 48,
+    left: 16,
+    zIndex: 1,
+    padding: 8,
   },
   content: {
     flex: 1,
