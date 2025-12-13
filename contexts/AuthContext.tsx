@@ -56,13 +56,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
       throw error;
+    }
+
+    if (!authData.user) {
+      throw new Error('Failed to sign in');
+    }
+
+    const { data: verificationData } = await supabase
+      .from('verification_codes')
+      .select('verified')
+      .eq('user_id', authData.user.id)
+      .eq('verified', true)
+      .maybeSingle();
+
+    if (!verificationData) {
+      await supabase.auth.signOut();
+      const notVerifiedError = new Error('Email not verified');
+      (notVerifiedError as any).code = 'EMAIL_NOT_VERIFIED';
+      (notVerifiedError as any).userId = authData.user.id;
+      (notVerifiedError as any).email = email;
+      throw notVerifiedError;
     }
   };
 
