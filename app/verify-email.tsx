@@ -11,10 +11,18 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   const email = params.email as string;
   const userId = params.userId as string;
   const encodedPassword = params.password as string;
+  const initialCode = params.code as string | undefined;
+
+  useEffect(() => {
+    if (initialCode) {
+      setDevCode(initialCode);
+    }
+  }, [initialCode]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -97,6 +105,11 @@ export default function VerifyEmail() {
         throw new Error('Failed to send code');
       }
 
+      const data = await response.json();
+      if (data.code) {
+        setDevCode(data.code);
+      }
+
       setCountdown(60);
       Alert.alert('Success', 'New verification code sent');
     } catch (error) {
@@ -120,6 +133,16 @@ export default function VerifyEmail() {
         <Text style={styles.subtitle}>
           Enter the 6-digit code sent to {email}
         </Text>
+
+        {devCode && (
+          <View style={styles.devCodeContainer}>
+            <Text style={styles.devCodeLabel}>Development Code:</Text>
+            <Text style={styles.devCodeText}>{devCode}</Text>
+            <Text style={styles.devCodeHint}>
+              Email not configured. Use this code for testing.
+            </Text>
+          </View>
+        )}
 
         <TextInput
           style={styles.input}
@@ -226,5 +249,33 @@ const styles = StyleSheet.create({
   },
   resendTextDisabled: {
     color: '#666',
+  },
+  devCodeContainer: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  devCodeLabel: {
+    color: '#666',
+    fontSize: 12,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  devCodeText: {
+    color: '#007AFF',
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 8,
+    marginBottom: 8,
+  },
+  devCodeHint: {
+    color: '#999',
+    fontSize: 11,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

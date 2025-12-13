@@ -42,7 +42,8 @@ export default function LoginScreen() {
           params: {
             email: result.email,
             userId: result.userId,
-            password: btoa(password)
+            password: btoa(password),
+            ...(result.code && { code: result.code })
           }
         });
       } else {

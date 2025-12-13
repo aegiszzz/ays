@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ userId: string; email: string }>;
+  signUpWithEmail: (email: string, password: string, username: string) => Promise<{ userId: string; email: string; code?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -138,9 +138,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Failed to send verification code');
     }
 
+    const responseData = await response.json();
+
     await supabase.auth.signOut();
 
-    return { userId: data.user.id, email };
+    return { userId: data.user.id, email, code: responseData.code };
   };
 
   const signOut = async () => {
