@@ -13,6 +13,7 @@ export default function VerifyEmail() {
 
   const email = params.email as string;
   const userId = params.userId as string;
+  const encodedPassword = params.password as string;
 
   useEffect(() => {
     if (countdown > 0) {
@@ -54,9 +55,21 @@ export default function VerifyEmail() {
         throw updateError;
       }
 
-      Alert.alert('Success', 'Your email has been verified', [
-        { text: 'OK', onPress: () => router.replace('/') }
-      ]);
+      const password = atob(encodedPassword);
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        Alert.alert('Verified', 'Email verified! Please sign in.', [
+          { text: 'OK', onPress: () => router.replace('/') }
+        ]);
+        return;
+      }
+
+      router.replace('/(tabs)/');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

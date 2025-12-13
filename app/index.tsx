@@ -15,10 +15,10 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (session) {
+    if (session && !loading) {
       router.replace('/(tabs)/');
     }
-  }, [session]);
+  }, [session, loading]);
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
@@ -39,7 +39,11 @@ export default function LoginScreen() {
         const result = await signUpWithEmail(email, password, username);
         router.push({
           pathname: '/verify-email',
-          params: { email: result.email, userId: result.userId }
+          params: {
+            email: result.email,
+            userId: result.userId,
+            password: btoa(password)
+          }
         });
       } else {
         await signInWithEmail(email, password);
