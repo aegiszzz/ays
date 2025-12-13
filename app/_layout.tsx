@@ -31,9 +31,9 @@ function RootNavigator() {
     ];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
 
-    if (!session && inAuthGroup) {
+    if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute)) {
       router.replace('/');
-    } else if (session && !inAuthGroup && !inAdminGroup && !isAllowedRoute && segments[0] !== undefined) {
+    } else if (session && segments[0] === '' && segments.length === 0) {
       router.replace('/(tabs)/');
     }
   }, [session, segments, loading]);
