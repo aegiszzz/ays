@@ -83,11 +83,29 @@ export default function AdminDashboard() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    if (Platform.OS === 'web') {
-      window.location.href = '/admin/login';
-    } else {
-      router.replace('/admin/login');
+    try {
+      if (typeof window !== 'undefined') {
+        const supabaseKeys = Object.keys(localStorage).filter(key =>
+          key.startsWith('sb-') || key.includes('supabase')
+        );
+        supabaseKeys.forEach(key => localStorage.removeItem(key));
+        sessionStorage.clear();
+      }
+
+      await supabase.auth.signOut();
+
+      if (typeof window !== 'undefined') {
+        window.location.replace('/admin/login');
+      } else {
+        router.replace('/admin/login');
+      }
+    } catch (error) {
+      console.error('Error signing out:', error);
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/admin/login');
+      }
     }
   };
 
