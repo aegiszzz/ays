@@ -121,29 +121,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    try {
-      if (typeof window !== 'undefined') {
-        const supabaseKeys = Object.keys(localStorage).filter(key =>
-          key.startsWith('sb-') || key.includes('supabase')
-        );
-        supabaseKeys.forEach(key => localStorage.removeItem(key));
-        sessionStorage.clear();
-      }
+    setSession(null);
+    setUser(null);
 
-      await supabase.auth.signOut();
-      setSession(null);
-      setUser(null);
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
 
-      if (typeof window !== 'undefined') {
-        window.location.replace('/');
-      }
-    } catch (error) {
-      console.error('Error during sign out:', error);
-      if (typeof window !== 'undefined') {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.replace('/');
-      }
+    supabase.auth.signOut().catch(() => {});
+
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 50);
     }
   };
 
