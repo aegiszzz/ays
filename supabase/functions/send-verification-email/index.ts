@@ -59,7 +59,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    
+
     if (resendApiKey) {
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -70,14 +70,25 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           from: 'onboarding@resend.dev',
           to: email,
-          subject: 'Verification Code',
-          html: `<h1>Your Verification Code</h1><p>Your code: <strong>${code}</strong></p><p>This code is valid for 10 minutes.</p>`,
+          subject: 'Doğrulama Kodunuz',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #333;">Doğrulama Kodunuz</h1>
+              <p style="font-size: 16px; color: #666;">Hesabınızı doğrulamak için aşağıdaki kodu kullanın:</p>
+              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #007AFF;">${code}</span>
+              </div>
+              <p style="font-size: 14px; color: #999;">Bu kod 10 dakika geçerlidir.</p>
+            </div>
+          `,
         }),
       });
 
       if (!resendResponse.ok) {
         console.error('Resend email failed:', await resendResponse.text());
       }
+    } else {
+      console.log('No email service configured. Code:', code);
     }
 
     return new Response(
