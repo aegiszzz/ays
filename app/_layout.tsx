@@ -30,10 +30,11 @@ function RootNavigator() {
       'user-profile',
     ];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
+    const onIndexPage = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
 
     if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute)) {
       router.replace('/');
-    } else if (session && segments[0] === '' && segments.length === 0) {
+    } else if (session && onIndexPage) {
       router.replace('/(tabs)/');
     }
   }, [session, segments, loading]);

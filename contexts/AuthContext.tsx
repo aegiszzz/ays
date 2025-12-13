@@ -28,25 +28,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
 
       if (event === 'SIGNED_IN' && session?.user) {
-        const { data: existingUser } = await supabase
-          .from('users')
-          .select('wallet_address')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        if (existingUser && !existingUser.wallet_address) {
-          const walletAddress = await createWallet(session.user.id);
-
-          await supabase
+        (async () => {
+          const { data: existingUser } = await supabase
             .from('users')
-            .update({ wallet_address: walletAddress })
-            .eq('id', session.user.id);
-        }
+            .select('wallet_address')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (existingUser && !existingUser.wallet_address) {
+            const walletAddress = await createWallet(session.user.id);
+
+            await supabase
+              .from('users')
+              .update({ wallet_address: walletAddress })
+              .eq('id', session.user.id);
+          }
+        })();
       }
     });
 
@@ -119,9 +121,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Error during sign out:', error);
+    }
   };
 
   return (
