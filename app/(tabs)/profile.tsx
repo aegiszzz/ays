@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
@@ -66,11 +66,13 @@ export default function ProfileScreen() {
 
   const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchUserData();
+      }
+    }, [user])
+  );
 
   const handleDeletePost = async (postId: string) => {
     Alert.alert(
