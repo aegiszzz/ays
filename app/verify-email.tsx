@@ -85,6 +85,11 @@ export default function VerifyEmail() {
         return;
       }
 
+      await supabase
+        .from('users')
+        .update({ email_verified: true })
+        .eq('id', userId);
+
       const password = atob(encodedPassword);
 
       const { error: signInError } = await supabase.auth.signInWithPassword({

@@ -69,14 +69,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Failed to sign in');
     }
 
-    const { data: verificationData } = await supabase
-      .from('verification_codes')
-      .select('verified')
-      .eq('user_id', authData.user.id)
-      .eq('verified', true)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('email_verified')
+      .eq('id', authData.user.id)
       .maybeSingle();
 
-    if (!verificationData) {
+    if (!userData?.email_verified) {
       await supabase.auth.signOut();
       setSession(null);
       setUser(null);
