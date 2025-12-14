@@ -114,13 +114,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const { error: updateError } = await supabase
+    const { error: insertError } = await supabase
       .from('users')
-      .update({ wallet_address: walletAddress, username })
-      .eq('id', data.user.id);
+      .upsert({
+        id: data.user.id,
+        email: data.user.email,
+        username,
+        wallet_address: walletAddress,
+        email_verified: false,
+        created_at: new Date().toISOString()
+      }, {
+        onConflict: 'id'
+      });
 
-    if (updateError) {
-      console.error('Wallet update error:', updateError);
+    if (insertError) {
+      console.error('User profile creation error:', insertError);
+      throw new Error('Failed to create user profile');
     }
 
     const response = await fetch(
