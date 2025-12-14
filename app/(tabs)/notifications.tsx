@@ -182,17 +182,35 @@ export default function NotificationsScreen() {
     switch (type) {
       case 'friend_add':
       case 'follow':
-        return <UserPlus size={24} color="#3b82f6" />;
+        return <UserPlus size={22} color="#3b82f6" />;
       case 'like':
-        return <Heart size={24} color="#ef4444" />;
+        return <Heart size={22} color="#ef4444" fill="#ef4444" />;
       case 'comment':
-        return <MessageCircle size={24} color="#22c55e" />;
+        return <MessageCircle size={22} color="#10b981" />;
       case 'message':
-        return <MessageSquare size={24} color="#8b5cf6" />;
+        return <MessageSquare size={22} color="#8b5cf6" />;
       case 'group_invite':
-        return <Users size={24} color="#f59e0b" />;
+        return <Users size={22} color="#f59e0b" />;
       default:
         return null;
+    }
+  };
+
+  const getIconBackgroundColor = (type: string) => {
+    switch (type) {
+      case 'friend_add':
+      case 'follow':
+        return '#eff6ff';
+      case 'like':
+        return '#fee2e2';
+      case 'comment':
+        return '#d1fae5';
+      case 'message':
+        return '#f3e8ff';
+      case 'group_invite':
+        return '#fef3c7';
+      default:
+        return '#f3f4f6';
     }
   };
 
@@ -237,7 +255,10 @@ export default function NotificationsScreen() {
       ]}
       onPress={() => handleNotificationPress(item)}
     >
-      <View style={styles.iconContainer}>
+      <View style={[
+        styles.iconContainer,
+        { backgroundColor: getIconBackgroundColor(item.type) }
+      ]}>
         {getNotificationIcon(item.type)}
       </View>
       <View style={styles.notificationContent}>
@@ -256,9 +277,14 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-      </View>
+      <>
+        <DesktopSidebar />
+        <ResponsiveContainer>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3b82f6" />
+          </View>
+        </ResponsiveContainer>
+      </>
     );
   }
 
@@ -292,9 +318,13 @@ export default function NotificationsScreen() {
                   setRefreshing(true);
                   fetchNotifications();
                 }}
+                tintColor="#3b82f6"
               />
             }
-            contentContainerStyle={isDesktop && styles.listContentDesktop}
+            contentContainerStyle={[
+              { paddingTop: 16, paddingBottom: 100 },
+              isDesktop && styles.listContentDesktop
+            ]}
           />
         )}
       </View>
@@ -306,39 +336,51 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#f8f9fa',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
+    borderBottomColor: '#e5e7eb',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
   markAllButton: {
     color: '#3b82f6',
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '600',
   },
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
-    backgroundColor: '#000',
+    marginHorizontal: 12,
+    marginVertical: 6,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   notificationItemDesktop: {
     maxWidth: 800,
@@ -346,29 +388,38 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   unreadNotification: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#f0f7ff',
+    borderLeftWidth: 3,
+    borderLeftColor: '#3b82f6',
   },
   iconContainer: {
-    marginRight: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
   },
   notificationContent: {
     flex: 1,
   },
   notificationText: {
-    color: '#fff',
+    color: '#1a1a1a',
     fontSize: 15,
+    lineHeight: 20,
     marginBottom: 4,
+    fontWeight: '500',
   },
   timeText: {
-    color: '#9ca3af',
+    color: '#6b7280',
     fontSize: 13,
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#3b82f6',
-    marginLeft: 8,
+    marginLeft: 12,
   },
   emptyContainer: {
     flex: 1,
@@ -377,11 +428,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyText: {
-    color: '#9ca3af',
+    color: '#6b7280',
     fontSize: 16,
     textAlign: 'center',
   },
   listContentDesktop: {
     paddingHorizontal: 16,
+    paddingTop: 16,
   },
 });
