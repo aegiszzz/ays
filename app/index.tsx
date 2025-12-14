@@ -13,12 +13,13 @@ export default function LoginScreen() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (session && !loading) {
+    if (session && !loading && !redirecting) {
       router.replace('/(tabs)/');
     }
-  }, [session, loading]);
+  }, [session, loading, redirecting]);
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
@@ -37,7 +38,8 @@ export default function LoginScreen() {
     try {
       if (isSignUp) {
         const result = await signUpWithEmail(email, password, username);
-        router.push({
+        setRedirecting(true);
+        router.replace({
           pathname: '/verify-email',
           params: {
             email: result.email,
@@ -51,6 +53,7 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       if (err.code === 'EMAIL_NOT_VERIFIED') {
+        setRedirecting(true);
         try {
           await fetch(
             `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
@@ -67,7 +70,7 @@ export default function LoginScreen() {
           console.error('Failed to send verification code:', sendError);
         }
 
-        router.push({
+        router.replace({
           pathname: '/verify-email',
           params: {
             email: err.email,

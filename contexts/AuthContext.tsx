@@ -78,6 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!verificationData) {
       await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
       const notVerifiedError = new Error('Email not verified');
       (notVerifiedError as any).code = 'EMAIL_NOT_VERIFIED';
       (notVerifiedError as any).userId = authData.user.id;
