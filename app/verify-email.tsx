@@ -106,12 +106,15 @@ export default function VerifyEmail() {
       }
 
       const data = await response.json();
-      if (data.code) {
+      if (!data.emailSent && data.code) {
         setDevCode(data.code);
+        Alert.alert('Code Generated', 'Email service not configured. Code displayed on screen.');
+      } else if (data.emailSent) {
+        setDevCode(null);
+        Alert.alert('Success', 'Verification code sent to your email');
       }
 
       setCountdown(60);
-      Alert.alert('Success', 'New verification code sent');
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {

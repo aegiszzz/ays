@@ -142,7 +142,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     await supabase.auth.signOut();
 
-    return { userId: data.user.id, email, code: responseData.code };
+    return {
+      userId: data.user.id,
+      email,
+      ...(responseData.code && !responseData.emailSent && { code: responseData.code })
+    };
   };
 
   const signOut = async () => {
