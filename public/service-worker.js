@@ -1,4 +1,4 @@
-const CACHE_NAME = 'social-pwa-v1';
+const CACHE_NAME = 'social-pwa-v2';
 const urlsToCache = [
   '/',
   '/assets/images/icon.png',
@@ -30,6 +30,16 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  if (url.hostname.includes('supabase.co') ||
+      url.hostname.includes('pinata.cloud') ||
+      url.hostname.includes('ipfs.io') ||
+      event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
