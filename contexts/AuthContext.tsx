@@ -158,11 +158,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const responseData = await response.json();
 
     await supabase.auth.signOut();
+    isSigningUp.current = false;
 
     return {
       userId: data.user.id,
       email,
-      ...(responseData.code && !responseData.emailSent && { code: responseData.code })
     };
   };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { Mail, ArrowLeft } from 'lucide-react-native';
+import { Mail } from 'lucide-react-native';
 
 export default function VerifyEmail() {
   const params = useLocalSearchParams();
@@ -11,20 +11,12 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const email = params.email as string;
   const userId = params.userId as string;
   const encodedPassword = params.password as string;
-  const initialCode = params.code as string | undefined;
   const isNewAccount = params.isNewAccount === 'true';
-
-  useEffect(() => {
-    if (initialCode) {
-      setDevCode(initialCode);
-    }
-  }, [initialCode]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -136,13 +128,6 @@ export default function VerifyEmail() {
         throw new Error('Failed to send code');
       }
 
-      const data = await response.json();
-      if (!data.emailSent && data.code) {
-        setDevCode(data.code);
-      } else if (data.emailSent) {
-        setDevCode(null);
-      }
-
       setCountdown(60);
     } catch (err: any) {
       setError(err.message || 'Failed to resend code');
@@ -174,13 +159,6 @@ export default function VerifyEmail() {
           We sent a 6-digit code to{'\n'}
           <Text style={styles.emailText}>{email}</Text>
         </Text>
-
-        {devCode && (
-          <View style={styles.devCodeContainer}>
-            <Text style={styles.devCodeLabel}>Test Code:</Text>
-            <Text style={styles.devCodeText}>{devCode}</Text>
-          </View>
-        )}
 
         <TextInput
           style={styles.input}
@@ -334,27 +312,5 @@ const styles = StyleSheet.create({
   cancelText: {
     color: '#666',
     fontSize: 14,
-  },
-  devCodeContainer: {
-    backgroundColor: '#f0f7ff',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#d0e3ff',
-  },
-  devCodeLabel: {
-    color: '#666',
-    fontSize: 11,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  devCodeText: {
-    color: '#007AFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    letterSpacing: 6,
   },
 });
