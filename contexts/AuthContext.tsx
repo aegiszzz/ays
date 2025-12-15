@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { createWallet } from '@/lib/wallet';
@@ -18,6 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const isSigningUp = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,6 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isSigningUp.current) {
+        return;
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -84,6 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUpWithEmail = async (email: string, password: string, username: string) => {
+    isSigningUp.current = true;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -96,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     if (error) {
+      isSigningUp.current = false;
       if (error.message.includes('already registered') || error.message.includes('already been registered')) {
         throw new Error('This email is already registered. Please sign in.');
       }
@@ -103,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!data.user) {
+      isSigningUp.current = false;
       throw new Error('Failed to create user');
     }
 
@@ -124,6 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
     if (insertError) {
+      isSigningUp.current = false;
       console.error('User profile creation error:', insertError);
       throw new Error('Failed to create user profile');
     }
@@ -141,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     if (!response.ok) {
+      isSigningUp.current = false;
       throw new Error('Failed to send verification code');
     }
 
