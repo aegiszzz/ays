@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
@@ -13,13 +13,13 @@ export default function LoginScreen() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [redirecting, setRedirecting] = useState(false);
+  const isSigningUp = useRef(false);
 
   useEffect(() => {
-    if (session && !loading && !redirecting) {
+    if (session && !loading && !isSigningUp.current) {
       router.replace('/(tabs)/');
     }
-  }, [session, loading, redirecting]);
+  }, [session, loading]);
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
