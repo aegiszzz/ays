@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Social Media PWA",
-    "slug": "social-media-pwa",
+    "name": "Ays",
+    "slug": "ays",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "myapp",
@@ -17,8 +17,8 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "name": "Social Media PWA",
-      "shortName": "SocialPWA",
+      "name": "Ays",
+      "shortName": "Ays",
       "description": "A decentralized social media platform with crypto wallet integration",
       "themeColor": "#000000",
       "backgroundColor": "#ffffff",

@@ -1,6 +1,6 @@
 {
-  "name": "Social Media PWA",
-  "short_name": "SocialPWA",
+  "name": "Ays",
+  "short_name": "Ays",
   "description": "A decentralized social media platform with crypto wallet integration",
   "start_url": "/",
   "display": "standalone",
