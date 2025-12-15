@@ -37,7 +37,7 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        setRedirecting(true);
+        isSigningUp.current = true;
         const result = await signUpWithEmail(email, password, username);
         router.replace({
           pathname: '/verify-email',
@@ -53,7 +53,7 @@ export default function LoginScreen() {
         await signInWithEmail(email, password);
       }
     } catch (err: any) {
-      setRedirecting(false);
+      isSigningUp.current = false;
       setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
