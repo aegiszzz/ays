@@ -35,51 +35,30 @@ export default function VerifyEmail() {
     setError('');
 
     try {
-      let isValid = false;
+      const { data, error: fetchError } = await supabase
+        .from('verification_codes')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('code', code)
+        .eq('verified', false)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (code === '070922') {
-        isValid = true;
-        await supabase
-          .from('verification_codes')
-          .insert({
-            user_id: userId,
-            code: '070922',
-            email,
-            verified: true,
-            expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-          });
-      } else {
-        const { data, error: fetchError } = await supabase
-          .from('verification_codes')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('code', code)
-          .eq('verified', false)
-          .gt('expires_at', new Date().toISOString())
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (fetchError || !data) {
-          setError('Invalid or expired code. Please try again.');
-          setLoading(false);
-          return;
-        }
-
-        const { error: updateError } = await supabase
-          .from('verification_codes')
-          .update({ verified: true })
-          .eq('id', data.id);
-
-        if (updateError) {
-          throw updateError;
-        }
-
-        isValid = true;
+      if (fetchError || !data) {
+        setError('Invalid or expired code. Please try again.');
+        setLoading(false);
+        return;
       }
 
-      if (!isValid) {
-        return;
+      const { error: updateError } = await supabase
+        .from('verification_codes')
+        .update({ verified: true })
+        .eq('id', data.id);
+
+      if (updateError) {
+        throw updateError;
       }
 
       await supabase

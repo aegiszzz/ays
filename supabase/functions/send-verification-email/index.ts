@@ -72,15 +72,15 @@ Deno.serve(async (req: Request) => {
           body: JSON.stringify({
             from: 'onboarding@resend.dev',
             to: email,
-            subject: 'Do\u011frulama Kodunuz',
+            subject: 'Doğrulama Kodunuz',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h1 style="color: #333;">Do\u011frulama Kodunuz</h1>
-                <p style="font-size: 16px; color: #666;">Hesab\u0131n\u0131z\u0131 do\u011frulamak i\u00e7in a\u015fa\u011f\u0131daki kodu kullan\u0131n:</p>
+                <h1 style="color: #333;">Doğrulama Kodunuz</h1>
+                <p style="font-size: 16px; color: #666;">Hesabınızı doğrulamak için aşağıdaki kodu kullanın:</p>
                 <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
                   <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #007AFF;">${code}</span>
                 </div>
-                <p style="font-size: 14px; color: #999;">Bu kod 10 dakika ge\u00e7erlidir.</p>
+                <p style="font-size: 14px; color: #999;">Bu kod 10 dakika geçerlidir.</p>
               </div>
             `,
           }),
@@ -104,7 +104,6 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         emailSent,
-        code: emailSent ? undefined : code
       }),
       {
         status: 200,
