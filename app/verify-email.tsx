@@ -35,36 +35,25 @@ export default function VerifyEmail() {
     setError('');
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('verification_codes')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('code', code)
-        .eq('verified', false)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/verify-email-code`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, code, email }),
+        }
+      );
 
-      if (fetchError || !data) {
-        setError('Invalid or expired code. Please try again.');
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Invalid or expired code. Please try again.');
         setLoading(false);
         return;
       }
-
-      const { error: updateError } = await supabase
-        .from('verification_codes')
-        .update({ verified: true })
-        .eq('id', data.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      await supabase
-        .from('users')
-        .update({ email_verified: true })
-        .eq('id', userId);
 
       const password = atob(encodedPassword);
 
