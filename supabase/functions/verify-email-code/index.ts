@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.58.0";
+import { ethers } from "npm:ethers@6.15.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +16,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { userId, code, email } = await req.json();
+    const { userId, code, email, username } = await req.json();
 
     if (!userId || !code || !email) {
       return new Response(
@@ -61,23 +62,36 @@ Deno.serve(async (req: Request) => {
       throw updateCodeError;
     }
 
-    const { error: updateUserError } = await supabase
-      .from("users")
-      .update({ email_verified: true })
-      .eq("id", userId);
+    const wallet = ethers.Wallet.createRandom();
+    const walletAddress = wallet.address;
+    const encryptedPrivateKey = wallet.privateKey;
 
-    if (updateUserError) {
-      throw updateUserError;
+    const { error: insertUserError } = await supabase
+      .from("users")
+      .insert({
+        id: userId,
+        email: email,
+        username: username || email.split("@")[0],
+        wallet_address: walletAddress,
+        encrypted_private_key: encryptedPrivateKey,
+        email_verified: true,
+        created_at: new Date().toISOString(),
+      });
+
+    if (insertUserError) {
+      console.error("User insert error:", insertUserError);
+      throw insertUserError;
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: "Email verified successfully" }),
+      JSON.stringify({ success: true, message: "Email verified and account created successfully" }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   } catch (error: any) {
+    console.error("Verification error:", error);
     return new Response(
       JSON.stringify({ error: error.message || "Verification failed" }),
       {

@@ -115,29 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Failed to create user');
     }
 
-    const walletAddress = await createWallet(data.user.id);
-
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const { error: insertError } = await supabase
-      .from('users')
-      .upsert({
-        id: data.user.id,
-        email: data.user.email,
-        username,
-        wallet_address: walletAddress,
-        email_verified: false,
-        created_at: new Date().toISOString()
-      }, {
-        onConflict: 'id'
-      });
-
-    if (insertError) {
-      isSigningUp.current = false;
-      console.error('User profile creation error:', insertError);
-      throw new Error('Failed to create user profile');
-    }
-
     const response = await fetch(
       `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
       {
@@ -146,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, userId: data.user.id }),
+        body: JSON.stringify({ email, userId: data.user.id, username }),
       }
     );
 
@@ -155,14 +132,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Failed to send verification code');
     }
 
-    const responseData = await response.json();
-
     await supabase.auth.signOut();
     isSigningUp.current = false;
 
     return {
       userId: data.user.id,
       email,
+      username,
     };
   };
 

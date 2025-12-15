@@ -15,6 +15,7 @@ export default function VerifyEmail() {
 
   const email = params.email as string;
   const userId = params.userId as string;
+  const username = params.username as string;
   const encodedPassword = params.password as string;
   const isNewAccount = params.isNewAccount === 'true';
 
@@ -43,7 +44,7 @@ export default function VerifyEmail() {
             'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId, code, email }),
+          body: JSON.stringify({ userId, code, email, username }),
         }
       );
 
