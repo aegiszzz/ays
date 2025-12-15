@@ -37,14 +37,15 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        const result = await signUpWithEmail(email, password, username);
         setRedirecting(true);
+        const result = await signUpWithEmail(email, password, username);
         router.replace({
           pathname: '/verify-email',
           params: {
             email: result.email,
             userId: result.userId,
             password: btoa(password),
+            isNewAccount: 'true',
             ...(result.code && { code: result.code })
           }
         });
@@ -52,35 +53,8 @@ export default function LoginScreen() {
         await signInWithEmail(email, password);
       }
     } catch (err: any) {
-      if (err.code === 'EMAIL_NOT_VERIFIED') {
-        setRedirecting(true);
-        try {
-          await fetch(
-            `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ email: err.email, userId: err.userId }),
-            }
-          );
-        } catch (sendError) {
-          console.error('Failed to send verification code:', sendError);
-        }
-
-        router.replace({
-          pathname: '/verify-email',
-          params: {
-            email: err.email,
-            userId: err.userId,
-            password: btoa(password)
-          }
-        });
-      } else {
-        setError(err.message || 'Authentication failed');
-      }
+      setRedirecting(false);
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }

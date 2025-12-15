@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft } from 'lucide-react-native';
+import { Mail, ArrowLeft } from 'lucide-react-native';
 
 export default function VerifyEmail() {
   const params = useLocalSearchParams();
@@ -12,11 +12,13 @@ export default function VerifyEmail() {
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   const email = params.email as string;
   const userId = params.userId as string;
   const encodedPassword = params.password as string;
   const initialCode = params.code as string | undefined;
+  const isNewAccount = params.isNewAccount === 'true';
 
   useEffect(() => {
     if (initialCode) {
@@ -33,11 +35,13 @@ export default function VerifyEmail() {
 
   const verifyCode = async () => {
     if (code.length !== 6) {
-      Alert.alert('Error', 'Please enter the 6-digit code');
+      setError('Please enter the 6-digit code');
       return;
     }
 
     setLoading(true);
+    setError('');
+
     try {
       let isValid = false;
 
@@ -53,7 +57,7 @@ export default function VerifyEmail() {
             expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
           });
       } else {
-        const { data, error } = await supabase
+        const { data, error: fetchError } = await supabase
           .from('verification_codes')
           .select('*')
           .eq('user_id', userId)
@@ -64,8 +68,9 @@ export default function VerifyEmail() {
           .limit(1)
           .maybeSingle();
 
-        if (error || !data) {
-          Alert.alert('Error', 'Invalid or expired code');
+        if (fetchError || !data) {
+          setError('Invalid or expired code. Please try again.');
+          setLoading(false);
           return;
         }
 
@@ -98,15 +103,13 @@ export default function VerifyEmail() {
       });
 
       if (signInError) {
-        Alert.alert('Verified', 'Email verified! Please sign in.', [
-          { text: 'OK', onPress: () => router.replace('/') }
-        ]);
+        router.replace('/');
         return;
       }
 
       router.replace('/(tabs)/');
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err: any) {
+      setError(err.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -114,6 +117,8 @@ export default function VerifyEmail() {
 
   const resendCode = async () => {
     setResending(true);
+    setError('');
+
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
@@ -134,54 +139,64 @@ export default function VerifyEmail() {
       const data = await response.json();
       if (!data.emailSent && data.code) {
         setDevCode(data.code);
-        Alert.alert('Code Generated', 'Email service not configured. Code displayed on screen.');
       } else if (data.emailSent) {
         setDevCode(null);
-        Alert.alert('Success', 'Verification code sent to your email');
       }
 
       setCountdown(60);
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (err: any) {
+      setError(err.message || 'Failed to resend code');
     } finally {
       setResending(false);
     }
   };
 
+  const handleCancel = async () => {
+    if (isNewAccount) {
+      try {
+        await supabase.from('users').delete().eq('id', userId);
+        await supabase.from('verification_codes').delete().eq('user_id', userId);
+      } catch (e) {
+      }
+    }
+    router.replace('/');
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.replace('/')}
-      >
-        <ArrowLeft color="#fff" size={24} />
-      </TouchableOpacity>
-
       <View style={styles.content}>
-        <Text style={styles.title}>Email Verification</Text>
+        <View style={styles.iconContainer}>
+          <Mail size={48} color="#007AFF" />
+        </View>
+
+        <Text style={styles.title}>Verify Your Email</Text>
         <Text style={styles.subtitle}>
-          Enter the 6-digit code sent to {email}
+          We sent a 6-digit code to{'\n'}
+          <Text style={styles.emailText}>{email}</Text>
         </Text>
 
         {devCode && (
           <View style={styles.devCodeContainer}>
-            <Text style={styles.devCodeLabel}>Development Code:</Text>
+            <Text style={styles.devCodeLabel}>Test Code:</Text>
             <Text style={styles.devCodeText}>{devCode}</Text>
-            <Text style={styles.devCodeHint}>
-              Email not configured. Use this code for testing.
-            </Text>
           </View>
         )}
 
         <TextInput
           style={styles.input}
           placeholder="000000"
+          placeholderTextColor="#999"
           value={code}
-          onChangeText={setCode}
+          onChangeText={(text) => {
+            setCode(text);
+            setError('');
+          }}
           keyboardType="number-pad"
           maxLength={6}
           autoFocus
         />
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -191,7 +206,7 @@ export default function VerifyEmail() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Verify</Text>
+            <Text style={styles.buttonText}>Verify Email</Text>
           )}
         </TouchableOpacity>
 
@@ -201,12 +216,16 @@ export default function VerifyEmail() {
           disabled={countdown > 0 || resending}
         >
           {resending ? (
-            <ActivityIndicator color="#007AFF" />
+            <ActivityIndicator color="#007AFF" size="small" />
           ) : (
             <Text style={[styles.resendText, countdown > 0 && styles.resendTextDisabled]}>
-              {countdown > 0 ? `Resend (${countdown}s)` : 'Resend code'}
+              {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend verification code'}
             </Text>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+          <Text style={styles.cancelText}>Cancel</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -216,95 +235,126 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 48,
-    left: 16,
-    zIndex: 1,
-    padding: 8,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    padding: 20,
+    alignItems: 'center',
   },
   content: {
-    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    width: '100%',
+    maxWidth: 400,
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#f0f7ff',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#999',
-    marginBottom: 32,
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 24,
     textAlign: 'center',
+    lineHeight: 20,
+  },
+  emailText: {
+    color: '#007AFF',
+    fontWeight: '600',
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
+    width: '100%',
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
     padding: 16,
     fontSize: 24,
-    color: '#fff',
+    color: '#1a1a1a',
     textAlign: 'center',
     letterSpacing: 8,
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#ff3b30',
+    fontSize: 14,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#007AFF',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
     alignItems: 'center',
-    marginBottom: 16,
+    width: '100%',
+    marginBottom: 12,
   },
   buttonDisabled: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
   resendButton: {
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
   },
   resendText: {
     color: '#007AFF',
-    fontSize: 16,
+    fontSize: 14,
   },
   resendTextDisabled: {
+    color: '#999',
+  },
+  cancelButton: {
+    padding: 12,
+    alignItems: 'center',
+  },
+  cancelText: {
     color: '#666',
+    fontSize: 14,
   },
   devCodeContainer: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
+    backgroundColor: '#f0f7ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    width: '100%',
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#d0e3ff',
   },
   devCodeLabel: {
     color: '#666',
-    fontSize: 12,
-    marginBottom: 8,
+    fontSize: 11,
+    marginBottom: 4,
     textAlign: 'center',
   },
   devCodeText: {
     color: '#007AFF',
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    letterSpacing: 8,
-    marginBottom: 8,
-  },
-  devCodeHint: {
-    color: '#999',
-    fontSize: 11,
-    textAlign: 'center',
-    fontStyle: 'italic',
+    letterSpacing: 6,
   },
 });
