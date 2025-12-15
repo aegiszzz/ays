@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'onboarding@resend.dev',
+            from: 'AYS App <noreply@aysapp.xyz>',
             to: email,
             subject: 'Doğrulama Kodunuz',
             html: `
