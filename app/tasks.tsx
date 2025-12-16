@@ -87,19 +87,24 @@ export default function TasksScreen() {
   };
 
   const fetchUserTasks = async () => {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const todayStartISO = todayStart.toISOString();
+
     const { data, error } = await supabase
       .from('user_tasks')
       .select('*')
       .eq('user_id', user!.id)
-      .gte('completed_at', `${today}T00:00:00`);
+      .gte('completed_at', todayStartISO);
 
     if (error) throw error;
     if (data) {
       setUserTasks(data);
       const checkinTask = tasks.find(t => t.action_type === 'daily_checkin');
       if (checkinTask) {
-        const hasCheckedIn = data.some(ut => ut.task_id === checkinTask.id);
+        const hasCheckedIn = data.some(
+          ut => ut.task_id === checkinTask.id && new Date(ut.completed_at) >= todayStart
+        );
         setCheckedIn(hasCheckedIn);
       }
     }
@@ -182,14 +187,33 @@ export default function TasksScreen() {
         return;
       }
 
-      const today = new Date().toISOString();
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const todayStartISO = todayStart.toISOString();
+
+      const { data: existingCheckin, error: checkError } = await supabase
+        .from('user_tasks')
+        .select('*')
+        .eq('user_id', user!.id)
+        .eq('task_id', checkinTask.id)
+        .gte('completed_at', todayStartISO)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingCheckin) {
+        Alert.alert('Already Checked In', 'You have already checked in today. Come back tomorrow!');
+        setCheckedIn(true);
+        return;
+      }
+
       const { error: taskError } = await supabase
         .from('user_tasks')
-        .upsert({
+        .insert({
           user_id: user!.id,
           task_id: checkinTask.id,
           current_count: 1,
-          completed_at: today,
+          completed_at: now.toISOString(),
           points_earned: checkinTask.points,
         });
 
