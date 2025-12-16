@@ -18,7 +18,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play, Heart, MessageCircle, Share, Trash2, Edit2 } from 'lucide-react-native';
+import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play, Heart, MessageCircle, Share, Trash2, Edit2, Star } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
 
 interface MediaItem {
@@ -58,6 +58,7 @@ export default function ProfileScreen() {
   const [updatingPost, setUpdatingPost] = useState(false);
   const [feedModalVisible, setFeedModalVisible] = useState(false);
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
 
   const { width } = Dimensions.get('window');
   const ITEM_SIZE = (width - 48) / 3;
@@ -179,7 +180,7 @@ export default function ProfileScreen() {
       const [userResult, mediaResult, followersResult, followingResult] = await Promise.all([
         supabase
           .from('users')
-          .select('username, name, bio, avatar_url, cover_image_url, website, location')
+          .select('username, name, bio, avatar_url, cover_image_url, website, location, total_points')
           .eq('id', user!.id)
           .maybeSingle(),
         supabase
@@ -193,6 +194,7 @@ export default function ProfileScreen() {
 
       if (userResult.data) {
         setProfile(userResult.data);
+        setTotalPoints(userResult.data.total_points || 0);
       }
 
       if (mediaResult.data) {
@@ -367,13 +369,23 @@ export default function ProfileScreen() {
             )}
           </View>
 
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => router.push('/edit-profile')}
-          >
-            <Edit size={16} color="#000" />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.pointsButton}
+              onPress={() => router.push('/tasks')}
+            >
+              <Star size={16} color="#FFD700" fill="#FFD700" />
+              <Text style={styles.pointsButtonText}>{totalPoints} Points</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push('/edit-profile')}
+            >
+              <Edit size={16} color="#000" />
+              <Text style={styles.editButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
@@ -602,16 +614,39 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#007AFF',
   },
+  buttonsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  pointsButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  pointsButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
   editButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    marginBottom: 16,
   },
   editButtonText: {
     fontSize: 14,
