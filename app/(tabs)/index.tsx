@@ -223,12 +223,10 @@ export default function HomeScreen() {
         document.body.removeChild(link);
 
         URL.revokeObjectURL(blobUrl);
-        Alert.alert('Success', 'Image downloaded successfully!');
       } else {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
         if (status !== 'granted') {
-          Alert.alert('Permission Required', 'We need permission to save photos to your gallery.');
           return;
         }
 
@@ -237,14 +235,12 @@ export default function HomeScreen() {
 
         if (downloadResult.status === 200) {
           await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
-          Alert.alert('Success', 'Photo saved to your gallery!');
         } else {
           throw new Error('Download failed');
         }
       }
     } catch (error) {
       console.error('Error downloading image:', error);
-      Alert.alert('Error', 'Failed to download image. Please try again.');
     }
   };
 
@@ -381,7 +377,6 @@ export default function HomeScreen() {
     if (!postToShare) return;
     const url = getIPFSGatewayUrl(postToShare.ipfs_cid);
     Clipboard.setString(url);
-    Alert.alert('Copied!', 'Link copied to clipboard');
   };
 
   const sendToFriend = async (friendId: string, friendUsername: string) => {
@@ -400,11 +395,9 @@ export default function HomeScreen() {
 
       if (error) throw error;
 
-      Alert.alert('Sent!', `Photo shared with ${friendUsername}`);
       setShareModalVisible(false);
     } catch (error) {
       console.error('Error sending to friend:', error);
-      Alert.alert('Error', 'Failed to send photo');
     }
   };
 
@@ -413,7 +406,6 @@ export default function HomeScreen() {
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
-      Alert.alert('Permission Required', 'We need camera and media library permissions to upload photos and videos.');
       return false;
     }
     return true;
@@ -500,7 +492,6 @@ export default function HomeScreen() {
       }, 1500);
     } catch (error) {
       console.error('Upload error:', error);
-      Alert.alert('Error', 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }

@@ -192,7 +192,6 @@ export default function UserProfileScreen() {
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
-      Alert.alert('Error', 'Failed to update follow status');
     }
   };
 
@@ -218,12 +217,10 @@ export default function UserProfileScreen() {
         document.body.removeChild(link);
 
         URL.revokeObjectURL(blobUrl);
-        Alert.alert('Success', 'Image downloaded successfully!');
       } else {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
         if (status !== 'granted') {
-          Alert.alert('Permission Required', 'We need permission to save photos to your gallery.');
           return;
         }
 
@@ -232,14 +229,12 @@ export default function UserProfileScreen() {
 
         if (downloadResult.status === 200) {
           await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
-          Alert.alert('Success', 'Photo saved to your gallery!');
         } else {
           throw new Error('Download failed');
         }
       }
     } catch (error) {
       console.error('Error downloading image:', error);
-      Alert.alert('Error', 'Failed to download image. Please try again.');
     }
   };
 
