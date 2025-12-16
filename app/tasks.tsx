@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Trophy, Star, CheckCircle, Circle, TrendingUp, ArrowLeft } from 'lucide-react-native';
+import { Trophy, Star, CheckCircle, Circle, TrendingUp, ArrowLeft, Calendar } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { Alert } from 'react-native';
 
 interface Task {
   id: string;
@@ -48,6 +49,8 @@ export default function TasksScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'tasks' | 'leaderboard'>('tasks');
+  const [checkedIn, setCheckedIn] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -92,7 +95,14 @@ export default function TasksScreen() {
       .gte('completed_at', `${today}T00:00:00`);
 
     if (error) throw error;
-    if (data) setUserTasks(data);
+    if (data) {
+      setUserTasks(data);
+      const checkinTask = tasks.find(t => t.action_type === 'daily_checkin');
+      if (checkinTask) {
+        const hasCheckedIn = data.some(ut => ut.task_id === checkinTask.id);
+        setCheckedIn(hasCheckedIn);
+      }
+    }
   };
 
   const fetchUserPoints = async () => {
@@ -161,6 +171,49 @@ export default function TasksScreen() {
     return userIndex >= 0 ? userIndex + 1 : null;
   };
 
+  const handleCheckIn = async () => {
+    if (checkedIn || checkingIn) return;
+
+    setCheckingIn(true);
+    try {
+      const checkinTask = tasks.find(t => t.action_type === 'daily_checkin');
+      if (!checkinTask) {
+        Alert.alert('Error', 'Check-in task not found');
+        return;
+      }
+
+      const today = new Date().toISOString();
+      const { error: taskError } = await supabase
+        .from('user_tasks')
+        .upsert({
+          user_id: user!.id,
+          task_id: checkinTask.id,
+          current_count: 1,
+          completed_at: today,
+          points_earned: checkinTask.points,
+        });
+
+      if (taskError) throw taskError;
+
+      const { error: pointsError } = await supabase
+        .from('users')
+        .update({ total_points: totalPoints + checkinTask.points })
+        .eq('id', user!.id);
+
+      if (pointsError) throw pointsError;
+
+      setCheckedIn(true);
+      setTotalPoints(totalPoints + checkinTask.points);
+      Alert.alert('Success!', `You earned ${checkinTask.points} point!`);
+      await fetchData();
+    } catch (error) {
+      console.error('Check-in error:', error);
+      Alert.alert('Error', 'Failed to check in. Please try again.');
+    } finally {
+      setCheckingIn(false);
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContainer]}>
@@ -209,7 +262,41 @@ export default function TasksScreen() {
       >
         {activeTab === 'tasks' ? (
           <View style={styles.tasksContainer}>
-            {tasks.map(task => {
+            <TouchableOpacity
+              style={[
+                styles.checkinCard,
+                checkedIn && styles.checkinCardCompleted,
+              ]}
+              onPress={handleCheckIn}
+              disabled={checkedIn || checkingIn}
+            >
+              <View style={styles.checkinIconContainer}>
+                <Calendar
+                  size={32}
+                  color={checkedIn ? '#4CAF50' : '#FFD700'}
+                  fill={checkedIn ? '#4CAF50' : '#FFD700'}
+                />
+              </View>
+              <View style={styles.checkinContent}>
+                <Text style={styles.checkinTitle}>
+                  {checkedIn ? 'Checked In Today!' : 'Daily Check-In'}
+                </Text>
+                <Text style={styles.checkinDescription}>
+                  {checkedIn ? 'Come back tomorrow!' : 'Tap to earn 1 point'}
+                </Text>
+              </View>
+              {checkedIn ? (
+                <CheckCircle size={28} color="#4CAF50" />
+              ) : checkingIn ? (
+                <ActivityIndicator size="small" color="#FFD700" />
+              ) : (
+                <View style={styles.checkinButton}>
+                  <Text style={styles.checkinButtonText}>Check In</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {tasks.filter(t => t.action_type !== 'daily_checkin').map(task => {
               const completed = isTaskCompleted(task);
               const progress = getTaskProgress(task);
               const progressPercentage = (progress / task.required_count) * 100;
@@ -398,6 +485,58 @@ const styles = StyleSheet.create({
   tasksContainer: {
     padding: 16,
     gap: 12,
+  },
+  checkinCard: {
+    backgroundColor: '#FFF9E6',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  checkinCardCompleted: {
+    backgroundColor: '#F0F9F4',
+    borderColor: '#4CAF50',
+  },
+  checkinIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkinContent: {
+    flex: 1,
+  },
+  checkinTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  checkinDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  checkinButton: {
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  checkinButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1a1a1a',
   },
   taskCard: {
     backgroundColor: '#fff',
