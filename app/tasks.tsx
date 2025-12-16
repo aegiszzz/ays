@@ -140,9 +140,9 @@ export default function TasksScreen() {
 
   const getTaskTypeLabel = (type: string) => {
     switch (type) {
-      case 'daily': return 'Günlük';
-      case 'weekly': return 'Haftalık';
-      case 'one_time': return 'Bir Kez';
+      case 'daily': return 'Daily';
+      case 'weekly': return 'Weekly';
+      case 'one_time': return 'One Time';
       default: return type;
     }
   };
@@ -175,7 +175,7 @@ export default function TasksScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Görevler & Puanlar</Text>
+        <Text style={styles.headerTitle}>Tasks & Points</Text>
         <View style={styles.pointsBadge}>
           <Star size={20} color="#FFD700" fill="#FFD700" />
           <Text style={styles.pointsText}>{totalPoints}</Text>
@@ -188,7 +188,7 @@ export default function TasksScreen() {
           onPress={() => setActiveTab('tasks')}
         >
           <Text style={[styles.tabText, activeTab === 'tasks' && styles.tabTextActive]}>
-            Görevler
+            Tasks
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -196,7 +196,7 @@ export default function TasksScreen() {
           onPress={() => setActiveTab('leaderboard')}
         >
           <Text style={[styles.tabText, activeTab === 'leaderboard' && styles.tabTextActive]}>
-            Liderlik Tablosu
+            Leaderboard
           </Text>
         </TouchableOpacity>
       </View>
@@ -245,7 +245,7 @@ export default function TasksScreen() {
                         </View>
                         <View style={styles.taskPoints}>
                           <Star size={14} color="#FFD700" fill="#FFD700" />
-                          <Text style={styles.taskPointsText}>{task.points} puan</Text>
+                          <Text style={styles.taskPointsText}>{task.points} points</Text>
                         </View>
                       </View>
                     </View>
@@ -276,9 +276,9 @@ export default function TasksScreen() {
               <View style={styles.userRankCard}>
                 <Trophy size={24} color="#FFD700" />
                 <Text style={styles.userRankText}>
-                  Sıralamanız: #{getUserRank()}
+                  Your Rank: #{getUserRank()}
                 </Text>
-                <Text style={styles.userRankPoints}>{totalPoints} puan</Text>
+                <Text style={styles.userRankPoints}>{totalPoints} points</Text>
               </View>
             )}
 
@@ -308,7 +308,7 @@ export default function TasksScreen() {
                   <View style={styles.leaderboardPoints}>
                     <Star size={14} color="#FFD700" fill="#FFD700" />
                     <Text style={styles.leaderboardPointsText}>
-                      {user.total_points} puan
+                      {user.total_points} points
                     </Text>
                   </View>
                 </View>
