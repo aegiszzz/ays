@@ -332,13 +332,6 @@ export default function ProfileScreen() {
         )}
         <View style={styles.header}>
           <View style={styles.avatarRow}>
-            {userAvatar ? (
-              <Image source={{ uri: userAvatar }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
-              </View>
-            )}
             <TouchableOpacity
               style={styles.pointsButton}
               onPress={() => router.push('/tasks')}
@@ -347,6 +340,13 @@ export default function ProfileScreen() {
               <Text style={styles.pointsText}>Points</Text>
             </TouchableOpacity>
           </View>
+          {userAvatar ? (
+            <Image source={{ uri: userAvatar }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
+            </View>
+          )}
 
           <Text style={styles.name}>{userName}</Text>
           {profile?.username && <Text style={styles.username}>@{profile.username}</Text>}
@@ -560,10 +560,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5EA',
   },
   avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginBottom: 12,
+    position: 'absolute',
+    top: 12,
+    right: 24,
+    zIndex: 1,
   },
   pointsButton: {
     flexDirection: 'row',
@@ -585,6 +585,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    marginBottom: 12,
   },
   avatarPlaceholder: {
     width: 80,
@@ -593,6 +594,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 12,
   },
   avatarText: {
     fontSize: 36,
