@@ -9,7 +9,6 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
-  RefreshControl,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -45,7 +44,6 @@ export default function SettingsScreen() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -98,8 +96,10 @@ export default function SettingsScreen() {
 
   const fetchSolanaBalance = async (address: string) => {
     try {
+      console.log('Settings: Fetching Solana balance for:', address);
       setLoadingBalances(true);
       const balance = await getSolanaBalance(address);
+      console.log('Settings: Received balance:', balance);
       setSolanaBalance(balance);
     } catch (error) {
       console.error('Error fetching Solana balance:', error);
@@ -107,21 +107,6 @@ export default function SettingsScreen() {
       setLoadingBalances(false);
     }
   };
-
-  const refreshBalances = async () => {
-    if (walletAddress) {
-      await fetchBscBalance(walletAddress);
-    }
-    if (solanaWalletAddress) {
-      await fetchSolanaBalance(solanaWalletAddress);
-    }
-  };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await refreshBalances();
-    setRefreshing(false);
-  }, [walletAddress, solanaWalletAddress]);
 
   const createWallet = async () => {
     if (creatingWallet) return;
@@ -313,16 +298,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#ffffff"
-            colors={["#ffffff"]}
-          />
-        }
-      >
+      <ScrollView>
       <View style={styles.header}>
         {userAvatar ? (
           <Image source={{ uri: userAvatar }} style={styles.avatar} />

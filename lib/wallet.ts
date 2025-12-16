@@ -11,7 +11,11 @@ global.Buffer = global.Buffer || Buffer;
 const PRIVATE_KEY_PREFIX = 'wallet_private_key_';
 const SOLANA_PRIVATE_KEY_PREFIX = 'solana_wallet_private_key_';
 const BSC_RPC_URL = 'https://bsc-dataseed1.binance.org';
-const SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
+const SOLANA_RPC_URLS = [
+  'https://api.mainnet-beta.solana.com',
+  'https://solana-api.projectserum.com',
+  'https://rpc.ankr.com/solana'
+];
 
 const setSecureItem = async (key: string, value: string): Promise<void> => {
   if (Platform.OS === 'web') {
@@ -143,17 +147,30 @@ export const generateSolanaWallet = async (): Promise<SolanaWallet> => {
 };
 
 export const getSolanaBalance = async (address: string): Promise<string> => {
-  try {
-    const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
-    const publicKey = new PublicKey(address);
-    const balance = await connection.getBalance(publicKey);
-    const balanceInSol = balance / LAMPORTS_PER_SOL;
+  console.log('Fetching Solana balance for address:', address);
 
-    return balanceInSol.toFixed(4);
-  } catch (error) {
-    console.error('Error getting Solana balance:', error);
-    return '0.0000';
+  for (let i = 0; i < SOLANA_RPC_URLS.length; i++) {
+    const rpcUrl = SOLANA_RPC_URLS[i];
+    try {
+      console.log(`Trying RPC endpoint ${i + 1}/${SOLANA_RPC_URLS.length}:`, rpcUrl);
+      const connection = new Connection(rpcUrl, 'confirmed');
+      const publicKey = new PublicKey(address);
+      const balance = await connection.getBalance(publicKey);
+      console.log('Raw balance (lamports):', balance);
+      const balanceInSol = balance / LAMPORTS_PER_SOL;
+      console.log('Balance in SOL:', balanceInSol);
+
+      return balanceInSol.toFixed(4);
+    } catch (error) {
+      console.error(`Error with RPC ${rpcUrl}:`, error);
+      if (i === SOLANA_RPC_URLS.length - 1) {
+        console.error('All RPC endpoints failed');
+        return '0.0000';
+      }
+    }
   }
+
+  return '0.0000';
 };
 
 export const authenticateWithBiometric = async (): Promise<boolean> => {
