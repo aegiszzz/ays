@@ -6,71 +6,140 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  TextInput,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Search, MessageCircle } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Plus } from 'lucide-react-native';
+import { useResponsive } from '@/lib/responsive';
 
-interface User {
+interface Conversation {
   id: string;
-  username: string;
-  email: string;
+  other_user_id: string;
+  other_username: string;
+  last_message: string | null;
+  last_message_at: string;
+  unread_count: number;
 }
 
 export default function DirectMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
+  const { isDesktop } = useResponsive();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (user) {
-      fetchUsers();
+      fetchConversations();
+
+      const subscription = supabase
+        .channel('direct_messages_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'direct_messages',
+            filter: `sender_id=eq.${user.id},recipient_id=eq.${user.id}`,
+          },
+          () => {
+            fetchConversations();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
     }
   }, [user]);
 
-  const fetchUsers = async () => {
+  const fetchConversations = async () => {
+    if (!user) return;
+
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, username, email')
-        .neq('id', user?.id);
+      const { data: messages, error } = await supabase
+        .from('direct_messages')
+        .select(`
+          id,
+          sender_id,
+          recipient_id,
+          content,
+          created_at,
+          sender:users!sender_id(id, username),
+          recipient:users!recipient_id(id, username)
+        `)
+        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setUsers(data || []);
+      const conversationMap = new Map<string, Conversation>();
+
+      messages?.forEach((msg: any) => {
+        const isOutgoing = msg.sender_id === user.id;
+        const otherId = isOutgoing ? msg.recipient_id : msg.sender_id;
+        const otherUsername = isOutgoing ? msg.recipient.username : msg.sender.username;
+
+        if (!conversationMap.has(otherId)) {
+          conversationMap.set(otherId, {
+            id: otherId,
+            other_user_id: otherId,
+            other_username: otherUsername,
+            last_message: msg.content,
+            last_message_at: msg.created_at,
+            unread_count: 0,
+          });
+        }
+      });
+
+      setConversations(Array.from(conversationMap.values()));
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching conversations:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredUsers = users.filter(
-    u =>
-      u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleSelectUser = (selectedUser: User) => {
+  const handleSelectConversation = (conv: Conversation) => {
     router.push({
       pathname: '/conversation',
-      params: { userId: selectedUser.id, username: selectedUser.username },
+      params: { userId: conv.other_user_id, username: conv.other_username },
     });
   };
 
-  const renderUserItem = ({ item }: { item: User }) => (
-    <TouchableOpacity style={styles.userCard} onPress={() => handleSelectUser(item)}>
+  const handleNewMessage = () => {
+    router.push('/send-message');
+  };
+
+  const renderConversationItem = ({ item }: { item: Conversation }) => (
+    <TouchableOpacity style={styles.conversationCard} onPress={() => handleSelectConversation(item)}>
       <View style={styles.avatarContainer}>
-        <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
+        <Text style={styles.avatarText}>{item.other_username.charAt(0).toUpperCase()}</Text>
       </View>
-      <View style={styles.userInfo}>
-        <Text style={styles.username}>@{item.username}</Text>
+      <View style={styles.conversationInfo}>
+        <View style={styles.conversationHeader}>
+          <Text style={styles.username}>@{item.other_username}</Text>
+          {item.last_message_at && (
+            <Text style={styles.timestamp}>
+              {new Date(item.last_message_at).toLocaleDateString()}
+            </Text>
+          )}
+        </View>
+        {item.last_message && (
+          <Text style={styles.lastMessage} numberOfLines={1}>
+            {item.last_message}
+          </Text>
+        )}
       </View>
-      <MessageCircle size={24} color="#666" />
+      {item.unread_count > 0 && (
+        <View style={styles.unreadBadge}>
+          <Text style={styles.unreadText}>{item.unread_count}</Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 
@@ -81,23 +150,17 @@ export default function DirectMessageScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
-        </TouchableOpacity>
+        {!isDesktop && (
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#000" />
+          </TouchableOpacity>
+        )}
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Direct Message</Text>
-          <Text style={styles.subtitle}>Send to a specific person</Text>
+          <Text style={styles.title}>Messages</Text>
         </View>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <Search size={20} color="#666" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search users..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+        <TouchableOpacity onPress={handleNewMessage} style={styles.newMessageButton}>
+          <Plus size={24} color="#000" />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -106,13 +169,17 @@ export default function DirectMessageScreen() {
         </View>
       ) : (
         <FlatList
-          data={filteredUsers}
-          renderItem={renderUserItem}
+          data={conversations}
+          renderItem={renderConversationItem}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, isDesktop && styles.listDesktop]}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No users found</Text>
+              <MessageCircle size={48} color="#ccc" />
+              <Text style={styles.emptyText}>No messages yet</Text>
+              <TouchableOpacity style={styles.emptyButton} onPress={handleNewMessage}>
+                <Text style={styles.emptyButtonText}>Start a conversation</Text>
+              </TouchableOpacity>
             </View>
           }
         />
@@ -129,44 +196,27 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 16,
     paddingTop: 60,
+    paddingBottom: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
   backButton: {
     marginRight: 16,
+    padding: 4,
   },
   headerContent: {
     flex: 1,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    margin: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
+  newMessageButton: {
+    padding: 8,
   },
   centerContainer: {
     flex: 1,
@@ -174,20 +224,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   list: {
-    padding: 16,
+    padding: 0,
   },
-  userCard: {
+  listDesktop: {
+    marginLeft: 220,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  conversationCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
   },
   avatarContainer: {
     width: 48,
@@ -201,26 +252,68 @@ const styles = StyleSheet.create({
   avatarText: {
     color: '#fff',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
-  userInfo: {
+  conversationInfo: {
     flex: 1,
+  },
+  conversationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   username: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 4,
+    color: '#1a1a1a',
   },
-  email: {
+  timestamp: {
+    fontSize: 12,
+    color: '#999',
+  },
+  lastMessage: {
     fontSize: 14,
     color: '#666',
   },
-  emptyContainer: {
-    padding: 40,
+  unreadBadge: {
+    backgroundColor: '#000',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 6,
+    marginLeft: 8,
+  },
+  unreadText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+    marginTop: 60,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#999',
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  emptyButton: {
+    backgroundColor: '#000',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  emptyButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

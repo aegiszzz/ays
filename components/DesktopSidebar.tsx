@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from 'react-native';
-import { Home, User, Bell, Share2, Settings } from 'lucide-react-native';
+import { Home, User, Bell, Share2, Settings, MessageCircle } from 'lucide-react-native';
 import { useRouter, usePathname } from 'expo-router';
 
 export default function DesktopSidebar() {
@@ -15,6 +15,7 @@ export default function DesktopSidebar() {
   const tabs = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'Shares', path: '/shares', icon: Share2 },
+    { name: 'Messages', path: '/direct-message', icon: MessageCircle },
     { name: 'Notifications', path: '/notifications', icon: Bell },
     { name: 'Profile', path: '/profile', icon: User },
     { name: 'Settings', path: '/settings', icon: Settings },
