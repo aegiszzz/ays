@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
   const { width } = useWindowDimensions();
-  const isDesktop = Platform.OS === 'web' && width > 768;
+  const isDesktop = Platform.OS === 'web' && width >= 1024;
   const router = useRouter();
   const pathname = usePathname();
 
