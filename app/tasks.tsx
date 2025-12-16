@@ -297,20 +297,20 @@ export default function TasksScreen() {
               <View style={styles.checkinIconContainer}>
                 <Calendar
                   size={32}
-                  color={checkedIn ? '#4CAF50' : '#FFD700'}
-                  fill={checkedIn ? '#4CAF50' : '#FFD700'}
+                  color={checkedIn ? '#9E9E9E' : '#FFD700'}
+                  fill={checkedIn ? '#9E9E9E' : '#FFD700'}
                 />
               </View>
               <View style={styles.checkinContent}>
-                <Text style={styles.checkinTitle}>
+                <Text style={[styles.checkinTitle, checkedIn && styles.checkinTitleDisabled]}>
                   {checkedIn ? 'Checked In Today!' : 'Daily Check-In'}
                 </Text>
-                <Text style={styles.checkinDescription}>
+                <Text style={[styles.checkinDescription, checkedIn && styles.checkinDescriptionDisabled]}>
                   {checkedIn ? 'Come back tomorrow!' : 'Tap to earn 1 point'}
                 </Text>
               </View>
               {checkedIn ? (
-                <CheckCircle size={28} color="#4CAF50" />
+                <CheckCircle size={28} color="#9E9E9E" />
               ) : checkingIn ? (
                 <ActivityIndicator size="small" color="#FFD700" />
               ) : (
@@ -527,8 +527,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   checkinCardCompleted: {
-    backgroundColor: '#F0F9F4',
-    borderColor: '#4CAF50',
+    backgroundColor: '#F5F5F5',
+    borderColor: '#BDBDBD',
+    opacity: 0.6,
   },
   checkinIconContainer: {
     width: 56,
@@ -550,6 +551,12 @@ const styles = StyleSheet.create({
   checkinDescription: {
     fontSize: 14,
     color: '#666',
+  },
+  checkinTitleDisabled: {
+    color: '#9E9E9E',
+  },
+  checkinDescriptionDisabled: {
+    color: '#BDBDBD',
   },
   checkinButton: {
     backgroundColor: '#FFD700',
