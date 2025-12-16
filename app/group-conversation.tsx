@@ -20,6 +20,8 @@ import { uploadToIPFS } from '@/lib/ipfs';
 import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import DesktopSidebar from '@/components/DesktopSidebar';
+import { useResponsive } from '@/lib/responsive';
 
 interface GroupMessage {
   id: string;
@@ -38,6 +40,7 @@ export default function GroupConversationScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { groupId, groupName } = useLocalSearchParams();
+  const { isDesktop } = useResponsive();
   const flatListRef = useRef<FlatList>(null);
 
   const [messages, setMessages] = useState<GroupMessage[]>([]);
@@ -271,11 +274,13 @@ export default function GroupConversationScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
+    <>
+      <DesktopSidebar />
+      <KeyboardAvoidingView
+        style={[styles.container, isDesktop && styles.containerDesktop]}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
@@ -332,6 +337,7 @@ export default function GroupConversationScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </>
   );
 }
 
@@ -339,6 +345,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  containerDesktop: {
+    marginLeft: 240,
   },
   header: {
     flexDirection: 'row',

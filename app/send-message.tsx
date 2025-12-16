@@ -12,6 +12,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Search, MessageCircle } from 'lucide-react-native';
+import DesktopSidebar from '@/components/DesktopSidebar';
+import { useResponsive } from '@/lib/responsive';
 
 interface User {
   id: string;
@@ -21,6 +23,7 @@ interface User {
 export default function SendMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { isDesktop } = useResponsive();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,8 +79,10 @@ export default function SendMessageScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <>
+      <DesktopSidebar />
+      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+        <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
@@ -117,7 +122,8 @@ export default function SendMessageScreen() {
           }
         />
       )}
-    </View>
+      </View>
+    </>
   );
 }
 
@@ -125,6 +131,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  containerDesktop: {
+    marginLeft: 240,
   },
   header: {
     flexDirection: 'row',

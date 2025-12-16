@@ -16,6 +16,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { uploadToIPFS } from '@/lib/ipfs';
 import { Camera, Image as ImageIcon, X, ArrowLeft, Users, Check, Video as VideoIcon } from 'lucide-react-native';
+import DesktopSidebar from '@/components/DesktopSidebar';
+import { useResponsive } from '@/lib/responsive';
 
 interface Friend {
   id: string;
@@ -26,6 +28,7 @@ interface Friend {
 export default function GroupShareScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { isDesktop } = useResponsive();
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -202,8 +205,10 @@ export default function GroupShareScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <>
+      <DesktopSidebar />
+      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+        <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
@@ -324,7 +329,8 @@ export default function GroupShareScreen() {
           </View>
         </ScrollView>
       )}
-    </View>
+      </View>
+    </>
   );
 }
 
@@ -332,6 +338,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  containerDesktop: {
+    marginLeft: 240,
   },
   header: {
     flexDirection: 'row',
