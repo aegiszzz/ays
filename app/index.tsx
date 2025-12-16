@@ -56,8 +56,8 @@ export default function LoginScreen() {
         return;
       }
 
-      if (accessCode.length !== 6 || !/^\d+$/.test(accessCode)) {
-        setError('Access code must be 6 digits');
+      if (accessCode.length !== 6 || !/^[A-Z0-9]+$/.test(accessCode)) {
+        setError('Access code must be 6 characters (letters and numbers)');
         return;
       }
     }
@@ -169,11 +169,11 @@ export default function LoginScreen() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Access Code (6 digits)"
+                placeholder="Access Code (e.g. A7B2K9)"
                 placeholderTextColor="#999"
                 value={accessCode}
-                onChangeText={setAccessCode}
-                keyboardType="number-pad"
+                onChangeText={(text) => setAccessCode(text.toUpperCase())}
+                autoCapitalize="characters"
                 maxLength={6}
               />
               <Text style={styles.betaText}>Beta access only - enter your invite code</Text>
