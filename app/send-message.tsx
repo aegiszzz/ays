@@ -100,7 +100,7 @@ export default function SendMessageScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       ) : (
         <FlatList
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#2c2c2e',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,

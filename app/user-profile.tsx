@@ -251,7 +251,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -271,13 +271,13 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       </View>
     );
@@ -288,7 +288,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -310,7 +310,7 @@ export default function UserProfileScreen() {
     <View style={styles.wrapper}>
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>{profile.name || profile.username}</Text>
         <View style={{ width: 40 }} />

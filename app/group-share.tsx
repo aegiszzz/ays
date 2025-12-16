@@ -215,7 +215,7 @@ export default function GroupShareScreen() {
 
       {loadingFriends ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       ) : friends.length === 0 ? (
         <View style={styles.emptyState}>
@@ -430,12 +430,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#2c2c2e',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#3a3a3c',
   },
   friendItemSelected: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#3a3a3c',
   },
   friendInfo: {
     flexDirection: 'row',

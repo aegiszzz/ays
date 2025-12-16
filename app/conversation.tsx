@@ -242,7 +242,7 @@ export default function ConversationScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       ) : (
         <FlatList
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   theirMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#2c2c2e',
   },
   messageImage: {
     width: 250,

@@ -293,7 +293,7 @@ export default function GroupConversationScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       ) : (
         <FlatList
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   messageBubble: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#2c2c2e',
     borderRadius: 16,
     padding: 12,
     shadowColor: '#000',

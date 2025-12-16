@@ -241,7 +241,7 @@ export default function TasksScreen() {
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContainer]}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#ffffff" />
       </View>
     );
   }
@@ -250,7 +250,7 @@ export default function TasksScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tasks & Points</Text>
         <View style={styles.pointsBadge}>
