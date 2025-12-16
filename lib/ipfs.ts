@@ -10,7 +10,6 @@ export const uploadToIPFS = async (uri: string): Promise<string> => {
     let blob: Blob;
 
     if (uri.startsWith('data:')) {
-      const base64Content = uri.split(',')[1];
       const response = await fetch(uri);
       blob = await response.blob();
     } else if (uri.startsWith('blob:') || uri.startsWith('http')) {
@@ -20,11 +19,12 @@ export const uploadToIPFS = async (uri: string): Promise<string> => {
       throw new Error('Unsupported URI format: ' + uri.substring(0, 50));
     }
 
+    const timestamp = Date.now();
     const formData = new FormData();
-    formData.append('file', blob as any, `image-${Date.now()}.jpg`);
+    formData.append('file', blob as any, `image-${timestamp}.jpg`);
 
     const metadata = JSON.stringify({
-      name: `AYS-${Date.now()}.jpg`,
+      name: `AYS-${timestamp}.jpg`,
     });
     formData.append('pinataMetadata', metadata);
 

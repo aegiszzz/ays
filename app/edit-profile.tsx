@@ -69,7 +69,6 @@ export default function EditProfileScreen() {
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      Alert.alert('Error', 'Failed to load profile');
     } finally {
       setLoading(false);
     }
@@ -81,7 +80,9 @@ export default function EditProfileScreen() {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: type === 'avatar' ? [1, 1] : [16, 9],
-        quality: 0.8,
+        quality: 0.6,
+        base64: false,
+        exif: false,
       });
 
       if (!result.canceled && result.assets[0]) {
@@ -93,7 +94,7 @@ export default function EditProfileScreen() {
           setUploadingCover(true);
         }
 
-        const ipfsCid = await uploadToIPFS(asset.uri, 'image');
+        const ipfsCid = await uploadToIPFS(asset.uri);
 
         if (type === 'avatar') {
           setAvatarUrl(ipfsCid);
@@ -105,7 +106,6 @@ export default function EditProfileScreen() {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to upload image');
       if (type === 'avatar') {
         setUploadingAvatar(false);
       } else {
@@ -118,7 +118,6 @@ export default function EditProfileScreen() {
     if (!user) return;
 
     if (bio.length > 200) {
-      Alert.alert('Error', 'Bio must be 200 characters or less');
       return;
     }
 
@@ -139,11 +138,9 @@ export default function EditProfileScreen() {
 
       if (error) throw error;
 
-      Alert.alert('Success', 'Profile updated successfully');
       router.back();
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Failed to update profile');
     } finally {
       setSaving(false);
     }
