@@ -29,7 +29,6 @@ import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Vi
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
-import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Comment {
   id: string;
@@ -60,7 +59,6 @@ interface MediaShare {
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { width } = useWindowDimensions();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,8 +80,6 @@ export default function HomeScreen() {
   const [isPublic, setIsPublic] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-
-  const isDesktop = width > 768;
 
   useEffect(() => {
     if (user) {
@@ -514,7 +510,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={[styles.card, isDesktop && styles.cardDesktop]}>
+      <View style={styles.card}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -543,14 +539,14 @@ export default function HomeScreen() {
         </View>
 
         {item.media_type === 'video' ? (
-          <View style={[styles.videoContainer, isDesktop && styles.mediaDesktop]}>
-            <VideoPlayer uri={imageUrl} style={[styles.media, isDesktop && styles.mediaDesktop]} />
+          <View style={styles.videoContainer}>
+            <VideoPlayer uri={imageUrl} style={styles.media} />
             <View style={styles.videoIndicator}>
               <VideoIcon size={20} color="#fff" />
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={[styles.media, isDesktop && styles.mediaDesktop]} resizeMode="cover" />
+          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
         )}
 
         <View style={styles.actions}>
@@ -618,12 +614,10 @@ export default function HomeScreen() {
   }
 
   return (
-    <>
-      <DesktopSidebar />
-      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-        <InstallPrompt />
-      <View style={[styles.header, isDesktop && styles.headerDesktop]}>
-        <View style={[styles.headerTop, isDesktop && styles.headerTopDesktop]}>
+    <View style={styles.container}>
+      <InstallPrompt />
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
           <View>
             <Text style={styles.title}>AYS</Text>
             <Text style={styles.subtitle}>Discover amazing content</Text>
@@ -647,7 +641,7 @@ export default function HomeScreen() {
         data={media.filter(item => item.is_public)}
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={[styles.list, isDesktop && styles.listDesktop]}
+        contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -907,8 +901,7 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
       </Modal>
-      </View>
-    </>
+    </View>
   );
 }
 
@@ -916,9 +909,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  containerDesktop: {
-    marginLeft: 240,
   },
   centerContainer: {
     flex: 1,
@@ -933,18 +923,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
-  headerDesktop: {
-    alignItems: 'center',
-  },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
-  },
-  headerTopDesktop: {
-    maxWidth: 600,
-    width: '100%',
   },
   searchButton: {
     padding: 8,
@@ -964,23 +947,11 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: 16,
   },
-  listDesktop: {
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 600,
-  },
   card: {
     backgroundColor: '#fff',
     marginBottom: 1,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
-  },
-  cardDesktop: {
-    marginBottom: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1017,9 +988,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
     backgroundColor: '#f0f0f0',
-  },
-  mediaDesktop: {
-    height: 400,
   },
   videoContainer: {
     position: 'relative',

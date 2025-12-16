@@ -7,14 +7,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  useWindowDimensions,
 } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Heart, MessageCircle, UserPlus, Users, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import ResponsiveContainer from '@/components/ResponsiveContainer';
-import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Notification {
   id: string;
@@ -33,12 +30,9 @@ interface Notification {
 export default function NotificationsScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { width } = useWindowDimensions();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  const isDesktop = width > 768;
 
   useEffect(() => {
     if (user) {
@@ -250,8 +244,7 @@ export default function NotificationsScreen() {
     <TouchableOpacity
       style={[
         styles.notificationItem,
-        !item.read && styles.unreadNotification,
-        isDesktop && styles.notificationItemDesktop
+        !item.read && styles.unreadNotification
       ]}
       onPress={() => handleNotificationPress(item)}
     >
@@ -277,22 +270,14 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <>
-        <DesktopSidebar />
-        <ResponsiveContainer>
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#3b82f6" />
-          </View>
-        </ResponsiveContainer>
-      </>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
     );
   }
 
   return (
-    <>
-      <DesktopSidebar />
-      <ResponsiveContainer>
-      <View style={styles.container}>
+    <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Notifications</Text>
           {unreadCount > 0 && (
@@ -321,15 +306,10 @@ export default function NotificationsScreen() {
                 tintColor="#3b82f6"
               />
             }
-            contentContainerStyle={[
-              { paddingTop: 16, paddingBottom: 100 },
-              isDesktop && styles.listContentDesktop
-            ]}
+            contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
           />
         )}
-      </View>
-      </ResponsiveContainer>
-    </>
+    </View>
   );
 }
 
@@ -382,11 +362,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  notificationItemDesktop: {
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
-  },
   unreadNotification: {
     backgroundColor: '#f0f7ff',
     borderLeftWidth: 3,
@@ -431,9 +406,5 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 16,
     textAlign: 'center',
-  },
-  listContentDesktop: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
   },
 });

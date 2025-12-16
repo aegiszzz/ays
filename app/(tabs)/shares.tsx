@@ -8,15 +8,12 @@ import {
   ActivityIndicator,
   Image,
   Modal,
-  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Users, MessageCircle, Plus, X } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { useResponsive } from '@/lib/responsive';
-import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface Conversation {
   id: string;
@@ -40,7 +37,6 @@ interface Conversation {
 export default function SharesScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { isDesktop } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
@@ -255,9 +251,7 @@ export default function SharesScreen() {
 
   if (conversations.length === 0) {
     return (
-    <>
-      <DesktopSidebar />
-      <View style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Shares</Text>
         <Text style={styles.subtitle}>Choose how to share your media</Text>
@@ -289,15 +283,12 @@ export default function SharesScreen() {
         </TouchableOpacity>
       </View>
       </View>
-    </>
     );
   }
 
   return (
-    <>
-      <DesktopSidebar />
-      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-      <View style={[styles.header, isDesktop && styles.headerDesktop]}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <Text style={styles.title}>Messages</Text>
         <TouchableOpacity
           style={styles.addButton}
@@ -400,8 +391,7 @@ export default function SharesScreen() {
           </View>
         </View>
       </Modal>
-      </View>
-    </>
+    </View>
   );
 }
 
@@ -409,12 +399,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  containerDesktop: {
-    marginLeft: 240,
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
   },
   centerContainer: {
     flex: 1,
@@ -431,9 +415,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
-  },
-  headerDesktop: {
-    paddingHorizontal: 40,
   },
   title: {
     fontSize: 28,

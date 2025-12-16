@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useEffect } from 'react';
 import InstallPrompt from '../components/InstallPrompt';
-import DesktopSidebar from '../components/DesktopSidebar';
 
 function RootNavigator() {
   const { session, loading } = useAuth();
@@ -47,12 +46,9 @@ function RootNavigator() {
     );
   }
 
-  const inAuthGroup = segments[0] === '(tabs)';
-
   return (
     <>
       <InstallPrompt />
-      {session && inAuthGroup && <DesktopSidebar />}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />

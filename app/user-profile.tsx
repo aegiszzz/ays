@@ -17,7 +17,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { useResponsive } from '@/lib/responsive';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import {
@@ -60,7 +59,6 @@ export default function UserProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { isDesktop } = useResponsive();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +70,7 @@ export default function UserProfileScreen() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [friendshipId, setFriendshipId] = useState<string | null>(null);
 
-  const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
+  const ITEM_SIZE = (width - 48) / 3;
 
   useEffect(() => {
     console.log('UserProfileScreen - All params:', params);
@@ -323,7 +321,7 @@ export default function UserProfileScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
+      <ScrollView style={styles.container}>
         {coverImage && <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />}
         <View style={styles.header}>
           {userAvatar ? (
@@ -531,12 +529,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  },
-  containerDesktop: {
-    marginLeft: 220,
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
   },
   coverImage: {
     width: '100%',

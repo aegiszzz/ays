@@ -10,7 +10,6 @@ import {
   Modal,
   TouchableOpacity,
   Linking,
-  useWindowDimensions,
   TextInput,
   Alert,
   ScrollView,
@@ -19,10 +18,8 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
-import { useResponsive } from '@/lib/responsive';
 import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play, Heart, MessageCircle, Share, Trash2, Edit2 } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
-import DesktopSidebar from '@/components/DesktopSidebar';
 
 interface MediaItem {
   id: string;
@@ -48,8 +45,6 @@ interface UserProfile {
 export default function ProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const { isDesktop } = useResponsive();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +59,8 @@ export default function ProfileScreen() {
   const [feedModalVisible, setFeedModalVisible] = useState(false);
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
 
-  const ITEM_SIZE = isDesktop ? 200 : (width - 48) / 3;
+  const { width } = Dimensions.get('window');
+  const ITEM_SIZE = (width - 48) / 3;
 
   useFocusEffect(
     useCallback(() => {
@@ -327,8 +323,7 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <DesktopSidebar />
-      <ScrollView style={[styles.container, isDesktop && styles.containerDesktop]}>
+    <ScrollView style={styles.container}>
         {coverImage && (
           <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
         )}
@@ -537,12 +532,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  containerDesktop: {
-    marginLeft: 240,
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
   },
   coverImage: {
     width: '100%',

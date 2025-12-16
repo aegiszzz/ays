@@ -17,8 +17,6 @@ import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye,
 import { generateWallet, encryptPrivateKey, shortenAddress } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import ResponsiveContainer from '../../components/ResponsiveContainer';
-import DesktopSidebar from '../../components/DesktopSidebar';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
@@ -226,9 +224,7 @@ export default function SettingsScreen() {
   });
 
   return (
-    <>
-      <DesktopSidebar />
-      <ResponsiveContainer style={styles.container} maxWidth={600}>
+    <View style={styles.container}>
       <ScrollView>
       <View style={styles.header}>
         {userAvatar ? (
@@ -514,8 +510,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
       </ScrollView>
-      </ResponsiveContainer>
-    </>
+    </View>
   );
 }
 

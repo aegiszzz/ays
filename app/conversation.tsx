@@ -17,8 +17,6 @@ import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
 import { ArrowLeft, Send, Camera, Image as ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import DesktopSidebar from '@/components/DesktopSidebar';
-import { useResponsive } from '@/lib/responsive';
 
 interface Message {
   id: string;
@@ -35,7 +33,6 @@ export default function ConversationScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { userId, username } = useLocalSearchParams();
-  const { isDesktop } = useResponsive();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState('');
@@ -232,9 +229,7 @@ export default function ConversationScreen() {
   }
 
   return (
-    <>
-      <DesktopSidebar />
-      <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+    <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
@@ -306,7 +301,6 @@ export default function ConversationScreen() {
         </View>
       </View>
     </View>
-    </>
   );
 }
 
@@ -314,9 +308,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  containerDesktop: {
-    marginLeft: 240,
   },
   header: {
     flexDirection: 'row',

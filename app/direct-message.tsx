@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  useWindowDimensions,
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, MessageCircle, Plus } from 'lucide-react-native';
-import { useResponsive } from '@/lib/responsive';
 
 interface Conversation {
   id: string;
@@ -27,7 +25,6 @@ interface Conversation {
 export default function DirectMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { isDesktop } = useResponsive();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -150,11 +147,9 @@ export default function DirectMessageScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {!isDesktop && (
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={24} color="#000" />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <ArrowLeft size={24} color="#000" />
+        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Messages</Text>
         </View>
@@ -172,7 +167,7 @@ export default function DirectMessageScreen() {
           data={conversations}
           renderItem={renderConversationItem}
           keyExtractor={item => item.id}
-          contentContainerStyle={[styles.list, isDesktop && styles.listDesktop]}
+          contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <MessageCircle size={48} color="#ccc" />
@@ -223,12 +218,6 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 0,
-  },
-  listDesktop: {
-    marginLeft: 220,
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
   },
   conversationCard: {
     flexDirection: 'row',
