@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,12 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { useRouter } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw } from 'lucide-react-native';
 import { generateWallet, encryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -44,12 +45,15 @@ export default function SettingsScreen() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchUsername();
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchUsername();
+      }
+    }, [user])
+  );
 
   const fetchUsername = async () => {
     try {
@@ -103,6 +107,21 @@ export default function SettingsScreen() {
       setLoadingBalances(false);
     }
   };
+
+  const refreshBalances = async () => {
+    if (walletAddress) {
+      await fetchBscBalance(walletAddress);
+    }
+    if (solanaWalletAddress) {
+      await fetchSolanaBalance(solanaWalletAddress);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshBalances();
+    setRefreshing(false);
+  }, [walletAddress, solanaWalletAddress]);
 
   const createWallet = async () => {
     if (creatingWallet) return;
@@ -294,7 +313,16 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#ffffff"
+            colors={["#ffffff"]}
+          />
+        }
+      >
       <View style={styles.header}>
         {userAvatar ? (
           <Image source={{ uri: userAvatar }} style={styles.avatar} />
@@ -358,8 +386,17 @@ export default function SettingsScreen() {
         {walletAddress ? (
           <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
-              <Wallet size={24} color="#F0B90B" />
-              <Text style={styles.walletTitle}>BSC Wallet</Text>
+              <View style={styles.walletTitleContainer}>
+                <Wallet size={24} color="#F0B90B" />
+                <Text style={styles.walletTitle}>BSC Wallet</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => fetchBscBalance(walletAddress)}
+                style={styles.refreshButton}
+                disabled={loadingBalances}
+              >
+                <RefreshCw size={20} color="#007AFF" />
+              </TouchableOpacity>
             </View>
             <View style={styles.walletAddressContainer}>
               <Text style={styles.walletAddress}>{shortenAddress(walletAddress)}</Text>
@@ -370,7 +407,7 @@ export default function SettingsScreen() {
             <View style={styles.balanceContainer}>
               <Text style={styles.balanceLabel}>Balance:</Text>
               {loadingBalances ? (
-                <ActivityIndicator size="small" color="#000" />
+                <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <Text style={styles.balanceValue}>{bscBalance} BNB</Text>
               )}
@@ -424,8 +461,17 @@ export default function SettingsScreen() {
         {solanaWalletAddress ? (
           <View style={[styles.walletCard, { marginTop: 12 }]}>
             <View style={styles.walletHeader}>
-              <Wallet size={24} color="#14F195" />
-              <Text style={styles.walletTitle}>Solana Wallet</Text>
+              <View style={styles.walletTitleContainer}>
+                <Wallet size={24} color="#14F195" />
+                <Text style={styles.walletTitle}>Solana Wallet</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => fetchSolanaBalance(solanaWalletAddress)}
+                style={styles.refreshButton}
+                disabled={loadingBalances}
+              >
+                <RefreshCw size={20} color="#007AFF" />
+              </TouchableOpacity>
             </View>
             <View style={styles.walletAddressContainer}>
               <Text style={styles.walletAddress}>{shortenAddress(solanaWalletAddress)}</Text>
@@ -436,7 +482,7 @@ export default function SettingsScreen() {
             <View style={styles.balanceContainer}>
               <Text style={styles.balanceLabel}>Balance:</Text>
               {loadingBalances ? (
-                <ActivityIndicator size="small" color="#000" />
+                <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <Text style={styles.balanceValue}>{solanaBalance} SOL</Text>
               )}
@@ -796,13 +842,23 @@ const styles = StyleSheet.create({
   walletHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'space-between',
     marginBottom: 16,
+  },
+  walletTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   walletTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  refreshButton: {
+    padding: 8,
+    backgroundColor: '#1a3a52',
+    borderRadius: 8,
   },
   walletAddressContainer: {
     flexDirection: 'row',
