@@ -3,13 +3,16 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-nativ
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Mail } from 'lucide-react-native';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginScreen() {
   const { signInWithEmail, signUpWithEmail, session } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [accessCode, setAccessCode] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,9 +30,36 @@ export default function LoginScreen() {
       return;
     }
 
-    if (isSignUp && !username) {
-      setError('Please enter a username');
-      return;
+    if (isSignUp) {
+      if (!username) {
+        setError('Please enter a username');
+        return;
+      }
+
+      if (!confirmPassword) {
+        setError('Please confirm your password');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return;
+      }
+
+      if (!accessCode) {
+        setError('Please enter your access code');
+        return;
+      }
+
+      if (accessCode.length !== 6 || !/^\d+$/.test(accessCode)) {
+        setError('Access code must be 6 digits');
+        return;
+      }
     }
 
     setLoading(true);
@@ -37,8 +67,39 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
+        const { data: codeData, error: codeError } = await supabase
+          .from('access_codes')
+          .select('id, code, used')
+          .eq('code', accessCode)
+          .maybeSingle();
+
+        if (codeError) {
+          throw new Error('Failed to verify access code');
+        }
+
+        if (!codeData) {
+          throw new Error('Invalid access code');
+        }
+
+        if (codeData.used) {
+          throw new Error('This access code has already been used');
+        }
+
         isSigningUp.current = true;
         const result = await signUpWithEmail(email, password, username);
+
+        const { error: updateError } = await supabase
+          .from('access_codes')
+          .update({
+            used: true,
+            used_at: new Date().toISOString(),
+          })
+          .eq('code', accessCode);
+
+        if (updateError) {
+          console.error('Failed to mark access code as used:', updateError);
+        }
+
         router.replace({
           pathname: '/verify-email',
           params: {
@@ -96,6 +157,28 @@ export default function LoginScreen() {
             onChangeText={setPassword}
             secureTextEntry
           />
+          {isSignUp && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                placeholderTextColor="#999"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Access Code (6 digits)"
+                placeholderTextColor="#999"
+                value={accessCode}
+                onChangeText={setAccessCode}
+                keyboardType="number-pad"
+                maxLength={6}
+              />
+              <Text style={styles.betaText}>Beta access only - enter your invite code</Text>
+            </>
+          )}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -203,6 +286,13 @@ const styles = StyleSheet.create({
     color: '#ff3b30',
     fontSize: 14,
     marginBottom: 8,
+  },
+  betaText: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontStyle: 'italic',
   },
   infoText: {
     fontSize: 12,
