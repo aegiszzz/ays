@@ -289,7 +289,7 @@ export default function SharesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Messages</Text>
+        <Text style={styles.title}>Shares</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowOptionsModal(true)}

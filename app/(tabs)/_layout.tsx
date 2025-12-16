@@ -1,10 +1,86 @@
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
 import { Home, User, Bell, Share2, Settings } from 'lucide-react-native';
-import { useWindowDimensions, Platform } from 'react-native';
+import { useWindowDimensions, Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width > 768;
+  const router = useRouter();
+  const pathname = usePathname();
+
+  if (isDesktop) {
+    return (
+      <View style={styles.desktopContainer}>
+        <View style={styles.sidebar}>
+          <View style={styles.sidebarHeader}>
+            <Text style={styles.sidebarTitle}>AYS</Text>
+          </View>
+
+          <View style={styles.sidebarMenu}>
+            <TouchableOpacity
+              style={[styles.sidebarItem, pathname === '/' && styles.sidebarItemActive]}
+              onPress={() => router.push('/')}>
+              <Home size={24} color={pathname === '/' ? '#000' : '#666'} />
+              <Text style={[styles.sidebarItemText, pathname === '/' && styles.sidebarItemTextActive]}>
+                Home
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sidebarItem, pathname === '/shares' && styles.sidebarItemActive]}
+              onPress={() => router.push('/shares')}>
+              <Share2 size={24} color={pathname === '/shares' ? '#000' : '#666'} />
+              <Text style={[styles.sidebarItemText, pathname === '/shares' && styles.sidebarItemTextActive]}>
+                Shares
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sidebarItem, pathname === '/notifications' && styles.sidebarItemActive]}
+              onPress={() => router.push('/notifications')}>
+              <Bell size={24} color={pathname === '/notifications' ? '#000' : '#666'} />
+              <Text style={[styles.sidebarItemText, pathname === '/notifications' && styles.sidebarItemTextActive]}>
+                Notifications
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sidebarItem, pathname === '/profile' && styles.sidebarItemActive]}
+              onPress={() => router.push('/profile')}>
+              <User size={24} color={pathname === '/profile' ? '#000' : '#666'} />
+              <Text style={[styles.sidebarItemText, pathname === '/profile' && styles.sidebarItemTextActive]}>
+                Profile
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sidebarItem, pathname === '/settings' && styles.sidebarItemActive]}
+              onPress={() => router.push('/settings')}>
+              <Settings size={24} color={pathname === '/settings' ? '#000' : '#666'} />
+              <Text style={[styles.sidebarItemText, pathname === '/settings' && styles.sidebarItemTextActive]}>
+                Settings
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.desktopContent}>
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' },
+            }}>
+            <Tabs.Screen name="index" />
+            <Tabs.Screen name="shares" />
+            <Tabs.Screen name="notifications" />
+            <Tabs.Screen name="profile" />
+            <Tabs.Screen name="settings" />
+          </Tabs>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <Tabs
@@ -13,9 +89,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#000000',
         tabBarInactiveTintColor: '#8E8E93',
         tabBarShowLabel: false,
-        tabBarStyle: isDesktop ? {
-          display: 'none',
-        } : {
+        tabBarStyle: {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',
@@ -62,3 +136,56 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  desktopContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  sidebar: {
+    width: 280,
+    backgroundColor: '#fff',
+    borderRightWidth: 1,
+    borderRightColor: '#E5E5EA',
+    paddingTop: 20,
+  },
+  sidebarHeader: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  sidebarTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  sidebarMenu: {
+    paddingTop: 8,
+  },
+  sidebarItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 16,
+    borderRadius: 8,
+    marginHorizontal: 12,
+    marginVertical: 2,
+  },
+  sidebarItemActive: {
+    backgroundColor: '#f5f5f5',
+  },
+  sidebarItemText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#666',
+  },
+  sidebarItemTextActive: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  desktopContent: {
+    flex: 1,
+  },
+});
