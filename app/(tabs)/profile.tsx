@@ -327,27 +327,27 @@ export default function ProfileScreen() {
   return (
     <>
     <ScrollView style={styles.container}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity
-            style={styles.pointsHeaderButton}
-            onPress={() => router.push('/tasks')}
-          >
-            <Star size={18} color="#FFD700" fill="#FFD700" />
-            <Text style={styles.pointsHeaderText}>Points</Text>
-          </TouchableOpacity>
-        </View>
-
         {coverImage && (
           <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
         )}
         <View style={styles.header}>
-          {userAvatar ? (
-            <Image source={{ uri: userAvatar }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
-            </View>
-          )}
+          <View style={styles.avatarRow}>
+            {userAvatar ? (
+              <Image source={{ uri: userAvatar }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={styles.pointsButton}
+              onPress={() => router.push('/tasks')}
+            >
+              <Star size={18} color="#FFD700" fill="#FFD700" />
+              <Text style={styles.pointsText}>Points</Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.name}>{userName}</Text>
           {profile?.username && <Text style={styles.username}>@{profile.username}</Text>}
 
@@ -546,31 +546,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  headerTop: {
-    backgroundColor: '#fff',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  pointsHeaderButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FFF9E6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFD700',
-  },
-  pointsHeaderText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
   coverImage: {
     width: '100%',
     height: 200,
@@ -584,11 +559,32 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 12,
+  },
+  pointsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  pointsText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginBottom: 12,
   },
   avatarPlaceholder: {
     width: 80,
@@ -597,7 +593,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
   },
   avatarText: {
     fontSize: 36,
