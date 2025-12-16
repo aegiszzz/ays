@@ -436,19 +436,19 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   centerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     flex: 1,
     textAlign: 'center',
     marginRight: -28,
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFF9E6',
+    backgroundColor: '#2c2416',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -476,13 +476,13 @@ const styles = StyleSheet.create({
   pointsText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#FFD700',
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   tab: {
     flex: 1,
@@ -492,15 +492,15 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: '#000',
+    borderBottomColor: '#ffffff',
   },
   tabText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#666',
+    color: '#8e8e93',
   },
   tabTextActive: {
-    color: '#000',
+    color: '#ffffff',
     fontWeight: '600',
   },
   content: {
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   checkinCard: {
-    backgroundColor: '#FFF9E6',
+    backgroundColor: '#2c2416',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -522,20 +522,20 @@ const styles = StyleSheet.create({
     borderColor: '#FFD700',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 4,
   },
   checkinCardCompleted: {
-    backgroundColor: '#F5F5F5',
-    borderColor: '#BDBDBD',
+    backgroundColor: '#1c1c1e',
+    borderColor: '#3a3a3c',
     opacity: 0.6,
   },
   checkinIconContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -545,18 +545,18 @@ const styles = StyleSheet.create({
   checkinTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   checkinDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
   },
   checkinTitleDisabled: {
-    color: '#9E9E9E',
+    color: '#8e8e93',
   },
   checkinDescriptionDisabled: {
-    color: '#BDBDBD',
+    color: '#636366',
   },
   checkinButton: {
     backgroundColor: '#FFD700',
@@ -567,16 +567,16 @@ const styles = StyleSheet.create({
   checkinButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#000',
   },
   taskCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -593,12 +593,12 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   taskDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     marginBottom: 12,
     lineHeight: 20,
   },
@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
   taskPointsText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#FFD700',
   },
   progressContainer: {
     marginTop: 12,
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#2c2c2e',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: '#8e8e93',
     minWidth: 40,
     textAlign: 'right',
   },
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   userRankCard: {
-    backgroundColor: '#FFF9E6',
+    backgroundColor: '#2c2416',
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
@@ -668,17 +668,17 @@ const styles = StyleSheet.create({
   userRankText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     flex: 1,
     marginLeft: 12,
   },
   userRankPoints: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#FFD700',
   },
   leaderboardItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
     gap: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
   leaderboardRankText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#666',
+    color: '#8e8e93',
   },
   leaderboardUserInfo: {
     flex: 1,
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
   leaderboardUsername: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   leaderboardPoints: {

@@ -21,7 +21,7 @@ export default function TabLayout() {
             <TouchableOpacity
               style={[styles.sidebarItem, pathname === '/' && styles.sidebarItemActive]}
               onPress={() => router.push('/')}>
-              <Home size={24} color={pathname === '/' ? '#000' : '#666'} />
+              <Home size={24} color={pathname === '/' ? '#fff' : '#8e8e93'} />
               <Text style={[styles.sidebarItemText, pathname === '/' && styles.sidebarItemTextActive]}>
                 Home
               </Text>
@@ -30,7 +30,7 @@ export default function TabLayout() {
             <TouchableOpacity
               style={[styles.sidebarItem, pathname === '/shares' && styles.sidebarItemActive]}
               onPress={() => router.push('/shares')}>
-              <Share2 size={24} color={pathname === '/shares' ? '#000' : '#666'} />
+              <Share2 size={24} color={pathname === '/shares' ? '#fff' : '#8e8e93'} />
               <Text style={[styles.sidebarItemText, pathname === '/shares' && styles.sidebarItemTextActive]}>
                 Shares
               </Text>
@@ -39,7 +39,7 @@ export default function TabLayout() {
             <TouchableOpacity
               style={[styles.sidebarItem, pathname === '/notifications' && styles.sidebarItemActive]}
               onPress={() => router.push('/notifications')}>
-              <Bell size={24} color={pathname === '/notifications' ? '#000' : '#666'} />
+              <Bell size={24} color={pathname === '/notifications' ? '#fff' : '#8e8e93'} />
               <Text style={[styles.sidebarItemText, pathname === '/notifications' && styles.sidebarItemTextActive]}>
                 Notifications
               </Text>
@@ -48,7 +48,7 @@ export default function TabLayout() {
             <TouchableOpacity
               style={[styles.sidebarItem, pathname === '/profile' && styles.sidebarItemActive]}
               onPress={() => router.push('/profile')}>
-              <User size={24} color={pathname === '/profile' ? '#000' : '#666'} />
+              <User size={24} color={pathname === '/profile' ? '#fff' : '#8e8e93'} />
               <Text style={[styles.sidebarItemText, pathname === '/profile' && styles.sidebarItemTextActive]}>
                 Profile
               </Text>
@@ -57,7 +57,7 @@ export default function TabLayout() {
             <TouchableOpacity
               style={[styles.sidebarItem, pathname === '/settings' && styles.sidebarItemActive]}
               onPress={() => router.push('/settings')}>
-              <Settings size={24} color={pathname === '/settings' ? '#000' : '#666'} />
+              <Settings size={24} color={pathname === '/settings' ? '#fff' : '#8e8e93'} />
               <Text style={[styles.sidebarItemText, pathname === '/settings' && styles.sidebarItemTextActive]}>
                 Settings
               </Text>
@@ -86,13 +86,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#000000',
+        tabBarActiveTintColor: '#ffffff',
         tabBarInactiveTintColor: '#8E8E93',
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: '#000000',
           borderTopWidth: 1,
-          borderTopColor: '#E5E5EA',
+          borderTopColor: '#2c2c2e',
           paddingBottom: 5,
           paddingTop: 5,
           height: 55,
@@ -144,21 +144,22 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: 280,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderRightWidth: 1,
-    borderRightColor: '#E5E5EA',
+    borderRightColor: '#2c2c2e',
     paddingTop: 20,
   },
   sidebarHeader: {
     paddingHorizontal: 24,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   sidebarTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     letterSpacing: 1,
+    color: '#ffffff',
   },
   sidebarMenu: {
     paddingTop: 8,
@@ -174,15 +175,15 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   sidebarItemActive: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1c1c1e',
   },
   sidebarItemText: {
     fontSize: 18,
     fontWeight: '500',
-    color: '#666',
+    color: '#8e8e93',
   },
   sidebarItemTextActive: {
-    color: '#000',
+    color: '#ffffff',
     fontWeight: '600',
   },
   desktopContent: {
