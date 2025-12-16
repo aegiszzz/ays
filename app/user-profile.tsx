@@ -197,8 +197,8 @@ export default function UserProfileScreen() {
   };
 
   const handleMessage = () => {
-    if (!userId) return;
-    router.push({ pathname: '/send-message', params: { userId } });
+    if (!userId || !profile?.username) return;
+    router.push({ pathname: '/conversation', params: { userId, username: profile.username } });
   };
 
   const handleDownload = async (ipfsCid: string) => {
