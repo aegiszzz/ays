@@ -278,7 +278,7 @@ export default function SharesScreen() {
 
         <TouchableOpacity
           style={styles.optionCard}
-          onPress={() => router.push('/direct-message')}>
+          onPress={() => router.push('/send-message')}>
           <View style={styles.iconContainer}>
             <MessageCircle size={48} color="#000" />
           </View>
@@ -386,7 +386,7 @@ export default function SharesScreen() {
               style={styles.optionCard}
               onPress={() => {
                 setShowOptionsModal(false);
-                router.push('/direct-message');
+                router.push('/send-message');
               }}
             >
               <View style={styles.iconContainer}>
