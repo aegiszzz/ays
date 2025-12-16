@@ -316,13 +316,13 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#000000',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -331,14 +331,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#2c2c2e',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   markAllButton: {
     color: '#3b82f6',
@@ -351,19 +351,19 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 12,
     marginVertical: 6,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 2,
   },
   unreadNotification: {
-    backgroundColor: '#f0f7ff',
+    backgroundColor: '#1a2332',
     borderLeftWidth: 3,
     borderLeftColor: '#3b82f6',
   },
@@ -379,14 +379,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationText: {
-    color: '#1a1a1a',
+    color: '#ffffff',
     fontSize: 15,
     lineHeight: 20,
     marginBottom: 4,
     fontWeight: '500',
   },
   timeText: {
-    color: '#6b7280',
+    color: '#8e8e93',
     fontSize: 13,
   },
   unreadDot: {
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyText: {
-    color: '#6b7280',
+    color: '#8e8e93',
     fontSize: 16,
     textAlign: 'center',
   },

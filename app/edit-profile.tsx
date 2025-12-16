@@ -290,13 +290,13 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -305,9 +305,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   backButton: {
     padding: 4,
@@ -315,21 +315,22 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#ffffff',
   },
   saveButton: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#ffffff',
   },
   saveButtonDisabled: {
-    color: '#999',
+    color: '#3a3a3c',
   },
   content: {
     flex: 1,
   },
   coverContainer: {
     height: 200,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
   },
   coverImageButton: {
     width: '100%',
@@ -344,12 +345,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
   },
   coverPlaceholderText: {
     marginTop: 8,
     fontSize: 14,
-    color: '#999',
+    color: '#8e8e93',
   },
   uploadingOverlay: {
     position: 'absolute',
@@ -380,11 +381,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#fff',
+    borderColor: '#000000',
   },
   cameraIcon: {
     position: 'absolute',
@@ -393,11 +394,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: '#000000',
   },
   form: {
     padding: 16,
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 8,
   },
   labelRow: {
@@ -419,14 +420,14 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: '#999',
+    color: '#8e8e93',
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1c1c1e',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   textArea: {
     minHeight: 100,
@@ -435,7 +436,7 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1c1c1e',
     borderRadius: 12,
     paddingHorizontal: 12,
     gap: 8,
@@ -444,22 +445,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   helper: {
     fontSize: 12,
-    color: '#999',
+    color: '#8e8e93',
     marginTop: 4,
   },
   disabledInput: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3c',
   },
   disabledInputText: {
     fontSize: 16,
-    color: '#666',
+    color: '#8e8e93',
   },
 });

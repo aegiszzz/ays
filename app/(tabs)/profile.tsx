@@ -544,20 +544,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   coverImage: {
     width: '100%',
     height: 200,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     padding: 24,
     paddingTop: 12,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   avatarRow: {
     position: 'absolute',
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   pointsText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#000',
   },
   avatar: {
     width: 80,
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -599,22 +599,22 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#fff',
+    color: '#000',
   },
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   username: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     marginBottom: 8,
   },
   bio: {
     fontSize: 14,
-    color: '#1a1a1a',
+    color: '#ffffff',
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 12,
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: '#666',
+    color: '#8e8e93',
   },
   linkText: {
     color: '#007AFF',
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1c1c1e',
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 20,
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: '#ffffff',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -664,11 +664,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#8e8e93',
     marginTop: 2,
   },
   section: {
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 12,
   },
   loader: {
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridItem: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#2c2c2e',
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
   videoThumbnail: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -725,17 +725,17 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#999',
+    color: '#8e8e93',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#8e8e93',
     marginTop: 8,
     textAlign: 'center',
   },
   postCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     marginBottom: 12,
   },
   postHeader: {
@@ -758,19 +758,19 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
   postAvatarText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#fff',
+    color: '#000',
   },
   postUsername: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   postActions: {
     flexDirection: 'row',
@@ -782,11 +782,11 @@ const styles = StyleSheet.create({
   postMedia: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
   },
   postCaption: {
     fontSize: 14,
-    color: '#1a1a1a',
+    color: '#ffffff',
     padding: 12,
     lineHeight: 20,
   },
@@ -804,11 +804,11 @@ const styles = StyleSheet.create({
   interactionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -820,7 +820,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   editModalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 16,
     padding: 20,
     width: '90%',
@@ -829,21 +829,21 @@ const styles = StyleSheet.create({
   editModalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 16,
   },
   editInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#2c2c2e',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
     minHeight: 100,
     textAlignVertical: 'top',
   },
   charCount: {
     fontSize: 12,
-    color: '#999',
+    color: '#8e8e93',
     textAlign: 'right',
     marginTop: 8,
   },
@@ -857,29 +857,29 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: '#2c2c2e',
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: '#8e8e93',
   },
   updateButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   updateButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#000',
   },
   feedModalContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   feedModalHeader: {
     flexDirection: 'row',
@@ -888,9 +888,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   feedModalCloseButton: {
     padding: 4,
@@ -898,6 +898,6 @@ const styles = StyleSheet.create({
   feedModalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
 });

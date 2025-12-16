@@ -899,20 +899,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   header: {
     paddingTop: 60,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   headerTop: {
     flexDirection: 'row',
@@ -922,7 +922,7 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     padding: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1c1c1e',
     borderRadius: 20,
   },
   title: {
@@ -930,19 +930,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 2,
     letterSpacing: 0.5,
+    color: '#ffffff',
   },
   subtitle: {
     fontSize: 13,
-    color: '#666',
+    color: '#8e8e93',
   },
   list: {
     paddingBottom: 16,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     marginBottom: 1,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -953,13 +954,13 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   avatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -969,16 +970,17 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#ffffff',
   },
   timestamp: {
     fontSize: 11,
-    color: '#666',
+    color: '#8e8e93',
     marginTop: 2,
   },
   media: {
     width: '100%',
     height: 300,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
   },
   videoContainer: {
     position: 'relative',
@@ -1015,7 +1017,7 @@ const styles = StyleSheet.create({
   actionCount: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#000',
+    color: '#ffffff',
   },
   captionContainer: {
     flexDirection: 'row',
@@ -1025,10 +1027,12 @@ const styles = StyleSheet.create({
   captionUsername: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#ffffff',
   },
   caption: {
     fontSize: 14,
     flex: 1,
+    color: '#ffffff',
   },
   emptyContainer: {
     padding: 40,
@@ -1037,17 +1041,17 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#666',
+    color: '#8e8e93',
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#8e8e93',
     textAlign: 'center',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1055,12 +1059,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
     paddingTop: 60,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#ffffff',
   },
   commentsList: {
     flex: 1,
@@ -1076,30 +1081,30 @@ const styles = StyleSheet.create({
   emptyCommentsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: '#8e8e93',
     marginBottom: 8,
   },
   emptyCommentsSubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#8e8e93',
   },
   commentItem: {
     flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#2c2c2e',
   },
   commentAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   commentAvatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -1110,65 +1115,67 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 4,
+    color: '#ffffff',
   },
   commentText: {
     fontSize: 14,
-    color: '#000',
+    color: '#ffffff',
     marginBottom: 4,
   },
   commentTime: {
     fontSize: 12,
-    color: '#999',
+    color: '#8e8e93',
   },
   commentInputContainer: {
     flexDirection: 'row',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: '#2c2c2e',
     gap: 12,
     alignItems: 'flex-end',
   },
   commentInput: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1c1c1e',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 14,
     maxHeight: 100,
+    color: '#ffffff',
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#3a3a3c',
   },
   shareModalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   shareOptionsContainer: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   shareOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1c1c1e',
     borderRadius: 12,
   },
   shareOptionIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#2c2c2e',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -1176,6 +1183,7 @@ const styles = StyleSheet.create({
   shareOptionText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#ffffff',
   },
   friendsSectionHeader: {
     flexDirection: 'row',
@@ -1186,7 +1194,7 @@ const styles = StyleSheet.create({
   friendsSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: '#8e8e93',
   },
   friendsList: {
     flex: 1,
@@ -1196,19 +1204,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#2c2c2e',
   },
   friendAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   friendAvatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -1216,6 +1224,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
+    color: '#ffffff',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -1223,7 +1232,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1c1c1e',
     borderRadius: 20,
   },
   uploadPickerContainer: {
@@ -1231,17 +1240,18 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   uploadPickerButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1c1c1e',
     padding: 24,
     borderRadius: 12,
     alignItems: 'center',
     gap: 12,
     borderWidth: 2,
-    borderColor: '#e0e0e0',
+    borderColor: '#2c2c2e',
   },
   uploadPickerButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#ffffff',
   },
   uploadFormContainer: {
     flex: 1,
@@ -1254,7 +1264,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
     borderRadius: 12,
-    backgroundColor: '#ddd',
+    backgroundColor: '#2c2c2e',
   },
   uploadForm: {
     padding: 20,
@@ -1264,15 +1274,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#ffffff',
   },
   uploadInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#2c2c2e',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     minHeight: 100,
     textAlignVertical: 'top',
+    backgroundColor: '#1c1c1e',
+    color: '#ffffff',
   },
   uploadSwitchContainer: {
     flexDirection: 'row',
@@ -1281,7 +1294,7 @@ const styles = StyleSheet.create({
   },
   uploadHelperText: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     marginTop: -8,
   },
   uploadSuccessContainer: {
@@ -1296,7 +1309,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   uploadButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -1306,7 +1319,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   uploadButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -1315,7 +1328,7 @@ const styles = StyleSheet.create({
     height: 300,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#2c2c2e',
     borderRadius: 12,
   },
   videoText: {
@@ -1325,7 +1338,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   videoSubtext: {
-    color: '#999',
+    color: '#8e8e93',
     fontSize: 14,
     marginTop: 4,
   },
