@@ -177,9 +177,7 @@ export default function DirectMessageScreen() {
             <View style={styles.emptyContainer}>
               <MessageCircle size={48} color="#ccc" />
               <Text style={styles.emptyText}>No messages yet</Text>
-              <TouchableOpacity style={styles.emptyButton} onPress={handleNewMessage}>
-                <Text style={styles.emptyButtonText}>Start a conversation</Text>
-              </TouchableOpacity>
+              <Text style={styles.emptySubtext}>Tap + to start a new conversation</Text>
             </View>
           }
         />
@@ -303,17 +301,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#999',
     marginTop: 16,
-    marginBottom: 24,
   },
-  emptyButton: {
-    backgroundColor: '#000',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  emptyButtonText: {
-    color: '#fff',
+  emptySubtext: {
     fontSize: 14,
-    fontWeight: '600',
+    color: '#bbb',
+    marginTop: 8,
   },
 });

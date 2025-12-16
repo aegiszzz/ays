@@ -1,173 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  TextInput,
-  ScrollView,
+  FlatList,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { uploadToIPFS } from '@/lib/ipfs';
-import { Camera, Image as ImageIcon, X, ArrowLeft, Send } from 'lucide-react-native';
+import { ArrowLeft, Search, MessageCircle } from 'lucide-react-native';
+
+interface User {
+  id: string;
+  username: string;
+}
 
 export default function SendMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { userId, username } = useLocalSearchParams();
-  const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  const [caption, setCaption] = useState('');
-  const [sending, setSending] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const requestPermissions = async () => {
-    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
-    const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
-      alert('Sorry, we need camera and media library permissions!');
-      return false;
+  useEffect(() => {
+    if (user) {
+      fetchUsers();
     }
-    return true;
-  };
+  }, [user]);
 
-  const pickFromCamera = async () => {
-    const hasPermission = await requestPermissions();
-    if (!hasPermission) return;
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setSelectedMedia(result.assets[0].uri);
-      setMediaType(result.assets[0].type === 'video' ? 'video' : 'image');
-    }
-  };
-
-  const pickFromGallery = async () => {
-    const hasPermission = await requestPermissions();
-    if (!hasPermission) return;
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setSelectedMedia(result.assets[0].uri);
-      setMediaType(result.assets[0].type === 'video' ? 'video' : 'image');
-    }
-  };
-
-  const handleSend = async () => {
-    if (!selectedMedia || !user || !userId) return;
-
-    setSending(true);
+  const fetchUsers = async () => {
     try {
-      console.log('Starting upload, media URI:', selectedMedia);
-      const cid = await uploadToIPFS(selectedMedia);
-      console.log('Upload successful, CID:', cid);
-
-      const { error } = await supabase.from('direct_messages').insert({
-        sender_id: user.id,
-        receiver_id: userId as string,
-        ipfs_cid: cid,
-        media_type: mediaType,
-        caption: caption.trim() || null,
-        read: false,
-      });
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, username')
+        .neq('id', user?.id)
+        .order('username', { ascending: true });
 
       if (error) throw error;
-
-      alert(`Message sent to ${username} successfully!`);
-      router.back();
-    } catch (error: any) {
-      console.error('Send error:', error);
-      const errorMsg = error?.message || 'Unknown error';
-      alert(`Failed to send message: ${errorMsg}`);
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     } finally {
-      setSending(false);
+      setLoading(false);
     }
   };
+
+  const handleSelectUser = (selectedUser: User) => {
+    router.replace({
+      pathname: '/conversation',
+      params: { userId: selectedUser.id, username: selectedUser.username },
+    });
+  };
+
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const renderUserItem = ({ item }: { item: User }) => (
+    <TouchableOpacity style={styles.userCard} onPress={() => handleSelectUser(item)}>
+      <View style={styles.avatarContainer}>
+        <Text style={styles.avatarText}>{item.username.charAt(0).toUpperCase()}</Text>
+      </View>
+      <View style={styles.userInfo}>
+        <Text style={styles.username}>@{item.username}</Text>
+      </View>
+      <MessageCircle size={20} color="#666" />
+    </TouchableOpacity>
+  );
 
   if (!user) {
     return null;
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Send to {username}</Text>
-          <Text style={styles.subtitle}>Private message</Text>
+          <Text style={styles.title}>New Message</Text>
+          <Text style={styles.subtitle}>Select a person to chat with</Text>
         </View>
       </View>
 
-      {!selectedMedia ? (
-        <View style={styles.pickerContainer}>
-          <TouchableOpacity style={styles.pickerButton} onPress={pickFromCamera}>
-            <Camera size={32} color="#000" />
-            <Text style={styles.pickerButtonText}>Take Photo/Video</Text>
-          </TouchableOpacity>
+      <View style={styles.searchContainer}>
+        <Search size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by username..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoFocus
+        />
+      </View>
 
-          <TouchableOpacity style={styles.pickerButton} onPress={pickFromGallery}>
-            <ImageIcon size={32} color="#000" />
-            <Text style={styles.pickerButtonText}>Choose from Gallery</Text>
-          </TouchableOpacity>
+      {loading ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#000" />
         </View>
       ) : (
-        <View style={styles.uploadContainer}>
-          <View style={styles.previewContainer}>
-            <Image source={{ uri: selectedMedia }} style={styles.preview} resizeMode="cover" />
-            <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => setSelectedMedia(null)}>
-              <X size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.label}>Message (optional)</Text>
-            <TextInput
-              style={styles.input}
-              value={caption}
-              onChangeText={setCaption}
-              placeholder="Add a message..."
-              multiline
-              maxLength={500}
-            />
-
-            <TouchableOpacity
-              style={[styles.sendButton, sending && styles.sendButtonDisabled]}
-              onPress={handleSend}
-              disabled={sending}>
-              {sending ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Send size={20} color="#fff" />
-                  <Text style={styles.sendButtonText}>Send Message</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+        <FlatList
+          data={filteredUsers}
+          renderItem={renderUserItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {searchQuery ? 'No users found' : 'No users available'}
+              </Text>
+            </View>
+          }
+        />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -200,86 +150,72 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  pickerContainer: {
-    padding: 20,
-    gap: 16,
-  },
-  pickerButton: {
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 12,
+  searchContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    backgroundColor: '#fff',
+    margin: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  list: {
+    padding: 16,
+  },
+  userCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  pickerButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  uploadContainer: {
-    padding: 20,
-  },
-  previewContainer: {
-    position: 'relative',
-    marginBottom: 20,
-  },
-  preview: {
-    width: '100%',
-    height: 300,
-    borderRadius: 12,
-    backgroundColor: '#ddd',
-  },
-  removeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  form: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    gap: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  sendButton: {
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#000',
-    padding: 16,
-    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 8,
-    flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
+    marginRight: 12,
   },
-  sendButtonDisabled: {
-    opacity: 0.6,
-  },
-  sendButtonText: {
+  avatarText: {
     color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  username: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
   },
 });
