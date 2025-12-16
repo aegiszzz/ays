@@ -205,7 +205,7 @@ export default function GroupShareScreen() {
     <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Create Group</Text>
@@ -281,11 +281,11 @@ export default function GroupShareScreen() {
             {!selectedMedia ? (
               <View style={styles.mediaButtons}>
                 <TouchableOpacity style={styles.mediaButton} onPress={pickFromCamera}>
-                  <Camera size={24} color="#000" />
+                  <Camera size={24} color="#ffffff" />
                   <Text style={styles.mediaButtonText}>Camera</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.mediaButton} onPress={pickFromGallery}>
-                  <ImageIcon size={24} color="#000" />
+                  <ImageIcon size={24} color="#ffffff" />
                   <Text style={styles.mediaButtonText}>Gallery</Text>
                 </TouchableOpacity>
               </View>
@@ -293,7 +293,7 @@ export default function GroupShareScreen() {
               <View style={styles.mediaPreview}>
                 {mediaType === 'video' ? (
                   <View style={styles.videoPreview}>
-                    <VideoIcon size={32} color="#666" />
+                    <VideoIcon size={32} color="#8e8e93" />
                     <Text style={styles.videoText}>Video selected</Text>
                   </View>
                 ) : (
@@ -331,16 +331,16 @@ export default function GroupShareScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   backButton: {
     marginRight: 16,
@@ -352,10 +352,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 4,
+    color: '#ffffff',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
   },
   loadingContainer: {
     flex: 1,
@@ -371,68 +372,70 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#999',
+    color: '#8e8e93',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#8e8e93',
     marginTop: 8,
   },
   content: {
     flex: 1,
   },
   formSection: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#2c2c2e',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#2c2c2e',
+    color: '#ffffff',
   },
   selectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   selectionTitle: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#ffffff',
   },
   selectionCount: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
   },
   friendsList: {
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   friendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#2c2c2e',
   },
   friendItemSelected: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#2c2c2e',
   },
   friendInfo: {
     flexDirection: 'row',
@@ -448,34 +451,35 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
   friendAvatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
   },
   friendUsername: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#ffffff',
   },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#000',
-    borderColor: '#000',
+    backgroundColor: '#ffffff',
+    borderColor: '#ffffff',
   },
   mediaSection: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     padding: 16,
     marginTop: 16,
   },
@@ -483,7 +487,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   mediaButtons: {
     flexDirection: 'row',
@@ -495,15 +499,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#2c2c2e',
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#2c2c2e',
   },
   mediaButtonText: {
     fontSize: 14,
     fontWeight: '500',
+    color: '#ffffff',
   },
   mediaPreview: {
     position: 'relative',
@@ -518,13 +523,13 @@ const styles = StyleSheet.create({
   videoPreview: {
     width: '100%',
     height: 200,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 12,
   },
   videoText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 14,
     marginTop: 8,
   },
@@ -532,7 +537,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -541,11 +546,11 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     marginTop: 16,
   },
   createButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -554,7 +559,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   createButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
   },

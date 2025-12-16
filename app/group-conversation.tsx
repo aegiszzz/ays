@@ -278,11 +278,11 @@ export default function GroupConversationScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <View style={styles.groupIcon}>
-            <Users size={20} color="#fff" />
+            <Users size={20} color="#000" />
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerTitle}>{groupName}</Text>
@@ -308,7 +308,7 @@ export default function GroupConversationScreen() {
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.mediaButton} onPress={handleSendMedia} disabled={sending}>
-          <ImageIcon size={24} color="#666" />
+          <ImageIcon size={24} color="#8e8e93" />
         </TouchableOpacity>
         <TextInput
           style={styles.input}
@@ -325,9 +325,9 @@ export default function GroupConversationScreen() {
           disabled={!messageText.trim() || sending}
         >
           {sending ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color="#000" />
           ) : (
-            <Send size={20} color="#fff" />
+            <Send size={20} color="#000" />
           )}
         </TouchableOpacity>
       </View>
@@ -338,16 +338,16 @@ export default function GroupConversationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   backButton: {
     marginRight: 12,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -372,10 +372,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#ffffff',
   },
   headerSubtitle: {
     fontSize: 12,
-    color: '#666',
+    color: '#8e8e93',
     marginTop: 2,
   },
   loadingContainer: {
@@ -408,23 +409,23 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
   },
   senderAvatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 12,
     fontWeight: '600',
   },
   senderName: {
     fontSize: 12,
-    color: '#666',
+    color: '#8e8e93',
     fontWeight: '500',
   },
   messageBubble: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 16,
     padding: 12,
     shadowColor: '#000',
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   ownMessageBubble: {
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
   },
   mediaContainer: {
     marginBottom: 8,
@@ -446,18 +447,18 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   ownMessageText: {
-    color: '#fff',
+    color: '#000',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: '#2c2c2e',
   },
   mediaButton: {
     padding: 8,
@@ -465,18 +466,19 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#2c2c2e',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     fontSize: 16,
     maxHeight: 100,
+    color: '#ffffff',
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,

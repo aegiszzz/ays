@@ -232,7 +232,7 @@ export default function ConversationScreen() {
     <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <View style={styles.avatarContainer}>
           <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
@@ -275,10 +275,10 @@ export default function ConversationScreen() {
         )}
         <View style={styles.inputRow}>
           <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
-            <Camera size={24} color="#000" />
+            <Camera size={24} color="#ffffff" />
           </TouchableOpacity>
           <TouchableOpacity onPress={pickImage} style={styles.iconButton}>
-            <ImageIcon size={24} color="#000" />
+            <ImageIcon size={24} color="#ffffff" />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
@@ -293,9 +293,9 @@ export default function ConversationScreen() {
             disabled={(!selectedMedia && !caption.trim()) || sending}
           >
             {sending ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <ActivityIndicator size="small" color="#000" />
             ) : (
-              <Send size={20} color="#fff" />
+              <Send size={20} color="#000" />
             )}
           </TouchableOpacity>
         </View>
@@ -307,16 +307,16 @@ export default function ConversationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#2c2c2e',
   },
   backButton: {
     marginRight: 12,
@@ -325,19 +325,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },
   username: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#ffffff',
   },
   centerContainer: {
     flex: 1,
@@ -356,11 +357,11 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
   },
   theirMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
   },
   messageImage: {
     width: 250,
@@ -372,14 +373,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   myCaption: {
-    color: '#fff',
+    color: '#000',
   },
   theirCaption: {
-    color: '#000',
+    color: '#ffffff',
   },
   timestamp: {
     fontSize: 11,
-    color: '#999',
+    color: '#8e8e93',
     paddingHorizontal: 8,
     paddingBottom: 4,
   },
@@ -391,16 +392,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#8e8e93',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     textAlign: 'center',
   },
   inputContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: '#2c2c2e',
     padding: 12,
   },
   previewContainer: {
@@ -416,7 +418,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -424,7 +426,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   removeText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -438,15 +440,16 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#2c2c2e',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     fontSize: 16,
     maxHeight: 100,
+    color: '#ffffff',
   },
   sendButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
     borderRadius: 20,
     width: 40,
     height: 40,
@@ -455,6 +458,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   sendButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#2c2c2e',
   },
 });
