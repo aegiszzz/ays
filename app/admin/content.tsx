@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   Modal,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -70,31 +71,45 @@ export default function ContentModeration() {
   };
 
   const handleDeletePost = async (postId: string) => {
-    Alert.alert(
-      'Delete Post',
-      'Are you sure you want to delete this post? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { error } = await supabase
-                .from('media_shares')
-                .delete()
-                .eq('id', postId);
+    const performDelete = async () => {
+      try {
+        const { error } = await supabase
+          .from('media_shares')
+          .delete()
+          .eq('id', postId);
 
-              if (error) throw error;
-              Alert.alert('Success', 'Post deleted successfully');
-              fetchPosts();
-            } catch (error: any) {
-              Alert.alert('Error', error.message);
-            }
-          },
-        },
-      ]
-    );
+        if (error) throw error;
+
+        if (Platform.OS === 'web') {
+          alert('Post deleted successfully');
+        } else {
+          Alert.alert('Success', 'Post deleted successfully');
+        }
+        fetchPosts();
+      } catch (error: any) {
+        if (Platform.OS === 'web') {
+          alert('Error: ' + error.message);
+        } else {
+          Alert.alert('Error', error.message);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
+      if (confirmed) {
+        performDelete();
+      }
+    } else {
+      Alert.alert(
+        'Delete Post',
+        'Are you sure you want to delete this post? This action cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Delete', style: 'destructive', onPress: performDelete },
+        ]
+      );
+    }
   };
 
   const handlePreview = (post: MediaPost) => {
