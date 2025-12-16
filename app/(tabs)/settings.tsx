@@ -14,7 +14,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'expo-router';
 import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock } from 'lucide-react-native';
-import { generateWallet, encryptPrivateKey, shortenAddress } from '../../lib/wallet';
+import { generateWallet, encryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
@@ -24,12 +24,18 @@ export default function SettingsScreen() {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [solanaWalletAddress, setSolanaWalletAddress] = useState<string | null>(null);
+  const [bscBalance, setBscBalance] = useState<string>('0.0000');
+  const [solanaBalance, setSolanaBalance] = useState<string>('0.0000');
+  const [loadingBalances, setLoadingBalances] = useState(false);
   const [creatingWallet, setCreatingWallet] = useState(false);
+  const [creatingSolanaWallet, setCreatingSolanaWallet] = useState(false);
   const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false);
   const [privateKey, setPrivateKey] = useState<string>('');
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [loadingPrivateKey, setLoadingPrivateKey] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [walletType, setWalletType] = useState<'bsc' | 'solana'>('bsc');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -49,7 +55,7 @@ export default function SettingsScreen() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('username, wallet_address, is_admin')
+        .select('username, wallet_address, solana_wallet_address, is_admin')
         .eq('id', user!.id)
         .maybeSingle();
 
@@ -57,12 +63,44 @@ export default function SettingsScreen() {
       if (data) {
         setUsername(data.username);
         setWalletAddress(data.wallet_address);
+        setSolanaWalletAddress(data.solana_wallet_address);
         setIsAdmin(data.is_admin || false);
+
+        if (data.wallet_address) {
+          fetchBscBalance(data.wallet_address);
+        }
+        if (data.solana_wallet_address) {
+          fetchSolanaBalance(data.solana_wallet_address);
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBscBalance = async (address: string) => {
+    try {
+      setLoadingBalances(true);
+      const walletInfo = await getWalletBalance(address);
+      setBscBalance(parseFloat(walletInfo.balanceInEth).toFixed(4));
+    } catch (error) {
+      console.error('Error fetching BSC balance:', error);
+    } finally {
+      setLoadingBalances(false);
+    }
+  };
+
+  const fetchSolanaBalance = async (address: string) => {
+    try {
+      setLoadingBalances(true);
+      const balance = await getSolanaBalance(address);
+      setSolanaBalance(balance);
+    } catch (error) {
+      console.error('Error fetching Solana balance:', error);
+    } finally {
+      setLoadingBalances(false);
     }
   };
 
@@ -85,7 +123,8 @@ export default function SettingsScreen() {
       if (error) throw error;
 
       setWalletAddress(wallet.address);
-      Alert.alert('Success', 'Crypto wallet created successfully!');
+      fetchBscBalance(wallet.address);
+      Alert.alert('Success', 'BSC wallet created successfully!');
     } catch (error) {
       console.error('Error creating wallet:', error);
       Alert.alert('Error', 'Failed to create wallet. Please try again.');
@@ -94,39 +133,69 @@ export default function SettingsScreen() {
     }
   };
 
-  const copyWalletAddress = async () => {
-    if (walletAddress) {
+  const createSolanaWallet = async () => {
+    if (creatingSolanaWallet) return;
+
+    setCreatingSolanaWallet(true);
+    try {
+      const wallet = await generateSolanaWallet();
+      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          solana_wallet_address: wallet.address,
+          encrypted_solana_private_key: encryptedKey,
+        })
+        .eq('id', user!.id);
+
+      if (error) throw error;
+
+      setSolanaWalletAddress(wallet.address);
+      fetchSolanaBalance(wallet.address);
+      Alert.alert('Success', 'Solana wallet created successfully!');
+    } catch (error) {
+      console.error('Error creating Solana wallet:', error);
+      Alert.alert('Error', 'Failed to create Solana wallet. Please try again.');
+    } finally {
+      setCreatingSolanaWallet(false);
+    }
+  };
+
+  const copyWalletAddress = async (address: string | null) => {
+    if (address) {
       if (Platform.OS === 'web') {
-        navigator.clipboard.writeText(walletAddress);
+        navigator.clipboard.writeText(address);
         Alert.alert('Copied!', 'Wallet address copied to clipboard');
       } else {
-        await Clipboard.setStringAsync(walletAddress);
+        await Clipboard.setStringAsync(address);
         Alert.alert('Copied!', 'Wallet address copied to clipboard');
       }
     }
   };
 
-  const exportPrivateKey = async () => {
+  const exportPrivateKey = async (type: 'bsc' | 'solana') => {
     setLoadingPrivateKey(true);
+    setWalletType(type);
     try {
-      console.log('Fetching private key for user:', user!.id);
+      const column = type === 'bsc' ? 'encrypted_private_key' : 'encrypted_solana_private_key';
       const { data, error } = await supabase
         .from('users')
-        .select('encrypted_private_key')
+        .select(column)
         .eq('id', user!.id)
         .maybeSingle();
 
-      console.log('Query result:', { data, error });
-
       if (error) throw error;
 
-      if (data?.encrypted_private_key) {
-        console.log('Private key found, showing modal');
-        setPrivateKey(data.encrypted_private_key);
+      const keyData = type === 'bsc'
+        ? (data as any)?.encrypted_private_key
+        : (data as any)?.encrypted_solana_private_key;
+
+      if (keyData) {
+        setPrivateKey(keyData);
         setShowPrivateKeyModal(true);
       } else {
-        console.log('No private key found');
-        Alert.alert('Error', 'Private key not found. Please create a wallet first.');
+        Alert.alert('Error', `Private key not found. Please create a ${type === 'bsc' ? 'BSC' : 'Solana'} wallet first.`);
       }
     } catch (error) {
       console.error('Error fetching private key:', error);
@@ -284,26 +353,34 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Crypto Wallet</Text>
+        <Text style={styles.sectionTitle}>Crypto Wallets</Text>
 
         {walletAddress ? (
           <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
-              <Wallet size={24} color="#000" />
-              <Text style={styles.walletTitle}>EVM Wallet</Text>
+              <Wallet size={24} color="#F0B90B" />
+              <Text style={styles.walletTitle}>BSC Wallet</Text>
             </View>
             <View style={styles.walletAddressContainer}>
               <Text style={styles.walletAddress}>{shortenAddress(walletAddress)}</Text>
-              <TouchableOpacity onPress={copyWalletAddress} style={styles.copyButton}>
+              <TouchableOpacity onPress={() => copyWalletAddress(walletAddress)} style={styles.copyButton}>
                 <Copy size={18} color="#007AFF" />
               </TouchableOpacity>
             </View>
+            <View style={styles.balanceContainer}>
+              <Text style={styles.balanceLabel}>Balance:</Text>
+              {loadingBalances ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <Text style={styles.balanceValue}>{bscBalance} BNB</Text>
+              )}
+            </View>
             <Text style={styles.walletNote}>
-              Compatible with Ethereum, Polygon, BSC, and all EVM chains.
+              Binance Smart Chain network. Compatible with BEP-20 tokens.
             </Text>
             <TouchableOpacity
               style={styles.exportKeyButton}
-              onPress={exportPrivateKey}
+              onPress={() => exportPrivateKey('bsc')}
               disabled={loadingPrivateKey}
             >
               {loadingPrivateKey ? (
@@ -320,10 +397,10 @@ export default function SettingsScreen() {
           <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
               <Wallet size={24} color="#666" />
-              <Text style={styles.walletTitle}>No Wallet Yet</Text>
+              <Text style={styles.walletTitle}>No BSC Wallet Yet</Text>
             </View>
             <Text style={styles.walletNote}>
-              Create a crypto wallet to receive and send tokens on EVM-compatible chains.
+              Create a BSC wallet to receive and send BNB and BEP-20 tokens.
             </Text>
             <TouchableOpacity
               style={styles.createWalletButton}
@@ -337,7 +414,73 @@ export default function SettingsScreen() {
               ) : (
                 <>
                   <Plus size={20} color="#fff" />
-                  <Text style={styles.createWalletButtonText}>Create Wallet</Text>
+                  <Text style={styles.createWalletButtonText}>Create BSC Wallet</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {solanaWalletAddress ? (
+          <View style={[styles.walletCard, { marginTop: 12 }]}>
+            <View style={styles.walletHeader}>
+              <Wallet size={24} color="#14F195" />
+              <Text style={styles.walletTitle}>Solana Wallet</Text>
+            </View>
+            <View style={styles.walletAddressContainer}>
+              <Text style={styles.walletAddress}>{shortenAddress(solanaWalletAddress)}</Text>
+              <TouchableOpacity onPress={() => copyWalletAddress(solanaWalletAddress)} style={styles.copyButton}>
+                <Copy size={18} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.balanceContainer}>
+              <Text style={styles.balanceLabel}>Balance:</Text>
+              {loadingBalances ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <Text style={styles.balanceValue}>{solanaBalance} SOL</Text>
+              )}
+            </View>
+            <Text style={styles.walletNote}>
+              Solana network. Compatible with SPL tokens.
+            </Text>
+            <TouchableOpacity
+              style={styles.exportKeyButton}
+              onPress={() => exportPrivateKey('solana')}
+              disabled={loadingPrivateKey}
+            >
+              {loadingPrivateKey ? (
+                <ActivityIndicator size="small" color="#FF3B30" />
+              ) : (
+                <>
+                  <Key size={18} color="#FF3B30" />
+                  <Text style={styles.exportKeyText}>Export Private Key</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={[styles.walletCard, { marginTop: 12 }]}>
+            <View style={styles.walletHeader}>
+              <Wallet size={24} color="#666" />
+              <Text style={styles.walletTitle}>No Solana Wallet Yet</Text>
+            </View>
+            <Text style={styles.walletNote}>
+              Create a Solana wallet to receive and send SOL and SPL tokens.
+            </Text>
+            <TouchableOpacity
+              style={styles.createWalletButton}
+              onPress={createSolanaWallet}
+              disabled={creatingSolanaWallet}
+            >
+              {creatingSolanaWallet ? (
+                <>
+                  <Text style={styles.createWalletButtonText}>Creating...</Text>
+                </>
+              ) : (
+                <>
+                  <Plus size={20} color="#fff" />
+                  <Text style={styles.createWalletButtonText}>Create Solana Wallet</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -378,7 +521,7 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <AlertTriangle size={24} color="#FF3B30" />
-              <Text style={styles.modalTitle}>Private Key</Text>
+              <Text style={styles.modalTitle}>{walletType === 'bsc' ? 'BSC' : 'Solana'} Private Key</Text>
             </View>
 
             <Text style={styles.warningText}>
@@ -685,6 +828,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     lineHeight: 18,
+  },
+  balanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f5f5f5',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  balanceLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  balanceValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
   },
   createWalletButton: {
     flexDirection: 'row',

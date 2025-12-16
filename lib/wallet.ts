@@ -3,9 +3,15 @@ import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
+import { Keypair, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
+
+global.Buffer = global.Buffer || Buffer;
 
 const PRIVATE_KEY_PREFIX = 'wallet_private_key_';
-const RPC_URL = 'https://ethereum-rpc.publicnode.com';
+const SOLANA_PRIVATE_KEY_PREFIX = 'solana_wallet_private_key_';
+const BSC_RPC_URL = 'https://bsc-dataseed1.binance.org';
+const SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
 
 const setSecureItem = async (key: string, value: string): Promise<void> => {
   if (Platform.OS === 'web') {
@@ -35,6 +41,11 @@ export interface WalletInfo {
 }
 
 export interface Wallet {
+  address: string;
+  privateKey: string;
+}
+
+export interface SolanaWallet {
   address: string;
   privateKey: string;
 }
@@ -96,7 +107,7 @@ export const getWalletAddress = async (userId: string): Promise<string | null> =
 
 export const getWalletBalance = async (address: string): Promise<WalletInfo> => {
   try {
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const provider = new ethers.JsonRpcProvider(BSC_RPC_URL);
     const balance = await provider.getBalance(address);
     const balanceInEth = ethers.formatEther(balance);
 
@@ -112,6 +123,36 @@ export const getWalletBalance = async (address: string): Promise<WalletInfo> => 
       balance: '0',
       balanceInEth: '0.0'
     };
+  }
+};
+
+export const generateSolanaWallet = async (): Promise<SolanaWallet> => {
+  try {
+    const keypair = Keypair.generate();
+    const privateKeyArray = Array.from(keypair.secretKey);
+    const privateKey = Buffer.from(privateKeyArray).toString('base64');
+
+    return {
+      address: keypair.publicKey.toString(),
+      privateKey: privateKey,
+    };
+  } catch (error) {
+    console.error('Error generating Solana wallet:', error);
+    throw new Error('Failed to generate Solana wallet');
+  }
+};
+
+export const getSolanaBalance = async (address: string): Promise<string> => {
+  try {
+    const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
+    const publicKey = new PublicKey(address);
+    const balance = await connection.getBalance(publicKey);
+    const balanceInSol = balance / LAMPORTS_PER_SOL;
+
+    return balanceInSol.toFixed(4);
+  } catch (error) {
+    console.error('Error getting Solana balance:', error);
+    return '0.0000';
   }
 };
 
@@ -171,7 +212,7 @@ export const sendTransaction = async (
       throw new Error('Wallet not found');
     }
 
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const provider = new ethers.JsonRpcProvider(BSC_RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
 
     const tx = await wallet.sendTransaction({
