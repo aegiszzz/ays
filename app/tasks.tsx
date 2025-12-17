@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Trophy, Star, CheckCircle, Circle, TrendingUp, ArrowLeft, Calendar } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Alert } from 'react-native';
 
 interface Task {
@@ -52,11 +52,13 @@ export default function TasksScreen() {
   const [checkedIn, setCheckedIn] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchData();
+      }
+    }, [user])
+  );
 
   const fetchData = async () => {
     try {
@@ -100,10 +102,17 @@ export default function TasksScreen() {
     if (error) throw error;
     if (data) {
       setUserTasks(data);
-      const checkinTask = tasks.find(t => t.action_type === 'daily_checkin');
-      if (checkinTask) {
+
+      const { data: checkinTaskData } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('action_type', 'daily_checkin')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (checkinTaskData) {
         const hasCheckedIn = data.some(
-          ut => ut.task_id === checkinTask.id && new Date(ut.completed_at) >= todayStart
+          ut => ut.task_id === checkinTaskData.id && new Date(ut.completed_at) >= todayStart
         );
         setCheckedIn(hasCheckedIn);
       }
