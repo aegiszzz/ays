@@ -251,7 +251,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#000000" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -271,13 +271,13 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#000000" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#000000" />
         </View>
       </View>
     );
@@ -288,7 +288,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#000000" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -499,6 +499,7 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#000',
   },
   centerContainer: {
     flex: 1,
