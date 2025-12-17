@@ -754,19 +754,19 @@ export default function HomeScreen() {
               setSelectedMedia(null);
               setUploadCaption('');
             }}>
-              <X size={24} color="#000" />
+              <X size={24} color="#fff" />
             </TouchableOpacity>
           </View>
 
           {!selectedMedia ? (
             <View style={styles.uploadPickerContainer}>
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromCamera}>
-                <Camera size={32} color="#000" />
+                <Camera size={32} color="#fff" />
                 <Text style={styles.uploadPickerButtonText}>Take Photo/Video</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromGallery}>
-                <ImageIcon size={32} color="#000" />
+                <ImageIcon size={32} color="#fff" />
                 <Text style={styles.uploadPickerButtonText}>Choose from Gallery</Text>
               </TouchableOpacity>
             </View>
