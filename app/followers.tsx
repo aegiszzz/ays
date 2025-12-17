@@ -78,7 +78,7 @@ export default function FollowersScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000000" />
+          <ArrowLeft size={24} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Followers</Text>
         <View style={styles.placeholder} />
@@ -86,7 +86,7 @@ export default function FollowersScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#000000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       ) : followers.length === 0 ? (
         <View style={styles.centerContainer}>
@@ -107,7 +107,7 @@ export default function FollowersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -115,9 +115,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 60,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#333',
   },
   backButton: {
     padding: 4,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#fff',
   },
   placeholder: {
     width: 32,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: '#666',
   },
   list: {
     padding: 16,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#000',
+    backgroundColor: '#333',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -167,5 +167,6 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#fff',
   },
 });

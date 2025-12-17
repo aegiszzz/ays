@@ -251,7 +251,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -271,13 +271,13 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#000000" />
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       </View>
     );
@@ -288,7 +288,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#000000" />
+            <ArrowLeft size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -362,13 +362,13 @@ export default function UserProfileScreen() {
                 style={[styles.followButton, isFollowing && styles.followingButton]}
                 onPress={handleFollow}
               >
-                {isFollowing ? <UserCheck size={16} color="#000" /> : <UserPlus size={16} color="#fff" />}
+                {isFollowing ? <UserCheck size={16} color="#fff" /> : <UserPlus size={16} color="#000" />}
                 <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
                   {isFollowing ? 'Following' : 'Follow'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
-                <MessageCircle size={16} color="#000" />
+                <MessageCircle size={16} color="#fff" />
                 <Text style={styles.messageButtonText}>Message</Text>
               </TouchableOpacity>
             </View>
@@ -480,7 +480,7 @@ export default function UserProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   topBar: {
     flexDirection: 'row',
@@ -489,9 +489,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#333',
   },
   backButton: {
     padding: 8,
@@ -499,27 +499,27 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#fff',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
   errorText: {
     fontSize: 16,
-    color: '#999',
+    color: '#666',
     marginBottom: 16,
   },
   errorButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 20,
   },
   errorButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -529,15 +529,15 @@ const styles = StyleSheet.create({
   coverImage: {
     width: '100%',
     height: 200,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#1a1a1a',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
     padding: 24,
     paddingTop: 12,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#333',
   },
   avatar: {
     width: 80,
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#000000',
+    backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -562,17 +562,17 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   username: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
     marginBottom: 8,
   },
   bio: {
     fontSize: 14,
-    color: '#1a1a1a',
+    color: '#ccc',
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 12,
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: '#666',
+    color: '#999',
   },
   linkText: {
     color: '#007AFF',
@@ -605,29 +605,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 20,
     flex: 1,
   },
   followingButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#333',
   },
   followButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#000',
   },
   followingButtonText: {
-    color: '#000',
+    color: '#fff',
   },
   messageButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#333',
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 20,
@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
   messageButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: '#fff',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -649,11 +649,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#999',
     marginTop: 2,
   },
   section: {
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 12,
   },
   emptyState: {
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#999',
+    color: '#666',
     marginTop: 16,
   },
   grid: {
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridItem: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#1a1a1a',
     borderRadius: 8,
     overflow: 'hidden',
   },
