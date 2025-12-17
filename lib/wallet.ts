@@ -13,8 +13,10 @@ const SOLANA_PRIVATE_KEY_PREFIX = 'solana_wallet_private_key_';
 const BSC_RPC_URL = 'https://bsc-dataseed1.binance.org';
 const SOLANA_RPC_URLS = [
   'https://api.mainnet-beta.solana.com',
-  'https://solana-api.projectserum.com',
-  'https://rpc.ankr.com/solana'
+  'https://mainnet.helius-rpc.com/?api-key=public',
+  'https://solana.public-rpc.com',
+  'https://rpc.ankr.com/solana',
+  'https://solana-api.projectserum.com'
 ];
 
 const setSecureItem = async (key: string, value: string): Promise<void> => {
@@ -153,18 +155,30 @@ export const getSolanaBalance = async (address: string): Promise<string> => {
     const rpcUrl = SOLANA_RPC_URLS[i];
     try {
       console.log(`Trying RPC endpoint ${i + 1}/${SOLANA_RPC_URLS.length}:`, rpcUrl);
-      const connection = new Connection(rpcUrl, 'confirmed');
+
+      const connection = new Connection(rpcUrl, {
+        commitment: 'confirmed',
+        confirmTransactionInitialTimeout: 10000
+      });
+
       const publicKey = new PublicKey(address);
-      const balance = await connection.getBalance(publicKey);
-      console.log('Raw balance (lamports):', balance);
+
+      const balancePromise = connection.getBalance(publicKey);
+      const timeoutPromise = new Promise<number>((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), 8000)
+      );
+
+      const balance = await Promise.race([balancePromise, timeoutPromise]) as number;
+
+      console.log('✓ Success! Raw balance (lamports):', balance);
       const balanceInSol = balance / LAMPORTS_PER_SOL;
-      console.log('Balance in SOL:', balanceInSol);
+      console.log('✓ Balance in SOL:', balanceInSol);
 
       return balanceInSol.toFixed(4);
-    } catch (error) {
-      console.error(`Error with RPC ${rpcUrl}:`, error);
+    } catch (error: any) {
+      console.error(`✗ Failed with RPC ${rpcUrl}:`, error.message);
       if (i === SOLANA_RPC_URLS.length - 1) {
-        console.error('All RPC endpoints failed');
+        console.error('❌ All RPC endpoints failed');
         return '0.0000';
       }
     }
