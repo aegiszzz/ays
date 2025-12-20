@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface StorageSummary {
+  user_email?: string;
+  username?: string;
   total_gb: number;
   used_gb: number;
   remaining_gb: number;

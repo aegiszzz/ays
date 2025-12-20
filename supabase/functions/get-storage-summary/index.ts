@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: account, error: accountError } = await supabase
-      .from('storage_account')
+      .from('storage_account_with_email')
       .select('*')
       .eq('user_id', user.id)
       .single();
@@ -81,6 +81,8 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
+        user_email: account.email,
+        username: account.username,
         total_gb,
         used_gb,
         remaining_gb,
