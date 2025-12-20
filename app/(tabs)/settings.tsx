@@ -13,14 +13,16 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw } from 'lucide-react-native';
+import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw, HardDrive } from 'lucide-react-native';
 import { generateWallet, encryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
 import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useStorage } from '@/hooks/useStorage';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const { storageSummary, formatStorage, getStorageStatusColor } = useStorage();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -354,6 +356,65 @@ export default function SettingsScreen() {
           <Lock size={20} color="#007AFF" />
           <Text style={styles.changePasswordText}>Change Password</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Storage</Text>
+
+        {storageSummary ? (
+          <View style={styles.storageCard}>
+            <View style={styles.storageHeader}>
+              <HardDrive size={24} color="#007AFF" />
+              <Text style={styles.storageTitle}>Plan: Free (3 GB)</Text>
+            </View>
+
+            <View style={styles.storageProgressContainer}>
+              <View style={styles.storageProgressBar}>
+                <View
+                  style={[
+                    styles.storageProgressFill,
+                    {
+                      width: `${Math.min(storageSummary.percentage_used, 100)}%`,
+                      backgroundColor: getStorageStatusColor(storageSummary.percentage_used),
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={styles.storagePercentage}>{storageSummary.percentage_used}%</Text>
+            </View>
+
+            <View style={styles.storageDetails}>
+              <View style={styles.storageDetailRow}>
+                <Text style={styles.storageDetailLabel}>Used</Text>
+                <Text style={styles.storageDetailValue}>{storageSummary.used_gb.toFixed(2)} GB</Text>
+              </View>
+              <View style={styles.storageDetailRow}>
+                <Text style={styles.storageDetailLabel}>Remaining</Text>
+                <Text style={styles.storageDetailValue}>{storageSummary.remaining_gb.toFixed(2)} GB</Text>
+              </View>
+              <View style={styles.storageDetailRow}>
+                <Text style={styles.storageDetailLabel}>Total</Text>
+                <Text style={styles.storageDetailValue}>{storageSummary.total_gb.toFixed(2)} GB</Text>
+              </View>
+            </View>
+
+            {storageSummary.percentage_used >= 80 && (
+              <View style={styles.storageWarning}>
+                <AlertTriangle size={16} color="#F59E0B" />
+                <Text style={styles.storageWarningText}>
+                  {storageSummary.percentage_used >= 90
+                    ? 'Storage almost full'
+                    : 'Storage running low'}
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={styles.storageCard}>
+            <ActivityIndicator size="small" color="#007AFF" />
+            <Text style={styles.storageLoadingText}>Loading storage info...</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -804,6 +865,85 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: '#8e8e93',
+  },
+  storageCard: {
+    backgroundColor: '#1c1c1e',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  storageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  storageTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  storageProgressContainer: {
+    marginBottom: 16,
+  },
+  storageProgressBar: {
+    height: 8,
+    backgroundColor: '#2c2c2e',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  storageProgressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  storagePercentage: {
+    fontSize: 14,
+    color: '#8e8e93',
+    textAlign: 'right',
+  },
+  storageDetails: {
+    borderTopWidth: 1,
+    borderTopColor: '#2c2c2e',
+    paddingTop: 16,
+  },
+  storageDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  storageDetailLabel: {
+    fontSize: 14,
+    color: '#8e8e93',
+  },
+  storageDetailValue: {
+    fontSize: 14,
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  storageWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#2c2c2e',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  storageWarningText: {
+    fontSize: 14,
+    color: '#F59E0B',
+    fontWeight: '500',
+  },
+  storageLoadingText: {
+    fontSize: 14,
+    color: '#8e8e93',
+    marginTop: 8,
+    textAlign: 'center',
   },
   walletCard: {
     backgroundColor: '#1c1c1e',

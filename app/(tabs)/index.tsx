@@ -29,6 +29,7 @@ import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Vi
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
+import { useStorage } from '@/hooks/useStorage';
 
 interface Comment {
   id: string;
@@ -59,6 +60,7 @@ interface MediaShare {
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -80,6 +82,7 @@ export default function HomeScreen() {
   const [isPublic, setIsPublic] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -449,14 +452,21 @@ export default function HomeScreen() {
     if (!selectedMedia || !user) return;
 
     setUploading(true);
+    setUploadError(null);
+    let uploadId: string | null = null;
+
     try {
       let base64: string;
+      let fileSizeBytes = 0;
 
       if (selectedMedia.startsWith('data:')) {
         base64 = selectedMedia;
+        const base64Data = base64.split(',')[1] || base64;
+        fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
       } else if (selectedMedia.startsWith('blob:') || selectedMedia.startsWith('http')) {
         const response = await fetch(selectedMedia);
         const blob = await response.blob();
+        fileSizeBytes = blob.size;
         base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
@@ -464,22 +474,42 @@ export default function HomeScreen() {
           reader.readAsDataURL(blob);
         });
       } else {
+        const fileInfo = await FileSystem.getInfoAsync(selectedMedia);
+        if (fileInfo.exists && 'size' in fileInfo) {
+          fileSizeBytes = fileInfo.size;
+        }
         base64 = await FileSystem.readAsStringAsync(selectedMedia, {
           encoding: FileSystem.EncodingType.Base64,
         });
       }
 
+      const uploadRecord = await beginUpload(fileSizeBytes);
+      if (!uploadRecord) {
+        throw new Error('Storage limit reached. Upgrade to get more space.');
+      }
+
+      uploadId = uploadRecord.upload_id;
+
       const cid = await uploadToIPFS(base64);
 
-      const { error } = await supabase.from('media_shares').insert({
-        user_id: user.id,
-        ipfs_cid: cid,
-        media_type: uploadMediaType,
-        caption: uploadCaption.trim() || null,
-        is_public: isPublic,
-      });
+      const { data: mediaShare, error } = await supabase
+        .from('media_shares')
+        .insert({
+          user_id: user.id,
+          ipfs_cid: cid,
+          media_type: uploadMediaType,
+          caption: uploadCaption.trim() || null,
+          is_public: isPublic,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      const finalized = await finalizeUpload(uploadId, cid, mediaShare.id);
+      if (!finalized) {
+        throw new Error('Failed to finalize upload');
+      }
 
       setUploadSuccess(true);
       setTimeout(() => {
@@ -490,8 +520,13 @@ export default function HomeScreen() {
         setUploadModalVisible(false);
         fetchMedia();
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error);
+      setUploadError(error.message || 'Upload failed');
+
+      if (uploadId) {
+        await failUpload(uploadId, error.message);
+      }
     } finally {
       setUploading(false);
     }
@@ -811,6 +846,12 @@ export default function HomeScreen() {
                     ? 'Anyone can view this media'
                     : 'Only users you share with can view'}
                 </Text>
+
+                {uploadError && (
+                  <View style={styles.uploadErrorContainer}>
+                    <Text style={styles.uploadErrorText}>{uploadError}</Text>
+                  </View>
+                )}
 
                 {uploadSuccess ? (
                   <View style={styles.uploadSuccessContainer}>
@@ -1296,6 +1337,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8e8e93',
     marginTop: -8,
+  },
+  uploadErrorContainer: {
+    backgroundColor: '#EF4444',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  uploadErrorText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
   },
   uploadSuccessContainer: {
     backgroundColor: '#4CAF50',
