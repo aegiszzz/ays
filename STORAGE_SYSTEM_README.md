@@ -23,17 +23,31 @@ CREDITS_PER_MB = 100
 3 GB (Free Plan) = 307,200 credits
 ```
 
+**⚠️ Important**: This mapping is **immutable**. Changing it requires a full migration of all existing accounts and ledger entries. The value must be consistent across:
+- Edge functions
+- Database functions
+- Client-side calculations
+
+**Centralization**: The constant is defined in each edge function. For changes, update all 6 edge functions simultaneously.
+
 ### Data Model
 
 #### `storage_account` Table
 ```sql
 user_id              uuid        Primary key, references auth.users
 credits_balance      bigint      Available credits (>= 0)
+credits_reserved     bigint      Credits reserved for pending uploads
 credits_total        bigint      Total credits allocated (free + purchased)
 credits_spent        bigint      Total credits consumed
 created_at           timestamptz Account creation timestamp
 updated_at           timestamptz Last modification timestamp
 ```
+
+**Note on credits_reserved**:
+- Reserved during `begin-upload` to prevent concurrent upload UX issues
+- Released during `finalize-upload` or `fail-upload`
+- Constraint: `credits_balance >= credits_reserved`
+- **Available credits** = `credits_balance - credits_reserved`
 
 #### `uploads` Table
 ```sql

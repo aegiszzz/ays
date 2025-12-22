@@ -91,6 +91,8 @@ Deno.serve(async (req: Request) => {
     const total_gb = creditsToGB(account.credits_total);
     const used_gb = creditsToGB(account.credits_spent);
     const remaining_gb = creditsToGB(account.credits_balance);
+    const reserved_gb = creditsToGB(account.credits_reserved || 0);
+    const available_gb = creditsToGB(account.credits_balance - (account.credits_reserved || 0));
     const percentage_used = account.credits_total > 0
       ? Math.round((account.credits_spent / account.credits_total) * 100)
       : 0;
@@ -102,6 +104,8 @@ Deno.serve(async (req: Request) => {
         total_gb,
         used_gb,
         remaining_gb,
+        reserved_gb,
+        available_gb,
         percentage_used,
       }),
       {

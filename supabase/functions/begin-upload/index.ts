@@ -109,39 +109,43 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Check if user has sufficient storage
-    const { data: account, error: accountError } = await supabase
-      .from('storage_account')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
+    const required_credits = bytesToCredits(file_size_bytes);
 
-    if (accountError || !account) {
+    // Reserve credits atomically (prevents concurrent upload UX issues)
+    const { data: reserveResult, error: reserveError } = await supabase.rpc('reserve_credits_for_upload', {
+      p_user_id: user.id,
+      p_credits_to_reserve: required_credits,
+    });
+
+    if (reserveError) {
+      console.error('Reservation error:', reserveError);
+
+      // Parse error to determine type
+      const isInsufficientCredits = reserveError.message?.includes('Insufficient available credits');
+
+      if (isInsufficientCredits) {
+        return new Response(
+          JSON.stringify({
+            error: 'Storage limit reached. Upgrade to get more space.',
+            code: ErrorCodes.STORAGE_LIMIT_REACHED,
+            can_upload: false,
+            required_credits,
+          }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       return new Response(
         JSON.stringify({
           error: 'Storage account not found',
-          code: ErrorCodes.STORAGE_ACCOUNT_NOT_FOUND
+          code: ErrorCodes.STORAGE_ACCOUNT_NOT_FOUND,
+          details: reserveError.message,
         }),
         {
           status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const required_credits = bytesToCredits(file_size_bytes);
-
-    if (account.credits_balance < required_credits) {
-      return new Response(
-        JSON.stringify({
-          error: 'Storage limit reached. Upgrade to get more space.',
-          code: ErrorCodes.STORAGE_LIMIT_REACHED,
-          can_upload: false,
-          required_credits,
-          available_credits: account.credits_balance,
-        }),
-        {
-          status: 403,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );

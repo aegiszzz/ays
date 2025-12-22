@@ -144,6 +144,21 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Release reserved credits (atomic)
+    const creditsToRelease = existingUpload.credits_required || 0;
+    if (creditsToRelease > 0) {
+      const { error: releaseError } = await supabase.rpc('release_credits_for_failed_upload', {
+        p_user_id: user.id,
+        p_upload_id: upload.id,
+        p_credits_to_release: creditsToRelease,
+      });
+
+      if (releaseError) {
+        console.error('Error releasing credits:', releaseError);
+        // Don't fail the request, just log (upload is already marked failed)
+      }
+    }
+
     // Write to ledger for audit trail (failed uploads = 0 credits)
     // This helps track failed uploads for debugging and analytics
     await supabase
@@ -156,6 +171,7 @@ Deno.serve(async (req: Request) => {
         metadata: {
           status: 'failed',
           file_size_bytes: existingUpload.file_size_bytes,
+          credits_released: creditsToRelease,
           error_message: error_message || 'Upload failed',
         },
       });
