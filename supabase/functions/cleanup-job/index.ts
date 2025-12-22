@@ -36,11 +36,12 @@ Deno.serve(async (req: Request) => {
     const results = {
       stuck_uploads_fixed: 0,
       reservations_released: 0,
-      expired_rate_limits_cleaned: 0,
-      orphaned_thumbnails_checked: 0,
     };
 
-    // 1. Find and fail stuck uploads (pending > 2 hours)
+    // BETA SCOPE: Only cleanup stuck uploads
+    // Advanced features (rate limits, thumbnails) not active in beta
+
+    // Find and fail stuck uploads (pending > 2 hours)
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
     const { data: stuckUploads } = await supabase
@@ -94,66 +95,6 @@ Deno.serve(async (req: Request) => {
           });
 
         results.stuck_uploads_fixed++;
-      }
-    }
-
-    // 2. Clean up expired rate limit windows (older than 24 hours)
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-    const { count: deletedRateLimits } = await supabase
-      .from('rate_limits')
-      .delete()
-      .lt('window_end', oneDayAgo);
-
-    results.expired_rate_limits_cleaned = deletedRateLimits || 0;
-
-    // 3. Find media_shares with pending thumbnail processing (> 1 hour)
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-
-    const { data: pendingThumbnails } = await supabase
-      .from('media_shares')
-      .select('id, ipfs_cid')
-      .in('processing_status', ['pending', 'processing'])
-      .lt('created_at', oneHourAgo);
-
-    if (pendingThumbnails && pendingThumbnails.length > 0) {
-      console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'warn',
-        service: 'cleanup-job',
-        action: 'found_stuck_thumbnails',
-        count: pendingThumbnails.length,
-      }));
-
-      // Mark as failed (thumbnails can be regenerated manually)
-      await supabase
-        .from('media_shares')
-        .update({ processing_status: 'failed' })
-        .in('id', pendingThumbnails.map(t => t.id));
-
-      results.orphaned_thumbnails_checked = pendingThumbnails.length;
-    }
-
-    // 4. Audit: Check for accounts with high reserved percentage
-    const { data: highReservedAccounts } = await supabase
-      .from('storage_account')
-      .select('user_id, credits_balance, credits_reserved')
-      .gt('credits_reserved', 0);
-
-    if (highReservedAccounts) {
-      const suspicious = highReservedAccounts.filter(
-        (acc) => acc.credits_reserved / acc.credits_balance > 0.8
-      );
-
-      if (suspicious.length > 0) {
-        console.log(JSON.stringify({
-          timestamp: new Date().toISOString(),
-          level: 'warn',
-          service: 'cleanup-job',
-          action: 'suspicious_reservations',
-          count: suspicious.length,
-          accounts: suspicious.map(a => ({ user_id: a.user_id, reserved_pct: (a.credits_reserved / a.credits_balance * 100).toFixed(1) })),
-        }));
       }
     }
 
