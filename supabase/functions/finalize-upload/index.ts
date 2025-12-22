@@ -38,7 +38,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { upload_id, ipfs_cid, media_share_id } = await req.json();
+    const {
+      upload_id,
+      ipfs_cid,
+      media_share_id,
+      thumbnail_cid,
+      preview_cid,
+      video_poster_cid
+    } = await req.json();
 
     if (!upload_id) {
       return new Response(
@@ -146,9 +153,8 @@ Deno.serve(async (req: Request) => {
       console.error('Transaction error:', lockError);
       return new Response(
         JSON.stringify({
-          error: 'Failed to finalize upload. Please try again.',
+          error: 'Failed to finalize upload',
           code: ErrorCodes.INTERNAL_ERROR,
-          details: lockError.message,
         }),
         {
           status: 500,
@@ -157,11 +163,36 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Update media_shares with thumbnail CIDs if provided
+    if (media_share_id && (thumbnail_cid || preview_cid || video_poster_cid)) {
+      const updateData: any = {};
+      if (thumbnail_cid) updateData.thumbnail_cid = thumbnail_cid;
+      if (preview_cid) updateData.preview_cid = preview_cid;
+      if (video_poster_cid) updateData.video_poster_cid = video_poster_cid;
+      if (Object.keys(updateData).length > 0) {
+        updateData.processing_status = 'complete';
+        await supabase
+          .from('media_shares')
+          .update(updateData)
+          .eq('id', media_share_id);
+      }
+    }
+
+    console.log(JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      service: 'finalize-upload',
+      user_id: user.id,
+      upload_id: upload.id,
+      credits_charged: account.credits_charged,
+      has_thumbnail: !!thumbnail_cid,
+      action: 'success',
+    }));
+
     return new Response(
       JSON.stringify({
-        message: 'Upload finalized successfully',
+        success: true,
         upload_id: upload.id,
-        credits_charged: account.credits_charged,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
