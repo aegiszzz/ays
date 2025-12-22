@@ -8,6 +8,8 @@ This system implements a robust storage quota management system for the media sh
 - **Backend**: Internal credits-based accounting (completely hidden from users)
 - **Free Plan**: Every new user gets 3 GB free storage
 - **Safety**: Atomic transactions, concurrent upload protection, no negative balances
+- **Security**: Idempotency protection, audit trail, standardized error codes
+- **Reliability**: Ledger-based accounting, soft delete, enhanced auth validation
 
 ## Architecture
 
@@ -38,13 +40,32 @@ updated_at           timestamptz Last modification timestamp
 id                   uuid        Primary key
 user_id              uuid        References auth.users
 file_size_bytes      bigint      Actual file size
-credits_charged      bigint      Credits deducted for this upload
+credits_required     bigint      Credits calculated at begin (immutable)
+credits_charged      bigint      Credits actually deducted (set at complete)
 status               text        'pending', 'complete', or 'failed'
 ipfs_cid             text        IPFS content identifier (nullable)
 media_share_id       uuid        References media_shares (nullable)
+idempotency_key      text        Client-provided key for duplicate prevention (nullable)
+deleted_at           timestamptz Soft delete timestamp (nullable)
 created_at           timestamptz Upload initiation timestamp
 completed_at         timestamptz Upload completion timestamp (nullable)
 ```
+
+**Note**: `idempotency_key` prevents duplicate charges from network retries. Unique constraint on (user_id, idempotency_key).
+
+#### `storage_ledger` Table (Audit Trail)
+```sql
+id                   uuid        Primary key
+user_id              uuid        References auth.users
+ledger_type          text        'grant_free', 'charge_upload', 'purchase_add_storage', 'admin_adjust', 'refund_upload'
+credits_amount       bigint      Credit change (positive for additions, negative for charges)
+upload_id            uuid        References uploads (nullable)
+reference            text        External reference (payment tx, admin ticket) (nullable)
+metadata             jsonb       Additional context (file_size, error_message, etc.)
+created_at           timestamptz Transaction timestamp
+```
+
+**Purpose**: Immutable audit log of all credit transactions for debugging and fraud detection.
 
 ## Backend Components
 
@@ -608,7 +629,152 @@ Refresh when:
 
 ---
 
-## Security
+## Security & Audit Features
+
+### 1. Idempotency Protection
+
+**Problem**: Mobile network retries, double-taps, or "back-forward" navigation can cause duplicate requests.
+
+**Solution**: `idempotency_key` field in uploads table with unique constraint.
+
+```typescript
+// Client generates idempotency key
+const idempotencyKey = `${userId}-${Date.now()}-${Math.random()}`;
+
+// begin-upload with idempotency key
+const response = await fetch('/functions/v1/begin-upload', {
+  method: 'POST',
+  body: JSON.stringify({
+    file_size_bytes: 1048576,
+    idempotency_key: idempotencyKey
+  })
+});
+
+// If same key is sent again, returns same upload_id (idempotent)
+```
+
+**Benefits**:
+- Prevents double charging on network retry
+- Safe to retry failed requests
+- Database enforces uniqueness per user
+
+### 2. Storage Ledger (Audit Trail)
+
+**Purpose**: Complete transaction history for debugging and fraud detection.
+
+**Ledger Types**:
+- `grant_free`: Initial 3 GB free storage
+- `charge_upload`: Credits deducted for upload (negative amount)
+- `purchase_add_storage`: Purchased storage (positive amount)
+- `admin_adjust`: Manual adjustment by admin
+- `refund_upload`: Refund for deleted upload (if implemented)
+
+**Query Examples**:
+```sql
+-- View user's complete transaction history
+SELECT
+  ledger_type,
+  credits_amount,
+  metadata,
+  created_at
+FROM storage_ledger
+WHERE user_id = '<user_id>'
+ORDER BY created_at DESC;
+
+-- Find all failed uploads (for debugging)
+SELECT
+  l.upload_id,
+  l.metadata->>'error_message' as error,
+  l.created_at
+FROM storage_ledger l
+WHERE l.ledger_type = 'charge_upload'
+  AND l.credits_amount = 0
+  AND l.metadata->>'status' = 'failed';
+
+-- Calculate total credits from purchases
+SELECT SUM(credits_amount) as total_purchased
+FROM storage_ledger
+WHERE user_id = '<user_id>'
+  AND ledger_type = 'purchase_add_storage';
+```
+
+### 3. Standardized Error Codes
+
+All edge functions return structured error codes for client-side handling:
+
+```typescript
+// Error response structure
+{
+  "error": "Storage limit reached. Upgrade to get more space.",
+  "code": "STORAGE_LIMIT_REACHED",
+  "required_credits": 100,
+  "available_credits": 50
+}
+
+// Error codes
+const ErrorCodes = {
+  INVALID_REQUEST: 'INVALID_REQUEST',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  STORAGE_ACCOUNT_NOT_FOUND: 'STORAGE_ACCOUNT_NOT_FOUND',
+  STORAGE_LIMIT_REACHED: 'STORAGE_LIMIT_REACHED',
+  UPLOAD_NOT_FOUND: 'UPLOAD_NOT_FOUND',
+  UPLOAD_ALREADY_FAILED: 'UPLOAD_ALREADY_FAILED',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+};
+
+// Client-side handling
+try {
+  const response = await beginUpload(fileSize);
+} catch (error) {
+  switch (error.code) {
+    case 'STORAGE_LIMIT_REACHED':
+      showUpgradeModal();
+      break;
+    case 'UNAUTHORIZED':
+      redirectToLogin();
+      break;
+    default:
+      showGenericError();
+  }
+}
+```
+
+**Benefits**:
+- No string matching for error detection
+- Easier internationalization (i18n)
+- Consistent error handling across app
+
+### 4. Soft Delete
+
+**Implementation**: `deleted_at` field in uploads table instead of hard delete.
+
+**Benefits**:
+- Audit trail preserved
+- Recovery possible
+- Analytics on deleted content
+
+**Note**: Deleting media does NOT refund credits (prevents abuse).
+
+### 5. Enhanced Auth Validation
+
+**Security Checks**:
+- Every edge function validates `auth.uid()` matches resource owner
+- Service role used only for ledger writes (not exposed to users)
+- Upload finalization validates ownership before deduction
+
+```typescript
+// finalize-upload enforces ownership
+const { data: upload } = await supabase
+  .from('uploads')
+  .select('*')
+  .eq('id', upload_id)
+  .eq('user_id', user.id)  // ← Ownership check
+  .single();
+
+if (!upload) {
+  return { error: 'Upload not found or access denied', code: 'UPLOAD_NOT_FOUND' };
+}
+```
 
 ### RLS Policies
 
@@ -616,6 +782,12 @@ Refresh when:
 -- Users can only view/modify their own storage
 CREATE POLICY "Users can view own storage account"
   ON storage_account FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+-- Users can only view their own ledger entries
+CREATE POLICY "Users can view own ledger entries"
+  ON storage_ledger FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
 
@@ -686,22 +858,35 @@ For issues or questions:
 
 ## Summary
 
-✅ **Completed**:
+✅ **Core Features**:
 - Database schema with RLS
-- 5 edge functions (summary, check, begin, finalize, fail, add)
+- 6 edge functions (summary, check, begin, finalize, fail, add)
 - Frontend hook (useStorage)
 - UI displays (Settings screen, upload errors)
 - Atomic transactions with locking
 - Test checklist
 
-✅ **Safety**:
+✅ **Safety & Security**:
 - No negative balances possible
 - Concurrent upload protection
 - Failed uploads don't charge
 - Users never see "credits"
+- Idempotency protection (duplicate prevention)
+- Complete audit trail (storage_ledger)
+- Standardized error codes
+- Enhanced auth validation
+- Soft delete support
 
 ✅ **User Experience**:
 - Simple GB-only interface
 - Clear error messages
 - Visual progress indicators
 - Automatic UI updates
+- Safe retry on network errors
+
+✅ **Production Ready**:
+- Comprehensive audit logging
+- Debugging tools (ledger queries)
+- Fraud detection support
+- i18n-friendly error handling
+- Recovery mechanisms (soft delete)

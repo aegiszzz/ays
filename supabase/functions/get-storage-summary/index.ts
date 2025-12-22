@@ -9,6 +9,13 @@ const corsHeaders = {
 // Credit to GB conversion
 const CREDITS_PER_MB = 100;
 
+// Error codes for standardized error handling
+const ErrorCodes = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  STORAGE_ACCOUNT_NOT_FOUND: 'STORAGE_ACCOUNT_NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+};
+
 function creditsToGB(credits: number): number {
   const mb = credits / CREDITS_PER_MB;
   const gb = mb / 1024;
@@ -27,7 +34,10 @@ Deno.serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
+        JSON.stringify({
+          error: 'Missing authorization header',
+          code: ErrorCodes.UNAUTHORIZED
+        }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -48,7 +58,10 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({
+          error: 'Unauthorized',
+          code: ErrorCodes.UNAUTHORIZED
+        }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -64,7 +77,10 @@ Deno.serve(async (req: Request) => {
 
     if (accountError || !account) {
       return new Response(
-        JSON.stringify({ error: 'Storage account not found' }),
+        JSON.stringify({
+          error: 'Storage account not found',
+          code: ErrorCodes.STORAGE_ACCOUNT_NOT_FOUND
+        }),
         {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -95,7 +111,10 @@ Deno.serve(async (req: Request) => {
   } catch (error: any) {
     console.error('Error getting storage summary:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to get storage summary' }),
+      JSON.stringify({
+        error: error.message || 'Failed to get storage summary',
+        code: ErrorCodes.INTERNAL_ERROR
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

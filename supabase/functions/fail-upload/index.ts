@@ -6,6 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
+// Error codes for standardized error handling
+const ErrorCodes = {
+  INVALID_REQUEST: 'INVALID_REQUEST',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  UPLOAD_NOT_FOUND: 'UPLOAD_NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -18,7 +26,10 @@ Deno.serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
+        JSON.stringify({
+          error: 'Missing authorization header',
+          code: ErrorCodes.UNAUTHORIZED
+        }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -30,7 +41,10 @@ Deno.serve(async (req: Request) => {
 
     if (!upload_id) {
       return new Response(
-        JSON.stringify({ error: 'Upload ID is required' }),
+        JSON.stringify({
+          error: 'Upload ID is required',
+          code: ErrorCodes.INVALID_REQUEST
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -38,7 +52,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const supabase = createClient(
+    // Create authenticated client for auth check
+    const anonSupabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
@@ -48,12 +63,42 @@ Deno.serve(async (req: Request) => {
       }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await anonSupabase.auth.getUser();
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({
+          error: 'Unauthorized',
+          code: ErrorCodes.UNAUTHORIZED
+        }),
         {
           status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Use service role for ledger write
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Get upload details before marking as failed
+    const { data: existingUpload } = await supabase
+      .from('uploads')
+      .select('*')
+      .eq('id', upload_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!existingUpload) {
+      return new Response(
+        JSON.stringify({
+          error: 'Upload not found or access denied',
+          code: ErrorCodes.UPLOAD_NOT_FOUND
+        }),
+        {
+          status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
@@ -75,7 +120,10 @@ Deno.serve(async (req: Request) => {
     if (updateError) {
       console.error('Error marking upload as failed:', updateError);
       return new Response(
-        JSON.stringify({ error: 'Failed to update upload status' }),
+        JSON.stringify({
+          error: 'Failed to update upload status',
+          code: ErrorCodes.INTERNAL_ERROR
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -85,13 +133,32 @@ Deno.serve(async (req: Request) => {
 
     if (!upload) {
       return new Response(
-        JSON.stringify({ error: 'Upload not found or already processed' }),
+        JSON.stringify({
+          error: 'Upload not found or already processed',
+          code: ErrorCodes.UPLOAD_NOT_FOUND
+        }),
         {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
+
+    // Write to ledger for audit trail (failed uploads = 0 credits)
+    // This helps track failed uploads for debugging and analytics
+    await supabase
+      .from('storage_ledger')
+      .insert({
+        user_id: user.id,
+        ledger_type: 'charge_upload',
+        credits_amount: 0,
+        upload_id: upload.id,
+        metadata: {
+          status: 'failed',
+          file_size_bytes: existingUpload.file_size_bytes,
+          error_message: error_message || 'Upload failed',
+        },
+      });
 
     return new Response(
       JSON.stringify({
@@ -105,7 +172,10 @@ Deno.serve(async (req: Request) => {
   } catch (error: any) {
     console.error('Error failing upload:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to mark upload as failed' }),
+      JSON.stringify({
+        error: error.message || 'Failed to mark upload as failed',
+        code: ErrorCodes.INTERNAL_ERROR
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
