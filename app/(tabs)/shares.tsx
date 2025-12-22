@@ -297,7 +297,7 @@ export default function SharesScreen() {
           style={styles.addButton}
           onPress={() => setShowOptionsModal(true)}
         >
-          <Plus size={24} color="#fff" />
+          <Plus size={24} color="#000" />
         </TouchableOpacity>
       </View>
 

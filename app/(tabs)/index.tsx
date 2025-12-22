@@ -654,12 +654,12 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => setUploadModalVisible(true)}>
-              <Plus size={24} color="#fff" />
+              <Plus size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => router.push('/search-users')}>
-              <Search size={24} color="#fff" />
+              <Search size={24} color="#000" />
             </TouchableOpacity>
           </View>
         </View>
