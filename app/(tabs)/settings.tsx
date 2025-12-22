@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   TextInput,
   Platform,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,7 +18,6 @@ import { supabase } from '../../lib/supabase';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw, HardDrive } from 'lucide-react-native';
 import { generateWallet, encryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
-import { Alert, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useStorage } from '@/hooks/useStorage';
 
