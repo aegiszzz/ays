@@ -654,12 +654,12 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => setUploadModalVisible(true)}>
-              <Plus size={24} color="#000" />
+              <Plus size={24} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => router.push('/search-users')}>
-              <Search size={24} color="#000" />
+              <Search size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -1274,7 +1274,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 20,
   },
   uploadPickerContainer: {

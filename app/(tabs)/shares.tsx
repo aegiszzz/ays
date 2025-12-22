@@ -297,7 +297,7 @@ export default function SharesScreen() {
           style={styles.addButton}
           onPress={() => setShowOptionsModal(true)}
         >
-          <Plus size={24} color="#000" />
+          <Plus size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1c1c1e',
     alignItems: 'center',
     justifyContent: 'center',
   },
