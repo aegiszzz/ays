@@ -2,9 +2,10 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { useEffect } from 'react';
 import InstallPrompt from '../components/InstallPrompt';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function RootNavigator() {
   const { session, loading } = useAuth();
@@ -47,7 +48,7 @@ function RootNavigator() {
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <InstallPrompt />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
@@ -65,7 +66,7 @@ function RootNavigator() {
         <Stack.Screen name="user-profile" />
         <Stack.Screen name="+not-found" />
       </Stack>
-    </>
+    </View>
   );
 }
 
@@ -81,6 +82,10 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
