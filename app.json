@@ -22,7 +22,7 @@
       "shortName": "Ays",
       "description": "A decentralized social media platform with crypto wallet integration",
       "themeColor": "#000000",
-      "backgroundColor": "#0a1628",
+      "backgroundColor": "#000000",
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/",
