@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Users, MessageCircle, Plus, X } from 'lucide-react-native';
@@ -37,6 +39,7 @@ interface Conversation {
 export default function SharesScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
@@ -252,12 +255,12 @@ export default function SharesScreen() {
   if (conversations.length === 0) {
     return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.title}>Shares</Text>
         <Text style={styles.subtitle}>Choose how to share your media</Text>
       </View>
 
-      <View style={styles.optionsContainer}>
+      <View style={[styles.optionsContainer, { paddingBottom: Platform.OS === 'web' ? 70 : 90 }]}>
         <TouchableOpacity
           style={styles.optionCard}
           onPress={() => router.push('/group-share')}>
@@ -288,19 +291,20 @@ export default function SharesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.title}>Shares</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowOptionsModal(true)}
         >
-          <Plus size={24} color="#000" />
+          <Plus size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <FlatList
         data={conversations}
         keyExtractor={item => item.id}
+        contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 70 : 90 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.conversationItem}
@@ -411,7 +415,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    paddingTop: 60,
     backgroundColor: '#000000',
     borderBottomWidth: 1,
     borderBottomColor: '#2c2c2e',
@@ -429,7 +432,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -501,7 +504,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    paddingTop: 60,
     backgroundColor: '#000000',
     borderBottomWidth: 1,
     borderBottomColor: '#2c2c2e',

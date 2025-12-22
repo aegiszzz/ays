@@ -13,7 +13,9 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -46,6 +48,7 @@ interface UserProfile {
 export default function ProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -326,9 +329,9 @@ export default function ProfileScreen() {
 
   return (
     <>
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 70 : 90 }}>
         {coverImage && (
-          <Image source={{ uri: coverImage }} style={styles.coverImage} resizeMode="cover" />
+          <Image source={{ uri: coverImage }} style={[styles.coverImage, { marginTop: insets.top }]} resizeMode="cover" />
         )}
         <View style={styles.header}>
           <View style={styles.avatarRow}>

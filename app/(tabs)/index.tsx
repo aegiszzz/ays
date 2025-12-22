@@ -19,6 +19,7 @@ import {
   useWindowDimensions,
   Switch,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
@@ -60,6 +61,7 @@ interface MediaShare {
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -642,7 +644,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <InstallPrompt />
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.headerTop}>
           <View>
             <Text style={styles.title}>AYS</Text>
@@ -652,12 +654,12 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => setUploadModalVisible(true)}>
-              <Plus size={24} color="#000" />
+              <Plus size={24} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => router.push('/search-users')}>
-              <Search size={24} color="#000" />
+              <Search size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -667,7 +669,7 @@ export default function HomeScreen() {
         data={media.filter(item => item.is_public)}
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 70 : 90 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -949,7 +951,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 12,
     backgroundColor: '#000000',
     borderBottomWidth: 1,
@@ -1273,7 +1274,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#ffffff',
     borderRadius: 20,
   },
   uploadPickerContainer: {

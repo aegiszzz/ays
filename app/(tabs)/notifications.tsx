@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Heart, MessageCircle, UserPlus, Users, MessageSquare } from 'lucide-react-native';
@@ -30,6 +32,7 @@ interface Notification {
 export default function NotificationsScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -278,7 +281,7 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
           <Text style={styles.title}>Notifications</Text>
           {unreadCount > 0 && (
             <TouchableOpacity onPress={markAllAsRead}>
@@ -306,7 +309,7 @@ export default function NotificationsScreen() {
                 tintColor="#3b82f6"
               />
             }
-            contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingTop: 16, paddingBottom: Platform.OS === 'web' ? 70 : 90 }}
           />
         )}
     </View>
@@ -329,7 +332,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
     paddingBottom: 16,
     backgroundColor: '#000000',
     borderBottomWidth: 1,

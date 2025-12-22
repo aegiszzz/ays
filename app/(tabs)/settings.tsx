@@ -9,7 +9,9 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -22,6 +24,7 @@ import { useStorage } from '@/hooks/useStorage';
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { storageSummary, formatStorage, getStorageStatusColor } = useStorage();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -300,8 +303,8 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-      <View style={styles.header}>
+      <ScrollView contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 70 : 90 }}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         {userAvatar ? (
           <Image source={{ uri: userAvatar }} style={styles.avatar} />
         ) : (
@@ -748,7 +751,6 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#1c1c1e',
     padding: 32,
-    paddingTop: 60,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#2c2c2e',
