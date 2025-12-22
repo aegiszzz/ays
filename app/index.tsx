@@ -134,7 +134,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Username"
-              placeholderTextColor="#999"
+              placeholderTextColor="#636366"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -143,7 +143,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#999"
+            placeholderTextColor="#636366"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -152,7 +152,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor="#999"
+            placeholderTextColor="#636366"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -162,7 +162,7 @@ export default function LoginScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor="#999"
+                placeholderTextColor="#636366"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
@@ -170,7 +170,7 @@ export default function LoginScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Access Code (e.g. A7B2K9)"
-                placeholderTextColor="#999"
+                placeholderTextColor="#636366"
                 value={accessCode}
                 onChangeText={(text) => setAccessCode(text.toUpperCase())}
                 autoCapitalize="characters"
@@ -211,33 +211,36 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
     width: '100%',
     maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2c2c2e',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
+    letterSpacing: 2,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -247,14 +250,15 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#2c2c2e',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3c',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 15,
     marginBottom: 10,
+    color: '#ffffff',
   },
   emailButton: {
     flexDirection: 'row',
@@ -289,14 +293,14 @@ const styles = StyleSheet.create({
   },
   betaText: {
     fontSize: 12,
-    color: '#666',
+    color: '#8e8e93',
     textAlign: 'center',
     marginBottom: 8,
     fontStyle: 'italic',
   },
   infoText: {
     fontSize: 12,
-    color: '#999',
+    color: '#636366',
     textAlign: 'center',
     marginTop: 16,
   },

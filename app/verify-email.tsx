@@ -132,7 +132,7 @@ export default function VerifyEmail() {
         <TextInput
           style={styles.input}
           placeholder="000000"
-          placeholderTextColor="#999"
+          placeholderTextColor="#636366"
           value={code}
           onChangeText={(text) => {
             setCode(text);
@@ -182,29 +182,31 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1c1c1e',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
     width: '100%',
     maxWidth: 400,
+    borderWidth: 1,
+    borderColor: '#2c2c2e',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#f0f7ff',
+    backgroundColor: '#2c2c2e',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -212,13 +214,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#8e8e93',
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 20,
@@ -229,13 +231,13 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#2c2c2e',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#3a3a3c',
     borderRadius: 8,
     padding: 16,
     fontSize: 24,
-    color: '#1a1a1a',
+    color: '#ffffff',
     textAlign: 'center',
     letterSpacing: 8,
     marginBottom: 16,
@@ -272,14 +274,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   resendTextDisabled: {
-    color: '#999',
+    color: '#636366',
   },
   cancelButton: {
     padding: 12,
     alignItems: 'center',
   },
   cancelText: {
-    color: '#666',
+    color: '#8e8e93',
     fontSize: 14,
   },
 });
