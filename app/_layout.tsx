@@ -41,7 +41,7 @@ function RootNavigator() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1DA1F2" />
+        <ActivityIndicator size="large" color="#ffffff" />
       </View>
     );
   }
@@ -75,7 +75,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <RootNavigator />
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </AuthProvider>
   );
 }
@@ -85,6 +85,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
 });
