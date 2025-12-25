@@ -111,7 +111,7 @@ export function useStorage() {
   /**
    * Begin an upload (creates pending upload record)
    */
-  const beginUpload = async (fileSizeBytes: number): Promise<BeginUploadResult | null> => {
+  const beginUpload = async (fileSizeBytes: number, mediaType: 'image' | 'video'): Promise<BeginUploadResult | null> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -125,7 +125,10 @@ export function useStorage() {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ file_size_bytes: fileSizeBytes }),
+        body: JSON.stringify({
+          file_size_bytes: fileSizeBytes,
+          media_type: mediaType,
+        }),
       });
 
       const data = await response.json();

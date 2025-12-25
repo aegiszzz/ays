@@ -14,6 +14,7 @@ const ErrorCodes = {
   UNAUTHORIZED: 'UNAUTHORIZED',
   STORAGE_ACCOUNT_NOT_FOUND: 'STORAGE_ACCOUNT_NOT_FOUND',
   STORAGE_LIMIT_REACHED: 'STORAGE_LIMIT_REACHED',
+  DAILY_LIMIT_EXCEEDED: 'DAILY_LIMIT_EXCEEDED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 };
 
@@ -45,12 +46,25 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { file_size_bytes, idempotency_key } = await req.json();
+    const { file_size_bytes, media_type, idempotency_key } = await req.json();
 
     if (!file_size_bytes || file_size_bytes <= 0) {
       return new Response(
         JSON.stringify({
           error: 'Invalid file size',
+          code: ErrorCodes.INVALID_REQUEST
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    if (!media_type || !['image', 'video'].includes(media_type)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid media type. Must be image or video.',
           code: ErrorCodes.INVALID_REQUEST
         }),
         {
@@ -109,6 +123,43 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Check daily media limit first
+    const { data: dailyLimitCheck, error: dailyLimitError } = await supabase.rpc('check_daily_media_limit', {
+      p_user_id: user.id,
+      p_media_type: media_type,
+    });
+
+    if (dailyLimitError) {
+      console.error('Daily limit check error:', dailyLimitError);
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to check daily limit',
+          code: ErrorCodes.INTERNAL_ERROR,
+          details: dailyLimitError.message,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    if (!dailyLimitCheck.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: dailyLimitCheck.message,
+          code: ErrorCodes.DAILY_LIMIT_EXCEEDED,
+          current_count: dailyLimitCheck.current_count,
+          max_limit: dailyLimitCheck.max_limit,
+          can_upload: false,
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const required_credits = bytesToCredits(file_size_bytes);
 
     // Reserve credits atomically (prevents concurrent upload UX issues)
@@ -155,6 +206,7 @@ Deno.serve(async (req: Request) => {
     const uploadData: any = {
       user_id: user.id,
       file_size_bytes,
+      media_type,
       credits_required: required_credits,
       status: 'pending',
     };

@@ -178,6 +178,18 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Increment daily media usage counter
+    if (upload.media_type) {
+      const { error: usageError } = await supabase.rpc('increment_daily_media_usage', {
+        p_user_id: user.id,
+        p_media_type: upload.media_type,
+      });
+
+      if (usageError) {
+        console.error('Failed to increment daily usage:', usageError);
+      }
+    }
+
     console.log(JSON.stringify({
       timestamp: new Date().toISOString(),
       level: 'info',

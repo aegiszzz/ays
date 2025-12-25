@@ -485,7 +485,7 @@ export default function HomeScreen() {
         });
       }
 
-      const uploadRecord = await beginUpload(fileSizeBytes);
+      const uploadRecord = await beginUpload(fileSizeBytes, uploadMediaType);
       if (!uploadRecord) {
         throw new Error('Storage limit reached. Upgrade to get more space.');
       }
