@@ -72,15 +72,15 @@ Deno.serve(async (req: Request) => {
           body: JSON.stringify({
             from: 'AYS App <noreply@aysapp.xyz>',
             to: email,
-            subject: 'Doğrulama Kodunuz',
+            subject: 'Your Verification Code',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h1 style="color: #333;">Doğrulama Kodunuz</h1>
-                <p style="font-size: 16px; color: #666;">Hesabınızı doğrulamak için aşağıdaki kodu kullanın:</p>
+                <h1 style="color: #333;">Your Verification Code</h1>
+                <p style="font-size: 16px; color: #666;">Use the code below to verify your account:</p>
                 <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
                   <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #007AFF;">${code}</span>
                 </div>
-                <p style="font-size: 14px; color: #999;">Bu kod 10 dakika geçerlidir.</p>
+                <p style="font-size: 14px; color: #999;">This code is valid for 10 minutes.</p>
               </div>
             `,
           }),
