@@ -51,15 +51,6 @@ export default function LoginScreen() {
         return;
       }
 
-      if (!accessCode) {
-        setError('Please enter your access code');
-        return;
-      }
-
-      if (accessCode.length !== 6 || !/^[A-Z0-9]+$/.test(accessCode)) {
-        setError('Access code must be 6 characters (letters and numbers)');
-        return;
-      }
     }
 
     setLoading(true);
@@ -67,49 +58,8 @@ export default function LoginScreen() {
 
     try {
       if (isSignUp) {
-        const { data: codeData, error: codeError } = await supabase
-          .from('access_codes')
-          .select('id, code, used')
-          .eq('code', accessCode)
-          .maybeSingle();
-
-        if (codeError) {
-          throw new Error('Failed to verify access code');
-        }
-
-        if (!codeData) {
-          throw new Error('Invalid access code');
-        }
-
-        if (codeData.used) {
-          throw new Error('This access code has already been used');
-        }
-
         isSigningUp.current = true;
-        const result = await signUpWithEmail(email, password, username);
-
-        const { error: updateError } = await supabase
-          .from('access_codes')
-          .update({
-            used: true,
-            used_at: new Date().toISOString(),
-          })
-          .eq('code', accessCode);
-
-        if (updateError) {
-          console.error('Failed to mark access code as used:', updateError);
-        }
-
-        router.replace({
-          pathname: '/verify-email',
-          params: {
-            email: result.email,
-            userId: result.userId,
-            username: result.username,
-            password: btoa(password),
-            isNewAccount: 'true',
-          }
-        });
+        await signUpWithEmail(email, password, username);
       } else {
         await signInWithEmail(email, password);
       }
@@ -167,16 +117,6 @@ export default function LoginScreen() {
                 onChangeText={setConfirmPassword}
                 secureTextEntry
               />
-              <TextInput
-                style={styles.input}
-                placeholder="Access Code (e.g. A7B2K9)"
-                placeholderTextColor="#636366"
-                value={accessCode}
-                onChangeText={(text) => setAccessCode(text.toUpperCase())}
-                autoCapitalize="characters"
-                maxLength={6}
-              />
-              <Text style={styles.betaText}>Beta access only - enter your invite code</Text>
             </>
           )}
 

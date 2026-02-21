@@ -73,19 +73,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!authData.user) {
       throw new Error('Failed to sign in');
     }
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('email_verified')
-      .eq('id', authData.user.id)
-      .maybeSingle();
-
-    if (!userData?.email_verified) {
-      await supabase.auth.signOut();
-      setSession(null);
-      setUser(null);
-      throw new Error('Please complete email verification first. Create a new account if needed.');
-    }
   };
 
   const signUpWithEmail = async (email: string, password: string, username: string) => {
@@ -115,24 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Failed to create user');
     }
 
-    const response = await fetch(
-      `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, userId: data.user.id, username }),
-      }
-    );
-
-    if (!response.ok) {
-      isSigningUp.current = false;
-      throw new Error('Failed to send verification code');
-    }
-
-    await supabase.auth.signOut();
     isSigningUp.current = false;
 
     return {
