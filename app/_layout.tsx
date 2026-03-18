@@ -28,6 +28,7 @@ function RootNavigator() {
       'group-conversation',
       'edit-profile',
       'user-profile',
+      'verify-email',
     ];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
     const onIndexPage = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
@@ -64,6 +65,7 @@ function RootNavigator() {
         <Stack.Screen name="group-conversation" />
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="user-profile" />
+        <Stack.Screen name="verify-email" />
         <Stack.Screen name="+not-found" />
       </Stack>
     </View>
