@@ -87,29 +87,11 @@ export default function VerifyEmail() {
     setError('');
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, userId }),
-        }
-      );
+      const { error: fnError } = await supabase.functions.invoke('send-verification-email', {
+        body: { email, userId },
+      });
 
-      if (!response.ok) {
-        const rawText = await response.text().catch(() => '');
-        let errMsg = 'Failed to send code';
-        try {
-          const errBody = JSON.parse(rawText);
-          if (errBody.error) errMsg = errBody.error;
-          else if (errBody.message) errMsg = errBody.message;
-          else if (rawText) errMsg = rawText.slice(0, 200);
-        } catch { if (rawText) errMsg = rawText.slice(0, 200); }
-        throw new Error(errMsg);
-      }
+      if (fnError) throw fnError;
 
       setCountdown(60);
     } catch (err: any) {
