@@ -178,13 +178,13 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -196,13 +196,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#2C2C3E',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -216,20 +216,20 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 20,
   },
   emailText: {
-    color: '#007AFF',
+    color: '#6C3AE8',
     fontWeight: '600',
   },
   input: {
     width: '100%',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderWidth: 1,
-    borderColor: '#3a3a3c',
+    borderColor: '#2C2C3E',
     borderRadius: 8,
     padding: 16,
     fontSize: 24,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#6C3AE8',
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-    color: '#007AFF',
+    color: '#6C3AE8',
     fontSize: 14,
   },
   resendTextDisabled: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelText: {
-    color: '#8e8e93',
+    color: '#6B6B8A',
     fontSize: 14,
   },
 });

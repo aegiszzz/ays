@@ -247,7 +247,7 @@ export default function SharesScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#6B6B8A" />
       </View>
     );
   }
@@ -265,7 +265,7 @@ export default function SharesScreen() {
           style={styles.optionCard}
           onPress={() => router.push('/group-share')}>
           <View style={styles.iconContainer}>
-            <Users size={48} color="#000" />
+            <Users size={48} color="#6B6B8A" />
           </View>
           <Text style={styles.optionTitle}>Group Share</Text>
           <Text style={styles.optionDescription}>
@@ -277,7 +277,7 @@ export default function SharesScreen() {
           style={styles.optionCard}
           onPress={() => router.push('/send-message')}>
           <View style={styles.iconContainer}>
-            <MessageCircle size={48} color="#000" />
+            <MessageCircle size={48} color="#6B6B8A" />
           </View>
           <Text style={styles.optionTitle}>Direct Message</Text>
           <Text style={styles.optionDescription}>
@@ -356,7 +356,7 @@ export default function SharesScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>New Share</Text>
             <TouchableOpacity onPress={() => setShowOptionsModal(false)}>
-              <X size={24} color="#000" />
+              <X size={24} color="#6B6B8A" />
             </TouchableOpacity>
           </View>
 
@@ -369,7 +369,7 @@ export default function SharesScreen() {
               }}
             >
               <View style={styles.iconContainer}>
-                <Users size={48} color="#000" />
+                <Users size={48} color="#6B6B8A" />
               </View>
               <Text style={styles.optionTitle}>Group Share</Text>
               <Text style={styles.optionDescription}>
@@ -385,7 +385,7 @@ export default function SharesScreen() {
               }}
             >
               <View style={styles.iconContainer}>
-                <MessageCircle size={48} color="#000" />
+                <MessageCircle size={48} color="#6B6B8A" />
               </View>
               <Text style={styles.optionTitle}>Direct Message</Text>
               <Text style={styles.optionDescription}>
@@ -402,22 +402,22 @@ export default function SharesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   title: {
     fontSize: 28,
@@ -426,13 +426,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   conversationAvatar: {
     width: 56,
@@ -487,26 +487,26 @@ const styles = StyleSheet.create({
   },
   conversationPreview: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   conversationThumbnail: {
     width: 56,
     height: 56,
     borderRadius: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   modalTitle: {
     fontSize: 24,
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   optionCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   },
   optionDescription: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     textAlign: 'center',
   },
 });

@@ -287,7 +287,7 @@ export default function SettingsScreen() {
   if (loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#6B6B8A" />
       </View>
     );
   }
@@ -746,14 +746,14 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   header: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     padding: 32,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   avatar: {
     width: 100,
@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
   },
   handle: {
     fontSize: 16,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   section: {
     marginTop: 24,
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   infoCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginBottom: 4,
   },
   infoValue: {
@@ -825,7 +825,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     marginVertical: 16,
   },
   signOutButton: {
@@ -833,7 +833,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
@@ -849,14 +849,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#6C3AE8',
   },
   adminButtonText: {
-    color: '#007AFF',
+    color: '#6C3AE8',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -866,10 +866,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   storageCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
   },
   storageProgressBar: {
     height: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
@@ -905,12 +905,12 @@ const styles = StyleSheet.create({
   },
   storagePercentage: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     textAlign: 'right',
   },
   storageDetails: {
     borderTopWidth: 1,
-    borderTopColor: '#2c2c2e',
+    borderTopColor: '#2C2C3E',
     paddingTop: 16,
   },
   storageDetailRow: {
@@ -920,7 +920,7 @@ const styles = StyleSheet.create({
   },
   storageDetailLabel: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   storageDetailValue: {
     fontSize: 14,
@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     padding: 12,
     borderRadius: 8,
     marginTop: 12,
@@ -943,12 +943,12 @@ const styles = StyleSheet.create({
   },
   storageLoadingText: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginTop: 8,
     textAlign: 'center',
   },
   walletCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -982,7 +982,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -1000,14 +1000,14 @@ const styles = StyleSheet.create({
   },
   walletNote: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     lineHeight: 18,
   },
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     padding: 12,
     borderRadius: 8,
     marginVertical: 8,
@@ -1015,7 +1015,7 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   balanceValue: {
     fontSize: 16,
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#2c2c2e',
+    borderTopColor: '#2C2C3E',
   },
   exportKeyText: {
     fontSize: 14,
@@ -1060,7 +1060,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
   privateKeyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     padding: 16,
     borderRadius: 8,
     marginBottom: 20,
@@ -1136,29 +1136,29 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#2C2C3E',
   },
   closeModalButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   changePasswordButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     padding: 14,
     borderRadius: 12,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#6C3AE8',
   },
   changePasswordText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#6C3AE8',
   },
   passwordInputContainer: {
     marginBottom: 16,
@@ -1172,7 +1172,7 @@ const styles = StyleSheet.create({
   passwordInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderRadius: 8,
     paddingHorizontal: 12,
   },
@@ -1184,14 +1184,14 @@ const styles = StyleSheet.create({
   },
   passwordHint: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginBottom: 20,
   },
   changePasswordSubmitButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#6C3AE8',
     padding: 14,
     borderRadius: 8,
   },

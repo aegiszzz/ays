@@ -362,7 +362,7 @@ export default function UserProfileScreen() {
                 style={[styles.followButton, isFollowing && styles.followingButton]}
                 onPress={handleFollow}
               >
-                {isFollowing ? <UserCheck size={16} color="#fff" /> : <UserPlus size={16} color="#000" />}
+                {isFollowing ? <UserCheck size={16} color="#fff" /> : <UserPlus size={16} color="#6B6B8A" />}
                 <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
                   {isFollowing ? 'Following' : 'Follow'}
                 </Text>
@@ -480,7 +480,7 @@ export default function UserProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   topBar: {
     flexDirection: 'row',
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   errorText: {
     fontSize: 16,
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   linkText: {
-    color: '#007AFF',
+    color: '#6C3AE8',
   },
   actionButtons: {
     flexDirection: 'row',

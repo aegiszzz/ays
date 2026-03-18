@@ -293,9 +293,9 @@ export default function ConversationScreen() {
             disabled={(!selectedMedia && !caption.trim()) || sending}
           >
             {sending ? (
-              <ActivityIndicator size="small" color="#000" />
+              <ActivityIndicator size="small" color="#6B6B8A" />
             ) : (
-              <Send size={20} color="#000" />
+              <Send size={20} color="#6B6B8A" />
             )}
           </TouchableOpacity>
         </View>
@@ -307,16 +307,16 @@ export default function ConversationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     paddingTop: 60,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   backButton: {
     marginRight: 12,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   theirMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
   },
   messageImage: {
     width: 250,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 11,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     paddingHorizontal: 8,
     paddingBottom: 4,
   },
@@ -392,17 +392,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     textAlign: 'center',
   },
   inputContainer: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderTopWidth: 1,
-    borderTopColor: '#2c2c2e',
+    borderTopColor: '#2C2C3E',
     padding: 12,
   },
   previewContainer: {
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -458,6 +458,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   sendButtonDisabled: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
   },
 });

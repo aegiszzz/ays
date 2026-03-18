@@ -319,7 +319,7 @@ export default function ProfileScreen() {
             <Text style={styles.interactionText}>{item.likes || 0}</Text>
           </TouchableOpacity>
           <View style={styles.interactionButton}>
-            <MessageCircle size={24} color="#000" />
+            <MessageCircle size={24} color="#6B6B8A" />
             <Text style={styles.interactionText}>{item.comments_count || 0}</Text>
           </View>
         </View>
@@ -387,7 +387,7 @@ export default function ProfileScreen() {
             style={styles.editButton}
             onPress={() => router.push('/edit-profile')}
           >
-            <Edit size={16} color="#000" />
+            <Edit size={16} color="#6B6B8A" />
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
 
@@ -416,7 +416,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Uploads</Text>
           {loading ? (
-            <ActivityIndicator size="large" color="#000" style={styles.loader} />
+            <ActivityIndicator size="large" color="#6B6B8A" style={styles.loader} />
           ) : mediaItems.length === 0 ? (
             <View style={styles.emptyState}>
               <ImageIcon size={48} color="#ccc" />
@@ -475,7 +475,7 @@ export default function ProfileScreen() {
               onPress={() => setFeedModalVisible(false)}
               style={styles.feedModalCloseButton}
             >
-              <X size={24} color="#000" />
+              <X size={24} color="#6B6B8A" />
             </TouchableOpacity>
             <Text style={styles.feedModalTitle}>Posts</Text>
             <View style={{ width: 24 }} />
@@ -547,20 +547,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   coverImage: {
     width: '100%',
     height: 120,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
   },
   header: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     padding: 16,
     paddingTop: 8,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   avatarRow: {
     position: 'absolute',
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#6C3AE8',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 13,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginBottom: 6,
   },
   bio: {
@@ -635,17 +635,17 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   linkText: {
-    color: '#007AFF',
+    color: '#6C3AE8',
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 16,
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 11,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginTop: 2,
   },
   section: {
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridItem: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   videoThumbnail: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -728,17 +728,17 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     marginTop: 8,
     textAlign: 'center',
   },
   postCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     marginBottom: 12,
   },
   postHeader: {
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#6C3AE8',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -785,7 +785,7 @@ const styles = StyleSheet.create({
   postMedia: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
   },
   postCaption: {
     fontSize: 14,
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   editModalContent: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 16,
     padding: 20,
     width: '90%',
@@ -836,7 +836,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   editInput: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
@@ -846,7 +846,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#6B6B8A',
     textAlign: 'right',
     marginTop: 8,
   },
@@ -860,19 +860,19 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#2C2C3E',
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   updateButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#6C3AE8',
     alignItems: 'center',
   },
   updateButtonText: {
@@ -882,7 +882,7 @@ const styles = StyleSheet.create({
   },
   feedModalContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   feedModalHeader: {
     flexDirection: 'row',
@@ -891,9 +891,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   feedModalCloseButton: {
     padding: 4,

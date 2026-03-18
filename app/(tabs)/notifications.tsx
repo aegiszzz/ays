@@ -319,13 +319,13 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   header: {
     flexDirection: 'row',
@@ -333,9 +333,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   title: {
     fontSize: 28,
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 12,
     marginVertical: 6,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   timeText: {
-    color: '#8e8e93',
+    color: '#6B6B8A',
     fontSize: 13,
   },
   unreadDot: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyText: {
-    color: '#8e8e93',
+    color: '#6B6B8A',
     fontSize: 16,
     textAlign: 'center',
   },

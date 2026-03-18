@@ -127,7 +127,7 @@ export default function SearchUsersScreen() {
             {isAdding ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <UserPlus size={20} color="#000" />
+              <UserPlus size={20} color="#6B6B8A" />
             )}
           </TouchableOpacity>
         )}
@@ -188,16 +188,16 @@ export default function SearchUsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A0A0F',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#2C2C3E',
   },
   backButton: {
     marginRight: 16,
@@ -213,17 +213,17 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#1C1C2E',
     margin: 16,
     paddingHorizontal: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#2C2C3E',
   },
   searchIcon: {
     marginRight: 8,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#2C2C3E',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
   addButton: {
     backgroundColor: '#ffffff',
@@ -315,6 +315,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#8e8e93',
+    color: '#6B6B8A',
   },
 });
