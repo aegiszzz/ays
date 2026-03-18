@@ -28,12 +28,13 @@ function RootNavigator() {
       'group-conversation',
       'edit-profile',
       'user-profile',
-      'verify-email',
     ];
+    const publicRoutes = ['verify-email'];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
+    const isPublicRoute = publicRoutes.includes(segments[0] as string);
     const onIndexPage = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
 
-    if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute)) {
+    if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute) && !isPublicRoute) {
       router.replace('/');
     } else if (session && onIndexPage) {
       router.replace('/(tabs)/');
