@@ -15,10 +15,10 @@ import {
   Platform,
   ScrollView,
   Alert,
-  Clipboard,
   useWindowDimensions,
   Switch,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -381,7 +381,7 @@ export default function HomeScreen() {
   const copyLink = () => {
     if (!postToShare) return;
     const url = getIPFSGatewayUrl(postToShare.ipfs_cid);
-    Clipboard.setString(url);
+    Clipboard.setStringAsync(url);
   };
 
   const sendToFriend = async (friendId: string, friendUsername: string) => {

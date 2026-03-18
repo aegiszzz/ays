@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
-import { Keypair, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import Constants from 'expo-constants';
 
@@ -20,26 +19,96 @@ const SOLANA_RPC_URLS = [
   'https://solana-api.projectserum.com'
 ];
 
-const setSecureItem = async (key: string, value: string): Promise<void> => {
+// --- Web Crypto AES-GCM encryption helpers ---
+
+const getEncryptionKey = async (userId: string, salt: Uint8Array): Promise<CryptoKey> => {
+  const encoder = new TextEncoder();
+  const keyMaterial = await window.crypto.subtle.importKey(
+    'raw',
+    encoder.encode(userId),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  return window.crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+};
+
+const encryptForWeb = async (plaintext: string, userId: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const key = await getEncryptionKey(userId, salt);
+  const encrypted = await window.crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encoder.encode(plaintext)
+  );
+  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, salt.length);
+  combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+  return Buffer.from(combined).toString('base64');
+};
+
+const decryptForWeb = async (encryptedData: string, userId: string): Promise<string> => {
+  const combined = Buffer.from(encryptedData, 'base64');
+  const salt = combined.slice(0, 16);
+  const iv = combined.slice(16, 28);
+  const encrypted = combined.slice(28);
+  const key = await getEncryptionKey(userId, salt);
+  const decrypted = await window.crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encrypted
+  );
+  return new TextDecoder().decode(decrypted);
+};
+
+// --- Secure storage (native: SecureStore, web: AES-GCM encrypted localStorage) ---
+
+const setSecureItem = async (key: string, value: string, userId?: string): Promise<void> => {
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(key, value);
+      if (userId && window.crypto?.subtle) {
+        const encrypted = await encryptForWeb(value, userId);
+        window.localStorage.setItem(key, encrypted);
+      } else {
+        window.localStorage.setItem(key, value);
+      }
     }
   } else {
     await SecureStore.setItemAsync(key, value);
   }
 };
 
-const getSecureItem = async (key: string): Promise<string | null> => {
+const getSecureItem = async (key: string, userId?: string): Promise<string | null> => {
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage.getItem(key);
+      const stored = window.localStorage.getItem(key);
+      if (!stored) return null;
+      if (userId && window.crypto?.subtle) {
+        try {
+          return await decryptForWeb(stored, userId);
+        } catch {
+          // Legacy unencrypted value — return as-is for backward compat
+          return stored;
+        }
+      }
+      return stored;
     }
     return null;
   } else {
     return await SecureStore.getItemAsync(key);
   }
 };
+
+// --- Public interfaces ---
 
 export interface WalletInfo {
   address: string;
@@ -70,15 +139,6 @@ export const generateWallet = async (): Promise<Wallet> => {
   }
 };
 
-export const encryptPrivateKey = (privateKey: string, userId: string): string => {
-  try {
-    return privateKey;
-  } catch (error) {
-    console.error('Error encrypting private key:', error);
-    throw new Error('Failed to encrypt private key');
-  }
-};
-
 export const shortenAddress = (address: string): string => {
   if (!address) return '';
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -90,7 +150,7 @@ export const createWallet = async (userId: string): Promise<string> => {
     const privateKey = wallet.privateKey;
     const address = wallet.address;
 
-    await setSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, privateKey);
+    await setSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, privateKey, userId);
 
     return address;
   } catch (error) {
@@ -101,7 +161,7 @@ export const createWallet = async (userId: string): Promise<string> => {
 
 export const getWalletAddress = async (userId: string): Promise<string | null> => {
   try {
-    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, userId);
     if (!privateKey) return null;
 
     const wallet = new ethers.Wallet(privateKey);
@@ -163,8 +223,6 @@ export const getSolanaBalance = async (address: string): Promise<string> => {
 
     const apiUrl = `${supabaseUrl}/functions/v1/get-solana-balance?address=${encodeURIComponent(address)}`;
 
-    console.log('Calling Edge Function:', apiUrl);
-
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -178,11 +236,11 @@ export const getSolanaBalance = async (address: string): Promise<string> => {
     }
 
     const data = await response.json();
-    console.log('✓ Success! Balance:', data.balance, 'SOL');
+    console.log('✓ Solana balance:', data.balance, 'SOL');
 
     return data.balance || '0.0000';
   } catch (error: any) {
-    console.error('❌ Failed to get balance:', error.message);
+    console.error('❌ Failed to get Solana balance:', error.message);
     return '0.0000';
   }
 };
@@ -219,7 +277,7 @@ export const exportPrivateKey = async (userId: string): Promise<string | null> =
       throw new Error('Authentication failed');
     }
 
-    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, userId);
     return privateKey;
   } catch (error) {
     console.error('Error exporting private key:', error);
@@ -238,7 +296,7 @@ export const sendTransaction = async (
       throw new Error('Authentication failed');
     }
 
-    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`);
+    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, userId);
     if (!privateKey) {
       throw new Error('Wallet not found');
     }
