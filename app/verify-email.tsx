@@ -26,6 +26,12 @@ export default function VerifyEmail() {
     }
   }, [countdown]);
 
+  useEffect(() => {
+    if (email && userId) {
+      resendCode();
+    }
+  }, []);
+
   const verifyCode = async () => {
     if (code.length !== 6) {
       setError('Please enter the 6-digit code');
