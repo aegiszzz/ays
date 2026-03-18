@@ -37,13 +37,6 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
-
-    if (userError || !userData) {
-      console.error('User check error:', userError);
-      throw new Error('User not found. Please try again.');
-    }
-
     const { error: insertError } = await supabase
       .from('verification_codes')
       .insert({
