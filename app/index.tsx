@@ -60,6 +60,7 @@ export default function LoginScreen() {
       if (isSignUp) {
         isSigningUp.current = true;
         await signUpWithEmail(email, password, username);
+        router.push({ pathname: '/verify-email', params: { email } });
       } else {
         await signInWithEmail(email, password);
       }
