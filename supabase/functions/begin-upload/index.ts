@@ -208,6 +208,7 @@ Deno.serve(async (req: Request) => {
       file_size_bytes,
       media_type,
       credits_required: required_credits,
+      credits_charged: 0,
       status: 'pending',
     };
 
