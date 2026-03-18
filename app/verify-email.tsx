@@ -100,8 +100,15 @@ export default function VerifyEmail() {
       );
 
       if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Failed to send code');
+        const rawText = await response.text().catch(() => '');
+        let errMsg = 'Failed to send code';
+        try {
+          const errBody = JSON.parse(rawText);
+          if (errBody.error) errMsg = errBody.error;
+          else if (errBody.message) errMsg = errBody.message;
+          else if (rawText) errMsg = rawText.slice(0, 200);
+        } catch { if (rawText) errMsg = rawText.slice(0, 200); }
+        throw new Error(errMsg);
       }
 
       setCountdown(60);
