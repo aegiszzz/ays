@@ -580,12 +580,14 @@ export default function UserProfileScreen() {
         {/* Post feed modal */}
         <Modal
           visible={!!selectedPost}
-          animationType="slide"
-          presentationStyle="pageSheet"
+          animationType="fade"
+          transparent={Platform.OS === 'web'}
+          presentationStyle={Platform.OS === 'web' ? 'overFullScreen' : 'pageSheet'}
           onRequestClose={() => setSelectedPost(null)}
         >
+          <View style={Platform.OS === 'web' ? styles.webModalBackdrop : { flex: 1 }}>
           {selectedPost && (
-            <View style={styles.postModal}>
+            <View style={[styles.postModal, Platform.OS === 'web' && styles.postModalWeb]}>
               <View style={styles.postModalHeader}>
                 <TouchableOpacity onPress={() => setSelectedPost(null)}>
                   <X size={24} color="#7A7A7E" />
@@ -638,16 +640,19 @@ export default function UserProfileScreen() {
               </ScrollView>
             </View>
           )}
+          </View>
         </Modal>
 
         {/* Comments modal */}
         <Modal
           visible={commentsVisible}
-          animationType="slide"
-          presentationStyle="pageSheet"
+          animationType="fade"
+          transparent={Platform.OS === 'web'}
+          presentationStyle={Platform.OS === 'web' ? 'overFullScreen' : 'pageSheet'}
           onRequestClose={() => setCommentsVisible(false)}
         >
-          <KeyboardAvoidingView style={styles.postModal} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={Platform.OS === 'web' ? styles.webModalBackdrop : { flex: 1 }}>
+          <KeyboardAvoidingView style={[styles.postModal, Platform.OS === 'web' && styles.postModalWeb]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <View style={styles.postModalHeader}>
               <Text style={styles.commentsTitle}>Comments</Text>
               <TouchableOpacity onPress={() => setCommentsVisible(false)}>
@@ -700,6 +705,7 @@ export default function UserProfileScreen() {
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
+          </View>
         </Modal>
       </ScrollView>
     </View>
@@ -939,9 +945,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
   },
+  webModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   postModal: {
     flex: 1,
     backgroundColor: '#0D0D0F',
+  },
+  postModalWeb: {
+    flex: undefined,
+    width: '100%',
+    maxWidth: 560,
+    maxHeight: '85%' as any,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   postModalHeader: {
     flexDirection: 'row',
