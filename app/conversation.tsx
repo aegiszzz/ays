@@ -111,7 +111,10 @@ export default function ConversationScreen() {
             (newMessage.sender_id === userId && newMessage.receiver_id === user.id) ||
             (newMessage.sender_id === user.id && newMessage.receiver_id === userId)
           ) {
-            setMessages((prev) => [...prev, newMessage]);
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMessage.id)) return prev;
+              return [...prev, newMessage];
+            });
           }
         }
       )
@@ -163,16 +166,20 @@ export default function ConversationScreen() {
         cid = await uploadToIPFS(selectedMedia);
       }
 
-      const { error } = await supabase.from('direct_messages').insert({
+      const { data: insertedMessage, error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
         ipfs_cid: cid || '',
         media_type: selectedMedia ? mediaType : 'text',
         caption: caption.trim() || null,
         read: false,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      if (insertedMessage) {
+        setMessages((prev) => [...prev, insertedMessage]);
+      }
 
       await supabase
         .from('conversation_reads')
