@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#0D0D0F"/>
+
+  <!-- Main A shape with inner void (even-odd) -->
+  <path fill-rule="evenodd" fill="#FDFDFD" d="
+    M 512 118
+    L 196 840
+    L 292 840
+    L 336 768
+    L 378 840
+    L 456 840
+    L 512 718
+    L 568 840
+    L 646 840
+    L 690 768
+    L 732 840
+    L 828 840
+    Z
+
+    M 512 228
+    L 448 440
+    L 576 440
+    Z
+  "/>
+
+  <!-- Blue slash - thin sharp blade, left-heavy, tapers to right -->
+  <polygon points="
+    222,728
+    700,562
+    706,590
+    240,756
+  " fill="#00A0DC"/>
+
+  <!-- Dark shadow under left end of slash -->
+  <polygon points="
+    222,728
+    240,756
+    200,762
+    185,734
+  " fill="#0A0A0C"/>
+
+</svg>
