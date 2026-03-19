@@ -688,7 +688,7 @@ export default function HomeScreen() {
             style={styles.tabItem}
             onPress={() => setActiveTab('following')}
           >
-            <Text style={[styles.tabText, activeTab === 'following' && styles.tabTextActive]}>Takip</Text>
+            <Text style={[styles.tabText, activeTab === 'following' && styles.tabTextActive]}>Following</Text>
             {activeTab === 'following' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
         </View>
