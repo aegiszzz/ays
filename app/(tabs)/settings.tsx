@@ -287,7 +287,7 @@ export default function SettingsScreen() {
   if (loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#7A7A7E" />
       </View>
     );
   }
@@ -447,7 +447,7 @@ export default function SettingsScreen() {
             <View style={styles.balanceContainer}>
               <Text style={styles.balanceLabel}>Balance:</Text>
               {loadingBalances ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color="#FDFDFD" />
               ) : (
                 <Text style={styles.balanceValue}>{bscBalance} BNB</Text>
               )}
@@ -490,7 +490,7 @@ export default function SettingsScreen() {
                 </>
               ) : (
                 <>
-                  <Plus size={20} color="#fff" />
+                  <Plus size={20} color="#FDFDFD" />
                   <Text style={styles.createWalletButtonText}>Create BSC Wallet</Text>
                 </>
               )}
@@ -522,7 +522,7 @@ export default function SettingsScreen() {
             <View style={styles.balanceContainer}>
               <Text style={styles.balanceLabel}>Balance:</Text>
               {loadingBalances ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color="#FDFDFD" />
               ) : (
                 <Text style={styles.balanceValue}>{solanaBalance} SOL</Text>
               )}
@@ -565,7 +565,7 @@ export default function SettingsScreen() {
                 </>
               ) : (
                 <>
-                  <Plus size={20} color="#fff" />
+                  <Plus size={20} color="#FDFDFD" />
                   <Text style={styles.createWalletButtonText}>Create Solana Wallet</Text>
                 </>
               )}
@@ -635,7 +635,7 @@ export default function SettingsScreen() {
                 style={styles.copyKeyButton}
                 onPress={copyPrivateKey}
               >
-                <Copy size={18} color="#fff" />
+                <Copy size={18} color="#FDFDFD" />
                 <Text style={styles.copyKeyButtonText}>Copy Key</Text>
               </TouchableOpacity>
 
@@ -722,7 +722,7 @@ export default function SettingsScreen() {
                 disabled={changingPassword}
               >
                 {changingPassword ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color="#FDFDFD" />
                 ) : (
                   <Text style={styles.changePasswordSubmitButtonText}>Change Password</Text>
                 )}
@@ -746,14 +746,14 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   header: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     padding: 32,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   avatar: {
     width: 100,
@@ -765,7 +765,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -778,12 +778,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 4,
   },
   handle: {
     fontSize: 16,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   section: {
     marginTop: 24,
@@ -792,11 +792,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 12,
   },
   infoCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -815,17 +815,17 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontWeight: '500',
   },
   divider: {
     height: 1,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     marginVertical: 16,
   },
   signOutButton: {
@@ -833,7 +833,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
@@ -849,14 +849,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#00A0DC',
   },
   adminButtonText: {
-    color: '#007AFF',
+    color: '#00A0DC',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -866,10 +866,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   storageCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -887,14 +887,14 @@ const styles = StyleSheet.create({
   storageTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   storageProgressContainer: {
     marginBottom: 16,
   },
   storageProgressBar: {
     height: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
@@ -905,12 +905,12 @@ const styles = StyleSheet.create({
   },
   storagePercentage: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     textAlign: 'right',
   },
   storageDetails: {
     borderTopWidth: 1,
-    borderTopColor: '#2c2c2e',
+    borderTopColor: '#252528',
     paddingTop: 16,
   },
   storageDetailRow: {
@@ -920,18 +920,18 @@ const styles = StyleSheet.create({
   },
   storageDetailLabel: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   storageDetailValue: {
     fontSize: 14,
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontWeight: '600',
   },
   storageWarning: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     padding: 12,
     borderRadius: 8,
     marginTop: 12,
@@ -943,12 +943,12 @@ const styles = StyleSheet.create({
   },
   storageLoadingText: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 8,
     textAlign: 'center',
   },
   walletCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -971,7 +971,7 @@ const styles = StyleSheet.create({
   walletTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   refreshButton: {
     padding: 8,
@@ -982,7 +982,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -990,7 +990,7 @@ const styles = StyleSheet.create({
   walletAddress: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontFamily: 'monospace',
   },
   copyButton: {
@@ -1000,14 +1000,14 @@ const styles = StyleSheet.create({
   },
   walletNote: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     lineHeight: 18,
   },
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     padding: 12,
     borderRadius: 8,
     marginVertical: 8,
@@ -1015,19 +1015,19 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   balanceValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   createWalletButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     padding: 14,
     borderRadius: 8,
     marginTop: 16,
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#2c2c2e',
+    borderTopColor: '#252528',
   },
   exportKeyText: {
     fontSize: 14,
@@ -1060,7 +1060,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -1080,7 +1080,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   warningText: {
     fontSize: 14,
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
   privateKeyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     padding: 16,
     borderRadius: 8,
     marginBottom: 20,
@@ -1104,7 +1104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     fontFamily: 'monospace',
-    color: '#ffffff',
+    color: '#FDFDFD',
     lineHeight: 18,
   },
   eyeButton: {
@@ -1120,7 +1120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     padding: 14,
     borderRadius: 8,
   },
@@ -1136,29 +1136,29 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#252528',
   },
   closeModalButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   changePasswordButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     padding: 14,
     borderRadius: 12,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#00A0DC',
   },
   changePasswordText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#00A0DC',
   },
   passwordInputContainer: {
     marginBottom: 16,
@@ -1166,13 +1166,13 @@ const styles = StyleSheet.create({
   passwordLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 8,
   },
   passwordInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderRadius: 8,
     paddingHorizontal: 12,
   },
@@ -1180,24 +1180,24 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   passwordHint: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginBottom: 20,
   },
   changePasswordSubmitButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#00A0DC',
     padding: 14,
     borderRadius: 8,
   },
   changePasswordSubmitButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
 });

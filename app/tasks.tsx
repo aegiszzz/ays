@@ -250,7 +250,7 @@ export default function TasksScreen() {
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContainer]}>
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color="#FDFDFD" />
       </View>
     );
   }
@@ -259,7 +259,7 @@ export default function TasksScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tasks & Points</Text>
         <View style={styles.pointsBadge}>
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     flex: 1,
     textAlign: 'center',
     marginRight: -28,
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: '#ffffff',
+    borderBottomColor: '#FDFDFD',
   },
   tabText: {
     fontSize: 16,
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     color: '#8e8e93',
   },
   tabTextActive: {
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontWeight: '600',
   },
   content: {
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   checkinTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 4,
   },
   checkinDescription: {
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 4,
   },
   taskDescription: {
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
   userRankText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     flex: 1,
     marginLeft: 12,
   },
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
   leaderboardUsername: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 4,
   },
   leaderboardPoints: {

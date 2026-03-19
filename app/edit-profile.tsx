@@ -153,7 +153,7 @@ export default function EditProfileScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color="#FDFDFD" />
       </View>
     );
   }
@@ -165,7 +165,7 @@ export default function EditProfileScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
         <TouchableOpacity onPress={handleSave} disabled={saving}>
@@ -196,7 +196,7 @@ export default function EditProfileScreen() {
             )}
             {uploadingCover && (
               <View style={styles.uploadingOverlay}>
-                <ActivityIndicator size="large" color="#fff" />
+                <ActivityIndicator size="large" color="#FDFDFD" />
               </View>
             )}
           </TouchableOpacity>
@@ -220,11 +220,11 @@ export default function EditProfileScreen() {
             )}
             {uploadingAvatar && (
               <View style={styles.uploadingOverlay}>
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color="#FDFDFD" />
               </View>
             )}
             <View style={styles.cameraIcon}>
-              <Camera size={16} color="#fff" />
+              <Camera size={16} color="#FDFDFD" />
             </View>
           </TouchableOpacity>
         </View>
@@ -290,13 +290,13 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
@@ -305,9 +305,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   backButton: {
     padding: 4,
@@ -315,22 +315,22 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   saveButton: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   saveButtonDisabled: {
-    color: '#3a3a3c',
+    color: '#252528',
   },
   content: {
     flex: 1,
   },
   coverContainer: {
     height: 200,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
   },
   coverImageButton: {
     width: '100%',
@@ -345,12 +345,12 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
   },
   coverPlaceholderText: {
     marginTop: 8,
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   uploadingOverlay: {
     position: 'absolute',
@@ -375,17 +375,17 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 4,
-    borderColor: '#fff',
+    borderColor: '#FDFDFD',
   },
   avatarPlaceholder: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#000000',
+    borderColor: '#0D0D0F',
   },
   cameraIcon: {
     position: 'absolute',
@@ -394,11 +394,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#000000',
+    borderColor: '#0D0D0F',
   },
   form: {
     padding: 16,
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 8,
   },
   labelRow: {
@@ -420,14 +420,14 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   input: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   textArea: {
     minHeight: 100,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 12,
     paddingHorizontal: 12,
     gap: 8,
@@ -445,22 +445,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   helper: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 4,
   },
   disabledInput: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#3a3a3c',
+    borderColor: '#252528',
   },
   disabledInputText: {
     fontSize: 16,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
 });

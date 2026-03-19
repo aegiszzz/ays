@@ -123,7 +123,7 @@ export default function AdminDashboard() {
             <Text style={styles.backButtonText}>Back to App</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-            <LogOut size={20} color="#fff" />
+            <LogOut size={20} color="#FDFDFD" />
             <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   logoutText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontWeight: '600',
   },
   content: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   statCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     padding: 20,
     flex: 1,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   menuCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     padding: 24,
     shadowColor: '#000',

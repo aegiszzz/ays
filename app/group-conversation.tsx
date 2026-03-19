@@ -278,7 +278,7 @@ export default function GroupConversationScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <View style={styles.groupIcon}>
@@ -293,7 +293,7 @@ export default function GroupConversationScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : (
         <FlatList
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   headerSubtitle: {
     fontSize: 12,
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   ownMessageBubble: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
   },
   mediaContainer: {
     marginBottom: 8,
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   ownMessageText: {
     color: '#000',
@@ -472,13 +472,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 16,
     maxHeight: 100,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   sendButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,

@@ -4,8 +4,8 @@
   "description": "A decentralized social media platform with crypto wallet integration",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0D0D0F",
+  "theme_color": "#0D0D0F",
   "orientation": "portrait",
   "scope": "/",
   "icons": [

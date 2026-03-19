@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#FDFDFD',
     marginBottom: 40,
   },
   steps: {
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dismissButtonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 18,
     fontWeight: '600',
   },

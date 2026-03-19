@@ -224,7 +224,7 @@ export default function ContentModeration() {
               style={styles.closeButton}
               onPress={() => setPreviewVisible(false)}
             >
-              <X size={24} color="#fff" />
+              <X size={24} color="#FDFDFD" />
             </TouchableOpacity>
             {selectedPost && (
               selectedPost.media_type === 'video' ? (
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   postCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   videoLabel: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 18,
     fontWeight: 'bold',
   },

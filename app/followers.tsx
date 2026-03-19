@@ -78,7 +78,7 @@ export default function FollowersScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Followers</Text>
         <View style={styles.placeholder} />
@@ -86,7 +86,7 @@ export default function FollowersScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : followers.length === 0 ? (
         <View style={styles.centerContainer}>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   placeholder: {
     width: 32,
@@ -160,13 +160,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 20,
     fontWeight: 'bold',
   },
   username: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
 });

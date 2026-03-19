@@ -138,7 +138,7 @@ export default function UsersManagement() {
             <Text style={styles.username}>{item.username}</Text>
             {item.is_admin && (
               <View style={styles.adminBadge}>
-                <Shield size={12} color="#fff" />
+                <Shield size={12} color="#FDFDFD" />
                 <Text style={styles.adminBadgeText}>ADMIN</Text>
               </View>
             )}
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     margin: 16,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   userCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   adminBadgeText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 10,
     fontWeight: 'bold',
   },

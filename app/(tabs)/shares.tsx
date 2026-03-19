@@ -247,7 +247,7 @@ export default function SharesScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#7A7A7E" />
       </View>
     );
   }
@@ -265,7 +265,7 @@ export default function SharesScreen() {
           style={styles.optionCard}
           onPress={() => router.push('/group-share')}>
           <View style={styles.iconContainer}>
-            <Users size={48} color="#000" />
+            <Users size={48} color="#7A7A7E" />
           </View>
           <Text style={styles.optionTitle}>Group Share</Text>
           <Text style={styles.optionDescription}>
@@ -277,7 +277,7 @@ export default function SharesScreen() {
           style={styles.optionCard}
           onPress={() => router.push('/send-message')}>
           <View style={styles.iconContainer}>
-            <MessageCircle size={48} color="#000" />
+            <MessageCircle size={48} color="#7A7A7E" />
           </View>
           <Text style={styles.optionTitle}>Direct Message</Text>
           <Text style={styles.optionDescription}>
@@ -297,7 +297,7 @@ export default function SharesScreen() {
           style={styles.addButton}
           onPress={() => setShowOptionsModal(true)}
         >
-          <Plus size={24} color="#fff" />
+          <Plus size={24} color="#FDFDFD" />
         </TouchableOpacity>
       </View>
 
@@ -312,7 +312,7 @@ export default function SharesScreen() {
           >
             <View style={styles.conversationAvatar}>
               {item.type === 'group' ? (
-                <Users size={24} color="#fff" />
+                <Users size={24} color="#FDFDFD" />
               ) : (
                 <Text style={styles.conversationAvatarText}>
                   {item.other_user?.username.charAt(0).toUpperCase() || '?'}
@@ -356,7 +356,7 @@ export default function SharesScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>New Share</Text>
             <TouchableOpacity onPress={() => setShowOptionsModal(false)}>
-              <X size={24} color="#000" />
+              <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
           </View>
 
@@ -369,7 +369,7 @@ export default function SharesScreen() {
               }}
             >
               <View style={styles.iconContainer}>
-                <Users size={48} color="#000" />
+                <Users size={48} color="#7A7A7E" />
               </View>
               <Text style={styles.optionTitle}>Group Share</Text>
               <Text style={styles.optionDescription}>
@@ -385,7 +385,7 @@ export default function SharesScreen() {
               }}
             >
               <View style={styles.iconContainer}>
-                <MessageCircle size={48} color="#000" />
+                <MessageCircle size={48} color="#7A7A7E" />
               </View>
               <Text style={styles.optionTitle}>Direct Message</Text>
               <Text style={styles.optionDescription}>
@@ -402,37 +402,37 @@ export default function SharesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   subtitle: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -441,13 +441,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   conversationAvatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginRight: 8,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   unreadBadge: {
     backgroundColor: '#10B981',
@@ -481,44 +481,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   unreadText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 12,
     fontWeight: 'bold',
   },
   conversationPreview: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   conversationThumbnail: {
     width: 56,
     height: 56,
     borderRadius: 8,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   optionsContainer: {
     padding: 20,
     gap: 16,
   },
   optionCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -541,11 +541,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   optionDescription: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     textAlign: 'center',
   },
 });

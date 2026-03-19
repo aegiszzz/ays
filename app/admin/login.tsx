@@ -136,7 +136,7 @@ export default function AdminLogin() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#FDFDFD" />
             ) : (
               <Text style={styles.loginButtonText}>Sign In</Text>
             )}
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 16,
     padding: 40,
     width: '100%',
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5EA',
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
   },
   input: {
     flex: 1,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '600',
   },

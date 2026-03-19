@@ -15,53 +15,32 @@ export default function TabLayout() {
         <View style={styles.sidebar}>
           <View style={styles.sidebarHeader}>
             <Text style={styles.sidebarTitle}>AYS</Text>
+            <View style={styles.sidebarTitleDot} />
           </View>
 
           <View style={styles.sidebarMenu}>
-            <TouchableOpacity
-              style={[styles.sidebarItem, pathname === '/' && styles.sidebarItemActive]}
-              onPress={() => router.push('/')}>
-              <Home size={24} color={pathname === '/' ? '#fff' : '#8e8e93'} />
-              <Text style={[styles.sidebarItemText, pathname === '/' && styles.sidebarItemTextActive]}>
-                Home
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.sidebarItem, pathname === '/shares' && styles.sidebarItemActive]}
-              onPress={() => router.push('/shares')}>
-              <Share2 size={24} color={pathname === '/shares' ? '#fff' : '#8e8e93'} />
-              <Text style={[styles.sidebarItemText, pathname === '/shares' && styles.sidebarItemTextActive]}>
-                Shares
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.sidebarItem, pathname === '/notifications' && styles.sidebarItemActive]}
-              onPress={() => router.push('/notifications')}>
-              <Bell size={24} color={pathname === '/notifications' ? '#fff' : '#8e8e93'} />
-              <Text style={[styles.sidebarItemText, pathname === '/notifications' && styles.sidebarItemTextActive]}>
-                Notifications
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.sidebarItem, pathname === '/profile' && styles.sidebarItemActive]}
-              onPress={() => router.push('/profile')}>
-              <User size={24} color={pathname === '/profile' ? '#fff' : '#8e8e93'} />
-              <Text style={[styles.sidebarItemText, pathname === '/profile' && styles.sidebarItemTextActive]}>
-                Profile
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.sidebarItem, pathname === '/settings' && styles.sidebarItemActive]}
-              onPress={() => router.push('/settings')}>
-              <Settings size={24} color={pathname === '/settings' ? '#fff' : '#8e8e93'} />
-              <Text style={[styles.sidebarItemText, pathname === '/settings' && styles.sidebarItemTextActive]}>
-                Settings
-              </Text>
-            </TouchableOpacity>
+            {[
+              { icon: Home, label: 'Home', path: '/' },
+              { icon: Share2, label: 'Shares', path: '/shares' },
+              { icon: Bell, label: 'Notifications', path: '/notifications' },
+              { icon: User, label: 'Profile', path: '/profile' },
+              { icon: Settings, label: 'Settings', path: '/settings' },
+            ].map(({ icon: Icon, label, path }) => {
+              const isActive = pathname === path;
+              return (
+                <TouchableOpacity
+                  key={path}
+                  style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+                  onPress={() => router.push(path as any)}
+                >
+                  {isActive && <View style={styles.sidebarActiveBar} />}
+                  <Icon size={22} color={isActive ? '#00A0DC' : '#4A4A4E'} />
+                  <Text style={[styles.sidebarItemText, isActive && styles.sidebarItemTextActive]}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -86,13 +65,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: '#00A0DC',
+        tabBarInactiveTintColor: '#4A4A4E',
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#000000',
+          backgroundColor: '#0D0D0F',
           borderTopWidth: 1,
-          borderTopColor: '#2c2c2e',
+          borderTopColor: '#252528',
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
@@ -145,52 +124,74 @@ const styles = StyleSheet.create({
   desktopContainer: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: '#0D0D0F',
   },
   sidebar: {
-    width: 280,
-    backgroundColor: '#000000',
+    width: 260,
+    backgroundColor: '#0D0D0F',
     borderRightWidth: 1,
-    borderRightColor: '#2c2c2e',
+    borderRightColor: '#252528',
     paddingTop: 20,
   },
   sidebarHeader: {
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingVertical: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sidebarTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    color: '#ffffff',
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: 4,
+    color: '#FDFDFD',
+  },
+  sidebarTitleDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#00A0DC',
+    marginTop: 4,
   },
   sidebarMenu: {
-    paddingTop: 8,
+    paddingTop: 12,
   },
   sidebarItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 24,
-    gap: 16,
-    borderRadius: 8,
+    gap: 14,
+    borderRadius: 12,
     marginHorizontal: 12,
     marginVertical: 2,
+    position: 'relative',
   },
   sidebarItemActive: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: 'rgba(0, 160, 220, 0.12)',
+  },
+  sidebarActiveBar: {
+    position: 'absolute',
+    left: 0,
+    top: 10,
+    bottom: 10,
+    width: 3,
+    backgroundColor: '#00A0DC',
+    borderRadius: 2,
   },
   sidebarItemText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
-    color: '#8e8e93',
+    color: '#4A4A4E',
   },
   sidebarItemTextActive: {
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontWeight: '600',
   },
   desktopContent: {
     flex: 1,
+    backgroundColor: '#0D0D0F',
   },
 });

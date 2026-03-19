@@ -319,7 +319,7 @@ export default function ProfileScreen() {
             <Text style={styles.interactionText}>{item.likes || 0}</Text>
           </TouchableOpacity>
           <View style={styles.interactionButton}>
-            <MessageCircle size={24} color="#000" />
+            <MessageCircle size={24} color="#7A7A7E" />
             <Text style={styles.interactionText}>{item.comments_count || 0}</Text>
           </View>
         </View>
@@ -387,7 +387,7 @@ export default function ProfileScreen() {
             style={styles.editButton}
             onPress={() => router.push('/edit-profile')}
           >
-            <Edit size={16} color="#000" />
+            <Edit size={16} color="#7A7A7E" />
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
 
@@ -416,7 +416,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Uploads</Text>
           {loading ? (
-            <ActivityIndicator size="large" color="#000" style={styles.loader} />
+            <ActivityIndicator size="large" color="#7A7A7E" style={styles.loader} />
           ) : mediaItems.length === 0 ? (
             <View style={styles.emptyState}>
               <ImageIcon size={48} color="#ccc" />
@@ -443,10 +443,10 @@ export default function ProfileScreen() {
                     {isVideo ? (
                       <View style={styles.videoThumbnail}>
                         <View style={styles.videoThumbnailOverlay}>
-                          <Play size={32} color="#fff" fill="#fff" />
+                          <Play size={32} color="#FDFDFD" fill="#FDFDFD" />
                         </View>
                         <View style={styles.videoIconBadge}>
-                          <VideoIcon size={14} color="#fff" />
+                          <VideoIcon size={14} color="#FDFDFD" />
                         </View>
                       </View>
                     ) : (
@@ -475,7 +475,7 @@ export default function ProfileScreen() {
               onPress={() => setFeedModalVisible(false)}
               style={styles.feedModalCloseButton}
             >
-              <X size={24} color="#000" />
+              <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
             <Text style={styles.feedModalTitle}>Posts</Text>
             <View style={{ width: 24 }} />
@@ -531,7 +531,7 @@ export default function ProfileScreen() {
                 disabled={updatingPost}
               >
                 {updatingPost ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color="#FDFDFD" />
                 ) : (
                   <Text style={styles.updateButtonText}>Update</Text>
                 )}
@@ -547,20 +547,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   coverImage: {
     width: '100%',
     height: 120,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
   },
   header: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     padding: 16,
     paddingTop: 8,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   avatarRow: {
     position: 'absolute',
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#00A0DC',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -607,17 +607,17 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 2,
   },
   username: {
     fontSize: 13,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginBottom: 6,
   },
   bio: {
     fontSize: 13,
-    color: '#ffffff',
+    color: '#FDFDFD',
     textAlign: 'center',
     marginTop: 4,
     marginBottom: 8,
@@ -635,17 +635,17 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   linkText: {
-    color: '#007AFF',
+    color: '#00A0DC',
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 16,
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -667,11 +667,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   statLabel: {
     fontSize: 11,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 2,
   },
   section: {
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 12,
   },
   loader: {
@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridItem: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   videoThumbnail: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -728,17 +728,17 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 8,
     textAlign: 'center',
   },
   postCard: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     marginBottom: 12,
   },
   postHeader: {
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#00A0DC',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -773,7 +773,7 @@ const styles = StyleSheet.create({
   postUsername: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   postActions: {
     flexDirection: 'row',
@@ -785,11 +785,11 @@ const styles = StyleSheet.create({
   postMedia: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
   },
   postCaption: {
     fontSize: 14,
-    color: '#ffffff',
+    color: '#FDFDFD',
     padding: 12,
     lineHeight: 20,
   },
@@ -807,7 +807,7 @@ const styles = StyleSheet.create({
   interactionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   modalContainer: {
     flex: 1,
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   editModalContent: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 16,
     padding: 20,
     width: '90%',
@@ -832,21 +832,21 @@ const styles = StyleSheet.create({
   editModalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 16,
   },
   editInput: {
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
     minHeight: 100,
     textAlignVertical: 'top',
   },
   charCount: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     textAlign: 'right',
     marginTop: 8,
   },
@@ -860,19 +860,19 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#252528',
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   updateButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
   },
   updateButtonText: {
@@ -882,7 +882,7 @@ const styles = StyleSheet.create({
   },
   feedModalContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   feedModalHeader: {
     flexDirection: 'row',
@@ -891,9 +891,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   feedModalCloseButton: {
     padding: 4,
@@ -901,6 +901,6 @@ const styles = StyleSheet.create({
   feedModalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
 });

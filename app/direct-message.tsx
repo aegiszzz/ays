@@ -148,19 +148,19 @@ export default function DirectMessageScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Messages</Text>
         </View>
         <TouchableOpacity onPress={handleNewMessage} style={styles.newMessageButton}>
-          <Plus size={24} color="#ffffff" />
+          <Plus size={24} color="#FDFDFD" />
         </TouchableOpacity>
       </View>
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : (
         <FlatList
@@ -184,7 +184,7 @@ export default function DirectMessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
@@ -192,9 +192,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderBottomWidth: 1,
-    borderBottomColor: '#2c2c2e',
+    borderBottomColor: '#252528',
   },
   backButton: {
     marginRight: 16,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   newMessageButton: {
     padding: 8,
@@ -222,16 +222,16 @@ const styles = StyleSheet.create({
   conversationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#3a3a3c',
+    borderBottomColor: '#252528',
   },
   avatarContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -253,18 +253,18 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   timestamp: {
     fontSize: 12,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   lastMessage: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
   },
   unreadBadge: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -288,12 +288,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginTop: 8,
   },
 });

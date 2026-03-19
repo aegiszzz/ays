@@ -87,29 +87,11 @@ export default function VerifyEmail() {
     setError('');
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/send-verification-email`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, userId }),
-        }
-      );
+      const { error: fnError } = await supabase.functions.invoke('send-verification-email', {
+        body: { email, userId },
+      });
 
-      if (!response.ok) {
-        const rawText = await response.text().catch(() => '');
-        let errMsg = 'Failed to send code';
-        try {
-          const errBody = JSON.parse(rawText);
-          if (errBody.error) errMsg = errBody.error;
-          else if (errBody.message) errMsg = errBody.message;
-          else if (rawText) errMsg = rawText.slice(0, 200);
-        } catch { if (rawText) errMsg = rawText.slice(0, 200); }
-        throw new Error(errMsg);
-      }
+      if (fnError) throw fnError;
 
       setCountdown(60);
     } catch (err: any) {
@@ -165,7 +147,7 @@ export default function VerifyEmail() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#FDFDFD" />
           ) : (
             <Text style={styles.buttonText}>Verify Email</Text>
           )}
@@ -196,13 +178,13 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0D0D0F',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#1c1c1e',
+    backgroundColor: '#141417',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -214,13 +196,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: '#2c2c2e',
+    borderColor: '#252528',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -228,30 +210,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#8e8e93',
+    color: '#7A7A7E',
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 20,
   },
   emailText: {
-    color: '#007AFF',
+    color: '#00A0DC',
     fontWeight: '600',
   },
   input: {
     width: '100%',
-    backgroundColor: '#2c2c2e',
+    backgroundColor: '#252528',
     borderWidth: 1,
-    borderColor: '#3a3a3c',
+    borderColor: '#252528',
     borderRadius: 8,
     padding: 16,
     fontSize: 24,
-    color: '#ffffff',
+    color: '#FDFDFD',
     textAlign: 'center',
     letterSpacing: 8,
     marginBottom: 16,
@@ -263,7 +245,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#00A0DC',
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -275,7 +257,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -284,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-    color: '#007AFF',
+    color: '#00A0DC',
     fontSize: 14,
   },
   resendTextDisabled: {
@@ -295,7 +277,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelText: {
-    color: '#8e8e93',
+    color: '#7A7A7E',
     fontSize: 14,
   },
 });
