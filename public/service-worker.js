@@ -1,4 +1,4 @@
-const CACHE_NAME = 'social-pwa-v3';
+const CACHE_NAME = 'social-pwa-v4';
 const urlsToCache = [
   '/',
   '/assets/images/icon.png',
