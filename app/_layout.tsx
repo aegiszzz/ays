@@ -1,4 +1,5 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { Head } from 'expo-router/head';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
@@ -78,6 +79,11 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
+      <Head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="theme-color" content="#000000" />
+      </Head>
       <RootNavigator />
       <StatusBar style="light" />
     </AuthProvider>
