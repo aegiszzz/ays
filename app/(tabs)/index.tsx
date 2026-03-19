@@ -62,6 +62,9 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const feedMaxWidth = 680;
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -538,7 +541,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center' }]}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -574,7 +577,7 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
+          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="contain" />
         )}
 
         <View style={styles.actions}>
@@ -669,7 +672,10 @@ export default function HomeScreen() {
         data={media.filter(item => item.is_public)}
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 70 : 90 }}
+        contentContainerStyle={{
+          paddingBottom: Platform.OS === 'web' ? 70 : 90,
+          alignItems: isWeb ? 'center' : undefined,
+        }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -1022,13 +1028,15 @@ const styles = StyleSheet.create({
   },
   media: {
     width: '100%',
-    height: 320,
+    aspectRatio: 1,
     backgroundColor: '#1C1C2E',
+    maxHeight: 600,
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
-    height: 320,
+    aspectRatio: 1,
+    maxHeight: 600,
   },
   videoIndicator: {
     position: 'absolute',
