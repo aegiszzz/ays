@@ -232,7 +232,7 @@ export default function ConversationScreen() {
     <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.avatarContainer}>
           <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
@@ -242,7 +242,7 @@ export default function ConversationScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : (
         <FlatList
@@ -275,10 +275,10 @@ export default function ConversationScreen() {
         )}
         <View style={styles.inputRow}>
           <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
-            <Camera size={24} color="#ffffff" />
+            <Camera size={24} color="#FDFDFD" />
           </TouchableOpacity>
           <TouchableOpacity onPress={pickImage} style={styles.iconButton}>
-            <ImageIcon size={24} color="#ffffff" />
+            <ImageIcon size={24} color="#FDFDFD" />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
@@ -293,9 +293,9 @@ export default function ConversationScreen() {
             disabled={(!selectedMedia && !caption.trim()) || sending}
           >
             {sending ? (
-              <ActivityIndicator size="small" color="#6B6B8A" />
+              <ActivityIndicator size="small" color="#7A7A7E" />
             ) : (
-              <Send size={20} color="#6B6B8A" />
+              <Send size={20} color="#7A7A7E" />
             )}
           </TouchableOpacity>
         </View>
@@ -307,16 +307,16 @@ export default function ConversationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     paddingTop: 60,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderBottomWidth: 1,
-    borderBottomColor: '#2C2C3E',
+    borderBottomColor: '#252528',
   },
   backButton: {
     marginRight: 12,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   centerContainer: {
     flex: 1,
@@ -357,11 +357,11 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
   },
   theirMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
   },
   messageImage: {
     width: 250,
@@ -376,11 +376,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   theirCaption: {
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   timestamp: {
     fontSize: 11,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     paddingHorizontal: 8,
     paddingBottom: 4,
   },
@@ -392,17 +392,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     textAlign: 'center',
   },
   inputContainer: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderTopWidth: 1,
-    borderTopColor: '#2C2C3E',
+    borderTopColor: '#252528',
     padding: 12,
   },
   previewContainer: {
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -440,16 +440,16 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     fontSize: 16,
     maxHeight: 100,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   sendButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 20,
     width: 40,
     height: 40,
@@ -458,6 +458,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   sendButtonDisabled: {
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
   },
 });

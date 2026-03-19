@@ -205,7 +205,7 @@ export default function GroupShareScreen() {
     <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Create Group</Text>
@@ -215,7 +215,7 @@ export default function GroupShareScreen() {
 
       {loadingFriends ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : friends.length === 0 ? (
         <View style={styles.emptyState}>
@@ -269,7 +269,7 @@ export default function GroupShareScreen() {
                     <Text style={styles.friendUsername}>@{friend.username}</Text>
                   </View>
                   <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                    {isSelected && <Check size={16} color="#fff" />}
+                    {isSelected && <Check size={16} color="#FDFDFD" />}
                   </View>
                 </TouchableOpacity>
               );
@@ -281,11 +281,11 @@ export default function GroupShareScreen() {
             {!selectedMedia ? (
               <View style={styles.mediaButtons}>
                 <TouchableOpacity style={styles.mediaButton} onPress={pickFromCamera}>
-                  <Camera size={24} color="#ffffff" />
+                  <Camera size={24} color="#FDFDFD" />
                   <Text style={styles.mediaButtonText}>Camera</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.mediaButton} onPress={pickFromGallery}>
-                  <ImageIcon size={24} color="#ffffff" />
+                  <ImageIcon size={24} color="#FDFDFD" />
                   <Text style={styles.mediaButtonText}>Gallery</Text>
                 </TouchableOpacity>
               </View>
@@ -300,7 +300,7 @@ export default function GroupShareScreen() {
                   <Image source={{ uri: selectedMedia }} style={styles.previewImage} resizeMode="cover" />
                 )}
                 <TouchableOpacity style={styles.removeButton} onPress={() => setSelectedMedia(null)}>
-                  <X size={20} color="#fff" />
+                  <X size={20} color="#FDFDFD" />
                 </TouchableOpacity>
               </View>
             )}
@@ -316,7 +316,7 @@ export default function GroupShareScreen() {
               disabled={selectedFriends.size === 0 || !groupName.trim() || creating}
             >
               {creating ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#FDFDFD" />
               ) : (
                 <Text style={styles.createButtonText}>Create Group</Text>
               )}
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 4,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   subtitle: {
     fontSize: 14,
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   input: {
     borderWidth: 1,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: '#2c2c2e',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   selectionHeader: {
     flexDirection: 'row',
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   selectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   selectionCount: {
     fontSize: 14,
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   friendUsername: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   checkbox: {
     width: 24,
@@ -475,8 +475,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#ffffff',
-    borderColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
+    borderColor: '#FDFDFD',
   },
   mediaSection: {
     backgroundColor: '#1c1c1e',
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   mediaButtons: {
     flexDirection: 'row',
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   mediaButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   mediaPreview: {
     position: 'relative',
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   videoText: {
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontSize: 14,
     marginTop: 8,
   },
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   createButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',

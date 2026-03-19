@@ -251,7 +251,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#FDFDFD" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -271,13 +271,13 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#FDFDFD" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       </View>
     );
@@ -288,7 +288,7 @@ export default function UserProfileScreen() {
       <View style={styles.wrapper}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft size={24} color="#ffffff" />
+            <ArrowLeft size={24} color="#FDFDFD" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Profile</Text>
           <View style={{ width: 40 }} />
@@ -310,7 +310,7 @@ export default function UserProfileScreen() {
     <View style={styles.wrapper}>
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>{profile.name || profile.username}</Text>
         <View style={{ width: 40 }} />
@@ -362,13 +362,13 @@ export default function UserProfileScreen() {
                 style={[styles.followButton, isFollowing && styles.followingButton]}
                 onPress={handleFollow}
               >
-                {isFollowing ? <UserCheck size={16} color="#fff" /> : <UserPlus size={16} color="#6B6B8A" />}
+                {isFollowing ? <UserCheck size={16} color="#FDFDFD" /> : <UserPlus size={16} color="#7A7A7E" />}
                 <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
                   {isFollowing ? 'Following' : 'Follow'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
-                <MessageCircle size={16} color="#fff" />
+                <MessageCircle size={16} color="#FDFDFD" />
                 <Text style={styles.messageButtonText}>Message</Text>
               </TouchableOpacity>
             </View>
@@ -422,10 +422,10 @@ export default function UserProfileScreen() {
                     {isVideo ? (
                       <View style={styles.videoThumbnail}>
                         <View style={styles.videoThumbnailOverlay}>
-                          <Play size={32} color="#fff" fill="#fff" />
+                          <Play size={32} color="#FDFDFD" fill="#FDFDFD" />
                         </View>
                         <View style={styles.videoIconBadge}>
-                          <VideoIcon size={14} color="#fff" />
+                          <VideoIcon size={14} color="#FDFDFD" />
                         </View>
                       </View>
                     ) : (
@@ -456,11 +456,11 @@ export default function UserProfileScreen() {
                   }}
                   style={styles.downloadButton}
                 >
-                  <Download size={24} color="#fff" />
+                  <Download size={24} color="#FDFDFD" />
                   <Text style={styles.downloadText}>Download</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setSelectedImage(null)} style={styles.closeButton}>
-                  <X size={24} color="#fff" />
+                  <X size={24} color="#FDFDFD" />
                 </TouchableOpacity>
               </View>
               {selectedImage &&
@@ -480,7 +480,7 @@ export default function UserProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   topBar: {
     flexDirection: 'row',
@@ -499,13 +499,13 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   errorText: {
     fontSize: 16,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 20,
@@ -557,12 +557,12 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 4,
   },
   username: {
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   linkText: {
-    color: '#6C3AE8',
+    color: '#00A0DC',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 20,
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   followingButtonText: {
-    color: '#fff',
+    color: '#FDFDFD',
   },
   messageButton: {
     flexDirection: 'row',
@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
   messageButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   statLabel: {
     fontSize: 12,
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 12,
   },
   emptyState: {
@@ -750,7 +750,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   downloadText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '600',
   },

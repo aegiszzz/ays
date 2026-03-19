@@ -179,7 +179,7 @@ export default function NotificationsScreen() {
     switch (type) {
       case 'friend_add':
       case 'follow':
-        return <UserPlus size={22} color="#3b82f6" />;
+        return <UserPlus size={22} color="#00A0DC" />;
       case 'like':
         return <Heart size={22} color="#ef4444" fill="#ef4444" />;
       case 'comment':
@@ -274,7 +274,7 @@ export default function NotificationsScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color="#00A0DC" />
       </View>
     );
   }
@@ -306,7 +306,7 @@ export default function NotificationsScreen() {
                   setRefreshing(true);
                   fetchNotifications();
                 }}
-                tintColor="#3b82f6"
+                tintColor="#00A0DC"
               />
             }
             contentContainerStyle={{ paddingTop: 16, paddingBottom: Platform.OS === 'web' ? 70 : 90 }}
@@ -319,13 +319,13 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
@@ -333,17 +333,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2C2C3E',
+    borderBottomColor: '#252528',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   markAllButton: {
-    color: '#3b82f6',
+    color: '#00A0DC',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 12,
     marginVertical: 6,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   unreadNotification: {
     backgroundColor: '#1a2332',
     borderLeftWidth: 3,
-    borderLeftColor: '#3b82f6',
+    borderLeftColor: '#00A0DC',
   },
   iconContainer: {
     width: 48,
@@ -381,21 +381,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationText: {
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontSize: 15,
     lineHeight: 20,
     marginBottom: 4,
     fontWeight: '500',
   },
   timeText: {
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     fontSize: 13,
   },
   unreadDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#00A0DC',
     marginLeft: 12,
   },
   emptyContainer: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyText: {
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     fontSize: 16,
     textAlign: 'center',
   },

@@ -32,7 +32,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ uri, style }) => {
         />
         {loading && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#fff" />
+            <ActivityIndicator size="large" color="#FDFDFD" />
           </View>
         )}
       </View>
@@ -44,9 +44,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ uri, style }) => {
       <View style={styles.placeholder}>
         <TouchableOpacity style={styles.playButton} onPress={togglePlay}>
           {isPlaying ? (
-            <Pause size={48} color="#fff" fill="#fff" />
+            <Pause size={48} color="#FDFDFD" fill="#FDFDFD" />
           ) : (
-            <Play size={48} color="#fff" fill="#fff" />
+            <Play size={48} color="#FDFDFD" fill="#FDFDFD" />
           )}
         </TouchableOpacity>
       </View>

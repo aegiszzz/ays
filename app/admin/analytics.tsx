@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     padding: 20,
     paddingTop: 60,
     borderBottomWidth: 1,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   statCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 12,
     padding: 16,
     flex: 1,

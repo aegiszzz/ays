@@ -147,7 +147,7 @@ export default function VerifyEmail() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#FDFDFD" />
           ) : (
             <Text style={styles.buttonText}>Verify Email</Text>
           )}
@@ -178,13 +178,13 @@ export default function VerifyEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -196,13 +196,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -210,30 +210,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 20,
   },
   emailText: {
-    color: '#6C3AE8',
+    color: '#00A0DC',
     fontWeight: '600',
   },
   input: {
     width: '100%',
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
     borderRadius: 8,
     padding: 16,
     fontSize: 24,
-    color: '#ffffff',
+    color: '#FDFDFD',
     textAlign: 'center',
     letterSpacing: 8,
     marginBottom: 16,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-    color: '#6C3AE8',
+    color: '#00A0DC',
     fontSize: 14,
   },
   resendTextDisabled: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelText: {
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     fontSize: 14,
   },
 });

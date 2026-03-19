@@ -15,7 +15,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="apple-mobile-web-app-title" content="Ays" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="description" content="A decentralized social media platform with crypto wallet integration" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#0D0D0F" />
 
         <link rel="icon" type="image/png" href="/assets/images/icon.png" />
         <link rel="apple-touch-icon" href="/assets/images/icon.png" />

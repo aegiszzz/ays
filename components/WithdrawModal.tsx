@@ -158,10 +158,10 @@ export default function WithdrawModal({
             disabled={sending}
           >
             {sending ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#FDFDFD" />
             ) : (
               <>
-                <Send size={20} color="#fff" />
+                <Send size={20} color="#FDFDFD" />
                 <Text style={styles.sendButtonText}>Send Transaction</Text>
               </>
             )}
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   content: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   maxButtonText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   errorContainer: {
     flexDirection: 'row',
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   sendButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   cancelButton: {
     padding: 16,

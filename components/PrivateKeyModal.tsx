@@ -116,10 +116,10 @@ export default function PrivateKeyModal({
                 disabled={loading || !confirmed}
               >
                 {loading ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color="#FDFDFD" />
                 ) : (
                   <>
-                    <Key size={20} color="#fff" />
+                    <Key size={20} color="#FDFDFD" />
                     <Text style={styles.exportButtonText}>
                       Export Private Key
                     </Text>
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   content: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   checkboxInner: {
     width: 10,
     height: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#FDFDFD',
     borderRadius: 2,
   },
   checkboxLabel: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   exportButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FDFDFD',
   },
   keyContainer: {
     marginBottom: 20,

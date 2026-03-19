@@ -44,7 +44,7 @@ function RootNavigator() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color="#FDFDFD" />
       </View>
     );
   }

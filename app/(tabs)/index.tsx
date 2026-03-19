@@ -573,7 +573,7 @@ export default function HomeScreen() {
           <View style={styles.videoContainer}>
             <VideoPlayer uri={imageUrl} style={styles.media} />
             <View style={styles.videoIndicator}>
-              <VideoIcon size={20} color="#fff" />
+              <VideoIcon size={20} color="#FDFDFD" />
             </View>
           </View>
         ) : (
@@ -589,7 +589,7 @@ export default function HomeScreen() {
             >
               <Heart
                 size={24}
-                color={item.is_liked ? "#E040FB" : "#6B6B8A"}
+                color={item.is_liked ? "#E040FB" : "#7A7A7E"}
                 fill={item.is_liked ? "#E040FB" : "transparent"}
               />
               {(item.likes || 0) > 0 && (
@@ -600,7 +600,7 @@ export default function HomeScreen() {
               style={styles.actionButton}
               onPress={() => openComments(item)}
             >
-              <MessageCircle size={24} color="#6B6B8A" />
+              <MessageCircle size={24} color="#7A7A7E" />
               {(item.comments_count || 0) > 0 && (
                 <Text style={styles.actionCount}>{item.comments_count}</Text>
               )}
@@ -609,14 +609,14 @@ export default function HomeScreen() {
               style={styles.actionButton}
               onPress={() => handleShare(item)}
             >
-              <Share size={24} color="#6B6B8A" />
+              <Share size={24} color="#7A7A7E" />
             </TouchableOpacity>
           </View>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleDownload(item.ipfs_cid)}
           >
-            <Download size={24} color="#6B6B8A" />
+            <Download size={24} color="#7A7A7E" />
           </TouchableOpacity>
         </View>
 
@@ -657,12 +657,12 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => setUploadModalVisible(true)}>
-              <Plus size={24} color="#fff" />
+              <Plus size={24} color="#FDFDFD" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={() => router.push('/search-users')}>
-              <Search size={24} color="#fff" />
+              <Search size={24} color="#FDFDFD" />
             </TouchableOpacity>
           </View>
         </View>
@@ -698,7 +698,7 @@ export default function HomeScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Comments</Text>
             <TouchableOpacity onPress={() => setCommentsModalVisible(false)}>
-              <X size={24} color="#6B6B8A" />
+              <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
           </View>
 
@@ -770,9 +770,9 @@ export default function HomeScreen() {
               disabled={!commentText.trim() || sendingComment}
             >
               {sendingComment ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color="#FDFDFD" />
               ) : (
-                <Send size={20} color="#fff" />
+                <Send size={20} color="#FDFDFD" />
               )}
             </TouchableOpacity>
           </View>
@@ -797,19 +797,19 @@ export default function HomeScreen() {
               setSelectedMedia(null);
               setUploadCaption('');
             }}>
-              <X size={24} color="#fff" />
+              <X size={24} color="#FDFDFD" />
             </TouchableOpacity>
           </View>
 
           {!selectedMedia ? (
             <View style={styles.uploadPickerContainer}>
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromCamera}>
-                <Camera size={32} color="#fff" />
+                <Camera size={32} color="#FDFDFD" />
                 <Text style={styles.uploadPickerButtonText}>Take Photo/Video</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromGallery}>
-                <ImageIcon size={32} color="#fff" />
+                <ImageIcon size={32} color="#FDFDFD" />
                 <Text style={styles.uploadPickerButtonText}>Choose from Gallery</Text>
               </TouchableOpacity>
             </View>
@@ -828,7 +828,7 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   style={styles.removeButton}
                   onPress={() => setSelectedMedia(null)}>
-                  <X size={20} color="#fff" />
+                  <X size={20} color="#FDFDFD" />
                 </TouchableOpacity>
               </View>
 
@@ -871,7 +871,7 @@ export default function HomeScreen() {
                     onPress={handleUpload}
                     disabled={uploading}>
                     {uploading ? (
-                      <ActivityIndicator color="#fff" />
+                      <ActivityIndicator color="#FDFDFD" />
                     ) : (
                       <Text style={styles.uploadButtonText}>Upload to IPFS</Text>
                     )}
@@ -899,14 +899,14 @@ export default function HomeScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Share</Text>
             <TouchableOpacity onPress={() => setShareModalVisible(false)}>
-              <X size={24} color="#6B6B8A" />
+              <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
           </View>
 
           <View style={styles.shareOptionsContainer}>
             <TouchableOpacity style={styles.shareOption} onPress={copyLink}>
               <View style={styles.shareOptionIcon}>
-                <Copy size={24} color="#6C3AE8" />
+                <Copy size={24} color="#00A0DC" />
               </View>
               <Text style={styles.shareOptionText}>Copy Link</Text>
             </TouchableOpacity>
@@ -954,19 +954,19 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     paddingBottom: 14,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
   },
   headerTop: {
     flexDirection: 'row',
@@ -976,28 +976,28 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     padding: 8,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 20,
   },
   title: {
     fontSize: 26,
     fontWeight: '800',
     letterSpacing: 3,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   subtitle: {
     fontSize: 12,
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     marginTop: 2,
   },
   list: {
     paddingBottom: 16,
   },
   card: {
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     marginBottom: 0,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1009,13 +1009,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   avatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 15,
     fontWeight: '700',
   },
@@ -1025,17 +1025,17 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   timestamp: {
     fontSize: 11,
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     marginTop: 1,
   },
   media: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     maxHeight: 600,
   },
   videoContainer: {
@@ -1055,7 +1055,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   actions: {
     flexDirection: 'row',
@@ -1087,7 +1087,7 @@ const styles = StyleSheet.create({
   captionUsername: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   caption: {
     fontSize: 14,
@@ -1102,16 +1102,16 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#4A4A6A',
+    color: '#4A4A4E',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#3A3A5A',
+    color: '#252528',
     textAlign: 'center',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1119,13 +1119,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
     paddingTop: 60,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   commentsList: {
     flex: 1,
@@ -1142,29 +1142,29 @@ const styles = StyleSheet.create({
   emptyCommentsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4A4A6A',
+    color: '#4A4A4E',
   },
   emptyCommentsSubtext: {
     fontSize: 14,
-    color: '#3A3A5A',
+    color: '#252528',
   },
   commentItem: {
     flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
   },
   commentAvatar: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   commentAvatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -1175,7 +1175,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 3,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   commentText: {
     fontSize: 14,
@@ -1184,45 +1184,45 @@ const styles = StyleSheet.create({
   },
   commentTime: {
     fontSize: 11,
-    color: '#4A4A6A',
+    color: '#4A4A4E',
   },
   commentInputContainer: {
     flexDirection: 'row',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#1C1C2E',
+    borderTopColor: '#141417',
     gap: 10,
     alignItems: 'flex-end',
   },
   commentInput: {
     flex: 1,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 14,
     maxHeight: 100,
-    color: '#ffffff',
+    color: '#FDFDFD',
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   sendButton: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
     justifyContent: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
   },
   shareModalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   shareModalContainer: {
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '80%',
@@ -1230,7 +1230,7 @@ const styles = StyleSheet.create({
   shareModalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#3A3A5A',
+    backgroundColor: '#252528',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -1239,22 +1239,22 @@ const styles = StyleSheet.create({
   shareOptionsContainer: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
   },
   shareOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   shareOptionIcon: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: 'rgba(108, 58, 232, 0.15)',
+    backgroundColor: 'rgba(0, 160, 220, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -1262,7 +1262,7 @@ const styles = StyleSheet.create({
   shareOptionText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   friendsSectionHeader: {
     flexDirection: 'row',
@@ -1274,7 +1274,7 @@ const styles = StyleSheet.create({
   friendsSectionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#6B6B8A',
+    color: '#7A7A7E',
   },
   friendsList: {
     flex: 1,
@@ -1284,19 +1284,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#141417',
   },
   friendAvatar: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   friendAvatarText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -1304,7 +1304,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -1313,12 +1313,12 @@ const styles = StyleSheet.create({
   headerButton: {
     width: 38,
     height: 38,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   uploadPickerContainer: {
     flex: 1,
@@ -1327,18 +1327,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   uploadPickerButton: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     padding: 32,
     borderRadius: 16,
     alignItems: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   uploadPickerButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   uploadFormContainer: {
     flex: 1,
@@ -1351,7 +1351,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 280,
     borderRadius: 16,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
   },
   uploadForm: {
     padding: 20,
@@ -1365,14 +1365,14 @@ const styles = StyleSheet.create({
   },
   uploadInput: {
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
     minHeight: 90,
     textAlignVertical: 'top',
-    backgroundColor: '#1C1C2E',
-    color: '#ffffff',
+    backgroundColor: '#141417',
+    color: '#FDFDFD',
   },
   uploadSwitchContainer: {
     flexDirection: 'row',
@@ -1381,7 +1381,7 @@ const styles = StyleSheet.create({
   },
   uploadHelperText: {
     fontSize: 13,
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     marginTop: -8,
   },
   uploadErrorContainer: {
@@ -1411,12 +1411,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   uploadButton: {
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 4,
-    shadowColor: '#6C3AE8',
+    shadowColor: '#00A0DC',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -1426,7 +1426,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   uploadButtonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -1435,17 +1435,17 @@ const styles = StyleSheet.create({
     height: 280,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 16,
     gap: 10,
   },
   videoText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 17,
     fontWeight: '600',
   },
   videoSubtext: {
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     fontSize: 13,
   },
   removeButton: {

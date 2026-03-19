@@ -79,7 +79,7 @@ export default function SendMessageScreen() {
     <View style={styles.container}>
         <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#ffffff" />
+          <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>New Message</Text>
@@ -100,7 +100,7 @@ export default function SendMessageScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#FDFDFD" />
         </View>
       ) : (
         <FlatList
@@ -124,16 +124,16 @@ export default function SendMessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderBottomWidth: 1,
-    borderBottomColor: '#2C2C3E',
+    borderBottomColor: '#252528',
   },
   backButton: {
     marginRight: 16,
@@ -145,21 +145,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 4,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   subtitle: {
     fontSize: 14,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     margin: 16,
     paddingHorizontal: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
   },
   searchIcon: {
     marginRight: 8,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   centerContainer: {
     flex: 1,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FDFDFD',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   emptyContainer: {
     padding: 40,
@@ -219,6 +219,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
   },
 });

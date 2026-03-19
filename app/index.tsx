@@ -128,11 +128,11 @@ export default function LoginScreen() {
         <View style={styles.formContainer}>
           {isSignUp && (
             <View style={styles.inputWrapper}>
-              <User size={18} color="#6C3AE8" style={styles.inputIcon} />
+              <User size={18} color="#00A0DC" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Username"
-                placeholderTextColor="#4A4A6A"
+                placeholderTextColor="#4A4A4E"
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -140,11 +140,11 @@ export default function LoginScreen() {
             </View>
           )}
           <View style={styles.inputWrapper}>
-            <Mail size={18} color="#6C3AE8" style={styles.inputIcon} />
+            <Mail size={18} color="#00A0DC" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Email"
-              placeholderTextColor="#4A4A6A"
+              placeholderTextColor="#4A4A4E"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -152,11 +152,11 @@ export default function LoginScreen() {
             />
           </View>
           <View style={styles.inputWrapper}>
-            <Lock size={18} color="#6C3AE8" style={styles.inputIcon} />
+            <Lock size={18} color="#00A0DC" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
-              placeholderTextColor="#4A4A6A"
+              placeholderTextColor="#4A4A4E"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -165,22 +165,22 @@ export default function LoginScreen() {
           {isSignUp && (
             <>
               <View style={styles.inputWrapper}>
-                <Lock size={18} color="#6C3AE8" style={styles.inputIcon} />
+                <Lock size={18} color="#00A0DC" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Confirm Password"
-                  placeholderTextColor="#4A4A6A"
+                  placeholderTextColor="#4A4A4E"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
                 />
               </View>
               <View style={styles.inputWrapper}>
-                <Hash size={18} color="#6C3AE8" style={styles.inputIcon} />
+                <Hash size={18} color="#00A0DC" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Access Code (e.g. A7B2K9)"
-                  placeholderTextColor="#4A4A6A"
+                  placeholderTextColor="#4A4A4E"
                   value={accessCode}
                   onChangeText={(text) => setAccessCode(text.toUpperCase())}
                   autoCapitalize="characters"
@@ -237,21 +237,21 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     justifyContent: 'center',
     padding: 20,
     alignItems: 'center',
   },
   content: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: '#141417',
     borderRadius: 24,
     padding: 28,
     alignItems: 'center',
     width: '100%',
     maxWidth: 420,
     borderWidth: 1,
-    borderColor: '#2C2C3E',
-    shadowColor: '#6C3AE8',
+    borderColor: '#252528',
+    shadowColor: '#00A0DC',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -265,19 +265,19 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 42,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#FDFDFD',
     letterSpacing: 6,
   },
   logoDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     marginTop: 2,
   },
   subtitle: {
     fontSize: 14,
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     marginBottom: 28,
     marginTop: 8,
   },
@@ -288,9 +288,9 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     borderWidth: 1,
-    borderColor: '#2C2C3E',
+    borderColor: '#252528',
     borderRadius: 12,
     paddingHorizontal: 14,
   },
@@ -301,15 +301,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   button: {
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 6,
-    shadowColor: '#6C3AE8',
+    shadowColor: '#00A0DC',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FDFDFD',
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -333,10 +333,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#2C2C3E',
+    backgroundColor: '#252528',
   },
   dividerText: {
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     fontSize: 13,
   },
   switchButton: {
@@ -344,11 +344,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   switchText: {
-    color: '#6B6B8A',
+    color: '#7A7A7E',
     fontSize: 14,
   },
   switchTextBold: {
-    color: '#6C3AE8',
+    color: '#00A0DC',
     fontWeight: '700',
   },
   errorContainer: {
@@ -365,14 +365,14 @@ const styles = StyleSheet.create({
   },
   betaText: {
     fontSize: 12,
-    color: '#4A4A6A',
+    color: '#4A4A4E',
     textAlign: 'center',
     marginTop: -2,
     fontStyle: 'italic',
   },
   infoText: {
     fontSize: 11,
-    color: '#3A3A5A',
+    color: '#252528',
     textAlign: 'center',
     marginTop: 20,
   },

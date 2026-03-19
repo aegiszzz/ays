@@ -34,7 +34,7 @@ export default function TabLayout() {
                   onPress={() => router.push(path as any)}
                 >
                   {isActive && <View style={styles.sidebarActiveBar} />}
-                  <Icon size={22} color={isActive ? '#6C3AE8' : '#4A4A6A'} />
+                  <Icon size={22} color={isActive ? '#00A0DC' : '#4A4A4E'} />
                   <Text style={[styles.sidebarItemText, isActive && styles.sidebarItemTextActive]}>
                     {label}
                   </Text>
@@ -65,13 +65,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#6C3AE8',
-        tabBarInactiveTintColor: '#4A4A6A',
+        tabBarActiveTintColor: '#00A0DC',
+        tabBarInactiveTintColor: '#4A4A4E',
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#0A0A0F',
+          backgroundColor: '#0D0D0F',
           borderTopWidth: 1,
-          borderTopColor: '#1C1C2E',
+          borderTopColor: '#252528',
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
@@ -124,20 +124,20 @@ const styles = StyleSheet.create({
   desktopContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
   sidebar: {
     width: 260,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
     borderRightWidth: 1,
-    borderRightColor: '#1C1C2E',
+    borderRightColor: '#252528',
     paddingTop: 20,
   },
   sidebarHeader: {
     paddingHorizontal: 24,
     paddingVertical: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1C2E',
+    borderBottomColor: '#252528',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: 4,
-    color: '#ffffff',
+    color: '#FDFDFD',
   },
   sidebarTitleDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     marginTop: 4,
   },
   sidebarMenu: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   sidebarItemActive: {
-    backgroundColor: 'rgba(108, 58, 232, 0.12)',
+    backgroundColor: 'rgba(0, 160, 220, 0.12)',
   },
   sidebarActiveBar: {
     position: 'absolute',
@@ -178,20 +178,20 @@ const styles = StyleSheet.create({
     top: 10,
     bottom: 10,
     width: 3,
-    backgroundColor: '#6C3AE8',
+    backgroundColor: '#00A0DC',
     borderRadius: 2,
   },
   sidebarItemText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#4A4A6A',
+    color: '#4A4A4E',
   },
   sidebarItemTextActive: {
-    color: '#ffffff',
+    color: '#FDFDFD',
     fontWeight: '600',
   },
   desktopContent: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: '#0D0D0F',
   },
 });
