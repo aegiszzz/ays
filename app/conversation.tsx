@@ -166,7 +166,7 @@ export default function ConversationScreen() {
       const { error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
-        ipfs_cid: cid || null,
+        ipfs_cid: cid || '',
         media_type: selectedMedia ? mediaType : 'text',
         caption: caption.trim() || null,
         read: false,
