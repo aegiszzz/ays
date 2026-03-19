@@ -166,20 +166,35 @@ export default function ConversationScreen() {
         cid = await uploadToIPFS(selectedMedia);
       }
 
+      const captionValue = caption.trim() || null;
+      const mediaTypeValue = selectedMedia ? mediaType : 'text';
+
       const { data: insertedMessage, error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
         ipfs_cid: cid || '',
-        media_type: selectedMedia ? mediaType : 'text',
-        caption: caption.trim() || null,
+        media_type: mediaTypeValue,
+        caption: captionValue,
         read: false,
       }).select().single();
 
       if (error) throw error;
 
-      if (insertedMessage) {
-        setMessages((prev) => [...prev, insertedMessage]);
-      }
+      const messageToAdd: Message = insertedMessage ?? {
+        id: `temp-${Date.now()}`,
+        sender_id: user.id,
+        receiver_id: userId as string,
+        ipfs_cid: cid || '',
+        media_type: mediaTypeValue,
+        caption: captionValue,
+        read: false,
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages((prev) => {
+        if (insertedMessage && prev.some((m) => m.id === insertedMessage.id)) return prev;
+        return [...prev, messageToAdd];
+      });
 
       await supabase
         .from('conversation_reads')
