@@ -234,10 +234,15 @@ export default function ConversationScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
-        </View>
-        <Text style={styles.username}>@{username}</Text>
+        <TouchableOpacity
+          style={styles.headerUser}
+          onPress={() => router.push({ pathname: '/user-profile', params: { userId: userId as string } })}
+        >
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={styles.username}>@{username}</Text>
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -320,6 +325,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 12,
+  },
+  headerUser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   avatarContainer: {
     width: 40,
