@@ -886,10 +886,16 @@ export default function HomeScreen() {
       <Modal
         visible={shareModalVisible}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
         onRequestClose={() => setShareModalVisible(false)}
       >
+        <TouchableOpacity
+          style={styles.shareModalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShareModalVisible(false)}
+        />
         <View style={styles.shareModalContainer}>
+          <View style={styles.shareModalHandle} />
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Share</Text>
             <TouchableOpacity onPress={() => setShareModalVisible(false)}>
@@ -1211,9 +1217,24 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     backgroundColor: '#2C2C3E',
   },
-  shareModalContainer: {
+  shareModalBackdrop: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  shareModalContainer: {
     backgroundColor: '#0A0A0F',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+  },
+  shareModalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#3A3A5A',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 4,
   },
   shareOptionsContainer: {
     padding: 16,
