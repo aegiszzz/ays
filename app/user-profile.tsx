@@ -664,7 +664,7 @@ export default function UserProfileScreen() {
                 <ActivityIndicator size="large" color="#FDFDFD" style={{ padding: 40 }} />
               ) : comments.length === 0 ? (
                 <View style={styles.emptyComments}>
-                  <Text style={styles.emptyCommentsText}>Henüz yorum yok</Text>
+                  <Text style={styles.emptyCommentsText}>No comments yet</Text>
                 </View>
               ) : (
                 comments.map(comment => (
@@ -685,7 +685,7 @@ export default function UserProfileScreen() {
             <View style={styles.commentInputRow}>
               <TextInput
                 style={styles.commentInput}
-                placeholder="Yorum yaz..."
+                placeholder="Write a comment..."
                 placeholderTextColor="#7A7A7E"
                 value={commentText}
                 onChangeText={setCommentText}

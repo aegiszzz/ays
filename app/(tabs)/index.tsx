@@ -681,7 +681,7 @@ export default function HomeScreen() {
             style={styles.tabItem}
             onPress={() => setActiveTab('explore')}
           >
-            <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>Keşfet</Text>
+            <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>Explore</Text>
             {activeTab === 'explore' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
           <TouchableOpacity
@@ -710,11 +710,11 @@ export default function HomeScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {activeTab === 'following' ? 'Henüz içerik yok' : 'No posts yet'}
+              {activeTab === 'following' ? 'No content yet' : 'No posts yet'}
             </Text>
             <Text style={styles.emptySubtext}>
               {activeTab === 'following'
-                ? 'Takip ettiğin kişilerin gönderileri burada görünecek'
+                ? 'Posts from people you follow will appear here'
                 : 'Start by uploading your first photo or video!'}
             </Text>
           </View>
