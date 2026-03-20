@@ -64,7 +64,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const feedMaxWidth = 680;
+  const feedMaxWidth = 470;
   const imageMaxHeight = Math.floor(height * 0.45);
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
@@ -591,7 +591,7 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={[styles.media, { maxHeight: imageMaxHeight }]} resizeMode="contain" />
+          <Image source={{ uri: imageUrl }} style={[styles.media, { maxHeight: imageMaxHeight }]} resizeMode="cover" />
         )}
 
         <View style={styles.actions}>
@@ -1099,7 +1099,7 @@ const styles = StyleSheet.create({
   media: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#141417',
+    backgroundColor: '#0D0D0F',
     maxHeight: 420,
   },
   videoContainer: {
