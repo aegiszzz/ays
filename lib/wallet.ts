@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import Constants from 'expo-constants';
+import { supabase } from './supabase';
 
 global.Buffer = global.Buffer || Buffer;
 
@@ -242,39 +243,25 @@ export const createSolanaWalletForUser = async (userId: string): Promise<string>
   }
 };
 
-export const getSolanaBalance = async (address: string): Promise<string> => {
+export const getSolanaBalance = async (address: string): Promise<{ balance: string; error?: string }> => {
   console.log('Fetching Solana balance for address:', address);
 
-  for (const rpcUrl of SOLANA_RPC_URLS) {
-    try {
-      console.log('Trying RPC:', rpcUrl);
-      const response = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getBalance',
-          params: [address, { commitment: 'confirmed' }],
-        }),
-      });
+  try {
+    const { data, error } = await supabase.functions.invoke('get-solana-balance', {
+      body: { address },
+    });
 
-      if (!response.ok) continue;
-
-      const data = await response.json();
-      if (data.error) continue;
-
-      const lamports = data.result?.value ?? 0;
-      const sol = (lamports / 1_000_000_000).toFixed(4);
-      console.log('✓ Solana balance:', sol, 'SOL via', rpcUrl);
-      return sol;
-    } catch (error: any) {
-      console.error('✗ RPC failed:', rpcUrl, error.message);
+    if (error) {
+      console.error('❌ Edge function error:', error.message);
+      return { balance: '0.0000', error: error.message };
     }
-  }
 
-  console.error('❌ All Solana RPC endpoints failed');
-  return '0.0000';
+    console.log('✓ Solana balance:', data?.balance, 'SOL');
+    return { balance: data?.balance || '0.0000' };
+  } catch (error: any) {
+    console.error('❌ Failed to get Solana balance:', error.message);
+    return { balance: '0.0000', error: error.message };
+  }
 };
 
 export const authenticateWithBiometric = async (): Promise<boolean> => {

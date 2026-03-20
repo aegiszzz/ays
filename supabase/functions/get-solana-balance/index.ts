@@ -47,7 +47,12 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
-    const address = url.searchParams.get('address');
+    let address = url.searchParams.get('address');
+
+    if (!address && req.method === 'POST') {
+      const body = await req.json().catch(() => ({}));
+      address = body.address || null;
+    }
 
     if (!address) {
       return new Response(
