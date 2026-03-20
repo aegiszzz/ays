@@ -111,7 +111,10 @@ export default function ConversationScreen() {
             (newMessage.sender_id === userId && newMessage.receiver_id === user.id) ||
             (newMessage.sender_id === user.id && newMessage.receiver_id === userId)
           ) {
-            setMessages((prev) => [...prev, newMessage]);
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMessage.id)) return prev;
+              return [...prev, newMessage];
+            });
           }
         }
       )
@@ -163,16 +166,35 @@ export default function ConversationScreen() {
         cid = await uploadToIPFS(selectedMedia);
       }
 
-      const { error } = await supabase.from('direct_messages').insert({
+      const captionValue = caption.trim() || null;
+      const mediaTypeValue = selectedMedia ? mediaType : 'text';
+
+      const { data: insertedMessage, error } = await supabase.from('direct_messages').insert({
         sender_id: user.id,
         receiver_id: userId as string,
-        ipfs_cid: cid || null,
-        media_type: selectedMedia ? mediaType : 'text',
-        caption: caption.trim() || null,
+        ipfs_cid: cid || '',
+        media_type: mediaTypeValue,
+        caption: captionValue,
         read: false,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      const messageToAdd: Message = insertedMessage ?? {
+        id: `temp-${Date.now()}`,
+        sender_id: user.id,
+        receiver_id: userId as string,
+        ipfs_cid: cid || '',
+        media_type: mediaTypeValue,
+        caption: captionValue,
+        read: false,
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages((prev) => {
+        if (insertedMessage && prev.some((m) => m.id === insertedMessage.id)) return prev;
+        return [...prev, messageToAdd];
+      });
 
       await supabase
         .from('conversation_reads')
@@ -234,10 +256,15 @@ export default function ConversationScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
-        </View>
-        <Text style={styles.username}>@{username}</Text>
+        <TouchableOpacity
+          style={styles.headerUser}
+          onPress={() => router.push({ pathname: '/user-profile', params: { userId: userId as string } })}
+        >
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{(username as string)?.charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={styles.username}>@{username}</Text>
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -320,6 +347,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 12,
+  },
+  headerUser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   avatarContainer: {
     width: 40,

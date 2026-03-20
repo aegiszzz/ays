@@ -12,6 +12,8 @@ import {
   useWindowDimensions,
   Alert,
   Platform,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,8 +33,18 @@ import {
   UserPlus,
   UserCheck,
   MessageCircle,
+  Heart,
+  Send,
 } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
+
+interface Comment {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  users?: { username: string };
+}
 
 interface MediaItem {
   id: string;
@@ -40,6 +52,9 @@ interface MediaItem {
   media_type: string;
   caption: string | null;
   created_at: string;
+  likes?: number;
+  is_liked?: boolean;
+  comments_count?: number;
 }
 
 interface UserProfile {
@@ -62,13 +77,17 @@ export default function UserProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedCid, setSelectedCid] = useState<string | null>(null);
-  const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>('image');
+  const [selectedPost, setSelectedPost] = useState<MediaItem | null>(null);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [friendshipId, setFriendshipId] = useState<string | null>(null);
+  const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set());
+  const [commentsVisible, setCommentsVisible] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentText, setCommentText] = useState('');
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
 
   const ITEM_SIZE = (width - 48) / 3;
 
@@ -119,8 +138,36 @@ export default function UserProfileScreen() {
         supabase.from('friends').select('id', { count: 'exact' }).eq('user_id', userId).eq('status', 'accepted'),
       ]);
 
-      if (mediaResult.data) {
-        setMediaItems(mediaResult.data);
+      if (mediaResult.data && mediaResult.data.length > 0) {
+        const mediaIds = mediaResult.data.map(m => m.id);
+
+        const [likesResult, commentsResult] = await Promise.all([
+          supabase.from('likes').select('media_share_id, user_id').in('media_share_id', mediaIds),
+          supabase.from('comments').select('media_share_id').in('media_share_id', mediaIds),
+        ]);
+
+        const likesMap = new Map<string, { count: number; isLiked: boolean }>();
+        likesResult.data?.forEach(like => {
+          const cur = likesMap.get(like.media_share_id) || { count: 0, isLiked: false };
+          likesMap.set(like.media_share_id, {
+            count: cur.count + 1,
+            isLiked: cur.isLiked || like.user_id === user?.id,
+          });
+        });
+
+        const commentsMap = new Map<string, number>();
+        commentsResult.data?.forEach(c => {
+          commentsMap.set(c.media_share_id, (commentsMap.get(c.media_share_id) || 0) + 1);
+        });
+
+        setMediaItems(mediaResult.data.map(m => ({
+          ...m,
+          likes: likesMap.get(m.id)?.count || 0,
+          is_liked: likesMap.get(m.id)?.isLiked || false,
+          comments_count: commentsMap.get(m.id) || 0,
+        })));
+      } else if (mediaResult.data) {
+        setMediaItems([]);
       }
 
       setFollowersCount(followersResult.count || 0);
@@ -192,6 +239,102 @@ export default function UserProfileScreen() {
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
+    }
+  };
+
+  const handleLike = async (mediaId: string, isLiked: boolean) => {
+    if (!user || likingPosts.has(mediaId)) return;
+    setLikingPosts(prev => new Set(prev).add(mediaId));
+    try {
+      if (isLiked) {
+        await supabase.from('likes').delete().eq('media_share_id', mediaId).eq('user_id', user.id);
+        setMediaItems(prev => prev.map(item =>
+          item.id === mediaId ? { ...item, likes: (item.likes || 1) - 1, is_liked: false } : item
+        ));
+        if (selectedPost?.id === mediaId) {
+          setSelectedPost(prev => prev ? { ...prev, likes: (prev.likes || 1) - 1, is_liked: false } : prev);
+        }
+      } else {
+        await supabase.from('likes').insert({ media_share_id: mediaId, user_id: user.id });
+        if (userId !== user.id) {
+          await supabase.from('notifications').insert({
+            user_id: userId,
+            type: 'like',
+            related_user_id: user.id,
+            related_item_id: mediaId,
+            content: null,
+          });
+        }
+        setMediaItems(prev => prev.map(item =>
+          item.id === mediaId ? { ...item, likes: (item.likes || 0) + 1, is_liked: true } : item
+        ));
+        if (selectedPost?.id === mediaId) {
+          setSelectedPost(prev => prev ? { ...prev, likes: (prev.likes || 0) + 1, is_liked: true } : prev);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    } finally {
+      setLikingPosts(prev => { const n = new Set(prev); n.delete(mediaId); return n; });
+    }
+  };
+
+  const openComments = async (post: MediaItem) => {
+    setCommentsVisible(true);
+    setLoadingComments(true);
+    try {
+      const { data: commentsData } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('media_share_id', post.id)
+        .order('created_at', { ascending: false });
+
+      const userIds = [...new Set(commentsData?.map(c => c.user_id) || [])];
+      const { data: usersData } = userIds.length > 0
+        ? await supabase.from('users').select('id, username').in('id', userIds)
+        : { data: [] };
+
+      const usersMap = new Map(usersData?.map(u => [u.id, u]) || []);
+      setComments(commentsData?.map(c => ({ ...c, users: usersMap.get(c.user_id) })) || []);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const sendComment = async () => {
+    if (!user || !selectedPost || !commentText.trim() || sendingComment) return;
+    setSendingComment(true);
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({ user_id: user.id, media_share_id: selectedPost.id, content: commentText.trim() })
+        .select()
+        .single();
+      if (error) throw error;
+
+      if (userId !== user.id) {
+        await supabase.from('notifications').insert({
+          user_id: userId,
+          type: 'comment',
+          related_user_id: user.id,
+          related_item_id: selectedPost.id,
+          content: commentText.trim().substring(0, 50),
+        });
+      }
+
+      const { data: userData } = await supabase.from('users').select('username').eq('id', user.id).single();
+      setComments(prev => [{ ...data, users: userData }, ...prev]);
+      setCommentText('');
+      setMediaItems(prev => prev.map(item =>
+        item.id === selectedPost.id ? { ...item, comments_count: (item.comments_count || 0) + 1 } : item
+      ));
+      setSelectedPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+    } catch (error) {
+      console.error('Error sending comment:', error);
+    } finally {
+      setSendingComment(false);
     }
   };
 
@@ -413,11 +556,7 @@ export default function UserProfileScreen() {
                   <TouchableOpacity
                     key={item.id}
                     style={[styles.gridItem, { width: ITEM_SIZE, height: ITEM_SIZE }]}
-                    onPress={() => {
-                      setSelectedImage(imageUri);
-                      setSelectedCid(item.ipfs_cid);
-                      setSelectedMediaType(isVideo ? 'video' : 'image');
-                    }}
+                    onPress={() => setSelectedPost(item)}
                   >
                     {isVideo ? (
                       <View style={styles.videoThumbnail}>
@@ -438,38 +577,134 @@ export default function UserProfileScreen() {
           )}
         </View>
 
+        {/* Post feed modal */}
         <Modal
-          visible={!!selectedImage}
-          transparent
+          visible={!!selectedPost}
           animationType="fade"
-          onRequestClose={() => setSelectedImage(null)}
+          transparent={Platform.OS === 'web'}
+          presentationStyle={Platform.OS === 'web' ? 'overFullScreen' : 'pageSheet'}
+          onRequestClose={() => setSelectedPost(null)}
         >
-          <View style={styles.modalContainer}>
-            <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setSelectedImage(null)} />
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (selectedCid) {
-                      handleDownload(selectedCid);
-                    }
-                  }}
-                  style={styles.downloadButton}
-                >
-                  <Download size={24} color="#FDFDFD" />
-                  <Text style={styles.downloadText}>Download</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setSelectedImage(null)} style={styles.closeButton}>
-                  <X size={24} color="#FDFDFD" />
+          <View style={Platform.OS === 'web' ? styles.webModalBackdrop : { flex: 1 }}>
+          {selectedPost && (
+            <View style={[styles.postModal, Platform.OS === 'web' && styles.postModalWeb]}>
+              <View style={styles.postModalHeader}>
+                <TouchableOpacity onPress={() => setSelectedPost(null)}>
+                  <X size={24} color="#7A7A7E" />
                 </TouchableOpacity>
               </View>
-              {selectedImage &&
-                (selectedMediaType === 'video' ? (
-                  <VideoPlayer uri={selectedImage} style={styles.modalImage} />
+              <ScrollView>
+                {selectedPost.media_type === 'video' ? (
+                  <VideoPlayer uri={getIPFSGatewayUrl(selectedPost.ipfs_cid)} style={styles.postModalMedia} />
                 ) : (
-                  <Image source={{ uri: selectedImage }} style={styles.modalImage} resizeMode="contain" />
-                ))}
+                  <Image source={{ uri: getIPFSGatewayUrl(selectedPost.ipfs_cid) }} style={styles.postModalMedia} resizeMode="contain" />
+                )}
+                <View style={styles.postModalActions}>
+                  <View style={styles.postModalLeftActions}>
+                    <TouchableOpacity
+                      style={styles.postModalActionBtn}
+                      onPress={() => handleLike(selectedPost.id, selectedPost.is_liked || false)}
+                      disabled={likingPosts.has(selectedPost.id)}
+                    >
+                      <Heart
+                        size={26}
+                        color={selectedPost.is_liked ? '#E040FB' : '#7A7A7E'}
+                        fill={selectedPost.is_liked ? '#E040FB' : 'transparent'}
+                      />
+                      {(selectedPost.likes || 0) > 0 && (
+                        <Text style={styles.postModalActionCount}>{selectedPost.likes}</Text>
+                      )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.postModalActionBtn}
+                      onPress={() => openComments(selectedPost)}
+                    >
+                      <MessageCircle size={26} color="#7A7A7E" />
+                      {(selectedPost.comments_count || 0) > 0 && (
+                        <Text style={styles.postModalActionCount}>{selectedPost.comments_count}</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.postModalActionBtn}
+                    onPress={() => handleDownload(selectedPost.ipfs_cid)}
+                  >
+                    <Download size={26} color="#7A7A7E" />
+                  </TouchableOpacity>
+                </View>
+                {selectedPost.caption && (
+                  <View style={styles.postModalCaption}>
+                    <Text style={styles.postModalCaptionText}>{selectedPost.caption}</Text>
+                  </View>
+                )}
+              </ScrollView>
             </View>
+          )}
+          </View>
+        </Modal>
+
+        {/* Comments modal */}
+        <Modal
+          visible={commentsVisible}
+          animationType="fade"
+          transparent={Platform.OS === 'web'}
+          presentationStyle={Platform.OS === 'web' ? 'overFullScreen' : 'pageSheet'}
+          onRequestClose={() => setCommentsVisible(false)}
+        >
+          <View style={Platform.OS === 'web' ? styles.webModalBackdrop : { flex: 1 }}>
+          <KeyboardAvoidingView style={[styles.postModal, Platform.OS === 'web' && styles.postModalWeb]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={styles.postModalHeader}>
+              <Text style={styles.commentsTitle}>Comments</Text>
+              <TouchableOpacity onPress={() => setCommentsVisible(false)}>
+                <X size={24} color="#7A7A7E" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ flex: 1 }}>
+              {loadingComments ? (
+                <ActivityIndicator size="large" color="#FDFDFD" style={{ padding: 40 }} />
+              ) : comments.length === 0 ? (
+                <View style={styles.emptyComments}>
+                  <Text style={styles.emptyCommentsText}>No comments yet</Text>
+                </View>
+              ) : (
+                comments.map(comment => (
+                  <View key={comment.id} style={styles.commentItem}>
+                    <View style={styles.commentAvatar}>
+                      <Text style={styles.commentAvatarText}>
+                        {(comment.users?.username || 'A').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.commentUsername}>{comment.users?.username || 'Anonymous'}</Text>
+                      <Text style={styles.commentText}>{comment.content}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+            <View style={styles.commentInputRow}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Write a comment..."
+                placeholderTextColor="#7A7A7E"
+                value={commentText}
+                onChangeText={setCommentText}
+                multiline
+                maxLength={500}
+              />
+              <TouchableOpacity
+                style={[styles.commentSendBtn, (!commentText.trim() || sendingComment) && styles.commentSendBtnDisabled]}
+                onPress={sendComment}
+                disabled={!commentText.trim() || sendingComment}
+              >
+                {sendingComment ? (
+                  <ActivityIndicator size="small" color="#FDFDFD" />
+                ) : (
+                  <Send size={20} color="#FDFDFD" />
+                )}
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
           </View>
         </Modal>
       </ScrollView>
@@ -710,57 +945,141 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
   },
-  modalContainer: {
+  webModalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  postModal: {
+    flex: 1,
+    backgroundColor: '#0D0D0F',
   },
-  modalContent: {
+  postModalWeb: {
+    flex: undefined,
     width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    maxWidth: 560,
+    maxHeight: '85%' as any,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  modalHeader: {
-    position: 'absolute',
-    top: 60,
-    left: 0,
-    right: 0,
+  postModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#141417',
+  },
+  postModalMedia: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#141417',
+    maxHeight: 500,
+  },
+  postModalActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    zIndex: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  downloadButton: {
+  postModalLeftActions: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  postModalActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 6,
+    padding: 4,
+  },
+  postModalActionCount: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#A0A0B8',
+  },
+  postModalCaption: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  postModalCaptionText: {
+    fontSize: 14,
+    color: '#C0C0D8',
+  },
+  commentsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FDFDFD',
+    flex: 1,
+  },
+  emptyComments: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyCommentsText: {
+    fontSize: 15,
+    color: '#4A4A4E',
+  },
+  commentItem: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#141417',
+    gap: 12,
+  },
+  commentAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#00A0DC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  commentAvatarText: {
+    color: '#FDFDFD',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  commentUsername: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FDFDFD',
+    marginBottom: 2,
+  },
+  commentText: {
+    fontSize: 14,
+    color: '#C0C0D8',
+  },
+  commentInputRow: {
+    flexDirection: 'row',
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#141417',
+    gap: 10,
+    alignItems: 'flex-end',
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#141417',
+    borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
-  },
-  downloadText: {
+    fontSize: 14,
+    maxHeight: 100,
     color: '#FDFDFD',
-    fontSize: 16,
-    fontWeight: '600',
+    borderWidth: 1,
+    borderColor: '#252528',
   },
-  closeButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 10,
-    borderRadius: 20,
+  commentSendBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#00A0DC',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  modalImage: {
-    width: '90%',
-    height: '70%',
+  commentSendBtnDisabled: {
+    backgroundColor: '#252528',
   },
 });

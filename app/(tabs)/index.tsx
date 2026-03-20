@@ -88,14 +88,27 @@ export default function HomeScreen() {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'explore' | 'following'>('explore');
+  const [followingIds, setFollowingIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
       fetchMedia();
+      fetchFollowingIds();
     } else {
       setLoading(false);
     }
   }, [user]);
+
+  const fetchFollowingIds = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('friends')
+      .select('friend_id')
+      .eq('user_id', user.id)
+      .eq('status', 'accepted');
+    setFollowingIds(data?.map(f => f.friend_id) || []);
+  };
 
   const fetchMedia = async () => {
     try {
@@ -649,10 +662,7 @@ export default function HomeScreen() {
       <InstallPrompt />
       <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.title}>AYS</Text>
-            <Text style={styles.subtitle}>Discover amazing content</Text>
-          </View>
+          <Text style={styles.title}>AYS</Text>
           <View style={styles.headerButtons}>
             <TouchableOpacity
               style={styles.headerButton}
@@ -666,10 +676,30 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
+        <View style={styles.tabsRow}>
+          <TouchableOpacity
+            style={styles.tabItem}
+            onPress={() => setActiveTab('explore')}
+          >
+            <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>Explore</Text>
+            {activeTab === 'explore' && <View style={styles.tabIndicator} />}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.tabItem}
+            onPress={() => setActiveTab('following')}
+          >
+            <Text style={[styles.tabText, activeTab === 'following' && styles.tabTextActive]}>Following</Text>
+            {activeTab === 'following' && <View style={styles.tabIndicator} />}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
-        data={media.filter(item => item.is_public)}
+        data={
+          activeTab === 'explore'
+            ? media.filter(item => item.is_public)
+            : media.filter(item => item.is_public && followingIds.includes(item.user_id))
+        }
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
         contentContainerStyle={{
@@ -679,8 +709,14 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No posts yet</Text>
-            <Text style={styles.emptySubtext}>Start by uploading your first photo or video!</Text>
+            <Text style={styles.emptyText}>
+              {activeTab === 'following' ? 'No content yet' : 'No posts yet'}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              {activeTab === 'following'
+                ? 'Posts from people you follow will appear here'
+                : 'Start by uploading your first photo or video!'}
+            </Text>
           </View>
         }
       />
@@ -963,7 +999,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0D0D0F',
   },
   header: {
-    paddingBottom: 14,
+    paddingBottom: 0,
     backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
     borderBottomColor: '#141417',
@@ -973,6 +1009,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
+    paddingBottom: 10,
+  },
+  tabsRow: {
+    flexDirection: 'row',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    position: 'relative',
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#4A4A4E',
+  },
+  tabTextActive: {
+    color: '#FDFDFD',
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: '20%',
+    right: '20%',
+    height: 2,
+    backgroundColor: '#00A0DC',
+    borderRadius: 2,
   },
   searchButton: {
     padding: 8,
