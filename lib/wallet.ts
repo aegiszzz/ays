@@ -5,7 +5,6 @@ import { Platform } from 'react-native';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import Constants from 'expo-constants';
-import { supabase } from './supabase';
 
 global.Buffer = global.Buffer || Buffer;
 
@@ -247,17 +246,19 @@ export const getSolanaBalance = async (address: string): Promise<{ balance: stri
   console.log('Fetching Solana balance for address:', address);
 
   try {
-    const { data, error } = await supabase.functions.invoke('get-solana-balance', {
-      body: { address },
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const response = await fetch(`${baseUrl}/api/solana-balance?address=${encodeURIComponent(address)}`, {
+      signal: AbortSignal.timeout(15000),
     });
 
-    if (error) {
-      console.error('❌ Edge function error:', error.message);
-      return { balance: '0.0000', error: error.message };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { balance: '0.0000', error: data.error || 'API error' };
     }
 
-    console.log('✓ Solana balance:', data?.balance, 'SOL');
-    return { balance: data?.balance || '0.0000' };
+    console.log('✓ Solana balance:', data.balance, 'SOL');
+    return { balance: data.balance || '0.0000' };
   } catch (error: any) {
     console.error('❌ Failed to get Solana balance:', error.message);
     return { balance: '0.0000', error: error.message };
