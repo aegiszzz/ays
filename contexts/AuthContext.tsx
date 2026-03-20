@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { createWallet } from '@/lib/wallet';
+import { createWallet, createSolanaWalletForUser, encryptPrivateKey } from '@/lib/wallet';
 
 interface AuthContextType {
   session: Session | null;
@@ -41,16 +41,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (async () => {
           const { data: existingUser } = await supabase
             .from('users')
-            .select('wallet_address')
+            .select('wallet_address, solana_wallet_address')
             .eq('id', session.user.id)
             .maybeSingle();
 
-          if (existingUser && !existingUser.wallet_address) {
-            const walletAddress = await createWallet(session.user.id);
+          if (!existingUser) return;
 
+          const updates: Record<string, string> = {};
+
+          if (!existingUser.wallet_address) {
+            try {
+              const walletAddress = await createWallet(session.user.id);
+              updates.wallet_address = walletAddress;
+            } catch (e) {
+              console.error('Failed to create BSC wallet:', e);
+            }
+          }
+
+          if (!existingUser.solana_wallet_address) {
+            try {
+              const solanaAddress = await createSolanaWalletForUser(session.user.id);
+              updates.solana_wallet_address = solanaAddress;
+            } catch (e) {
+              console.error('Failed to create Solana wallet:', e);
+            }
+          }
+
+          if (Object.keys(updates).length > 0) {
             await supabase
               .from('users')
-              .update({ wallet_address: walletAddress })
+              .update(updates)
               .eq('id', session.user.id);
           }
         })();

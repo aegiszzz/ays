@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Search, UserPlus, Check } from 'lucide-react-native';
+import { ArrowLeft, Search, UserPlus, Check, Users } from 'lucide-react-native';
 
 interface User {
   id: string;
@@ -41,7 +41,11 @@ export default function SearchUsersScreen() {
   const fetchData = async () => {
     try {
       const [usersResult, friendsResult] = await Promise.all([
-        supabase.from('users').select('id, username, email').neq('id', user?.id),
+        supabase
+          .from('users')
+          .select('id, username, email')
+          .neq('id', user?.id)
+          .order('username', { ascending: true }),
         supabase
           .from('friends')
           .select('friend_id')
@@ -91,11 +95,21 @@ export default function SearchUsersScreen() {
     }
   };
 
-  const filteredUsers = users.filter(
-    u =>
-      u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isSearching = searchQuery.trim().length > 0;
+
+  const displayedUsers = isSearching
+    ? users.filter(u =>
+        u.username.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
+        u.username.toLowerCase().includes(searchQuery.toLowerCase())
+      ).sort((a, b) => {
+        // Prefix matches first
+        const aStarts = a.username.toLowerCase().startsWith(searchQuery.toLowerCase());
+        const bStarts = b.username.toLowerCase().startsWith(searchQuery.toLowerCase());
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.username.localeCompare(b.username);
+      })
+    : users;
 
   const renderUserItem = ({ item }: { item: User }) => {
     const isFriend = friends.has(item.id);
@@ -155,11 +169,17 @@ export default function SearchUsersScreen() {
         <Search size={20} color="#8e8e93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by username or email..."
+          placeholder="Search by username..."
+          placeholderTextColor="#4A4A4E"
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoFocus
         />
+        {isSearching && (
+          <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>✕</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {loading ? (
@@ -168,14 +188,23 @@ export default function SearchUsersScreen() {
         </View>
       ) : (
         <FlatList
-          data={filteredUsers}
+          data={displayedUsers}
           renderItem={renderUserItem}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.list}
+          ListHeaderComponent={
+            !isSearching && users.length > 0 ? (
+              <View style={styles.sectionHeader}>
+                <Users size={16} color="#7A7A7E" />
+                <Text style={styles.sectionTitle}>Keşfet</Text>
+                <Text style={styles.sectionCount}>{users.length} kullanıcı</Text>
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {searchQuery ? 'No users found' : 'Start typing to search'}
+                {isSearching ? `"${searchQuery}" için sonuç bulunamadı` : 'Henüz kayıtlı kullanıcı yok'}
               </Text>
             </View>
           }
@@ -234,6 +263,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FDFDFD',
   },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  clearButtonText: {
+    color: '#7A7A7E',
+    fontSize: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 12,
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#7A7A7E',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    flex: 1,
+  },
+  sectionCount: {
+    fontSize: 12,
+    color: '#4A4A4E',
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -245,28 +300,25 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#252528',
-    padding: 16,
+    backgroundColor: '#141417',
+    padding: 12,
     borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#252528',
   },
   avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FDFDFD',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#00A0DC',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#000',
-    fontSize: 20,
+    color: '#FDFDFD',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   userInfo: {
@@ -278,19 +330,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   username: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    marginBottom: 4,
     color: '#FDFDFD',
   },
-  email: {
-    fontSize: 14,
-    color: '#7A7A7E',
-  },
   addButton: {
-    backgroundColor: '#FDFDFD',
+    backgroundColor: '#252528',
     padding: 10,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#3A3A3E',
   },
   addButtonDisabled: {
     opacity: 0.6,
@@ -298,14 +347,16 @@ const styles = StyleSheet.create({
   friendBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#1A3A1A',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 4,
+    borderWidth: 1,
+    borderColor: '#2A5A2A',
   },
   friendBadgeText: {
-    color: '#FDFDFD',
+    color: '#4CAF50',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -314,7 +365,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 16,
-    color: '#7A7A7E',
+    fontSize: 15,
+    color: '#4A4A4E',
+    textAlign: 'center',
   },
 });

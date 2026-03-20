@@ -93,29 +93,62 @@ export default function TasksScreen() {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     const todayStartISO = todayStart.toISOString();
 
-    const { data, error } = await supabase
-      .from('user_tasks')
-      .select('*')
-      .eq('user_id', user!.id)
-      .gte('completed_at', todayStartISO);
+    // Calculate start of current week (Monday)
+    const weekStart = new Date(todayStart);
+    const dayOfWeek = weekStart.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    weekStart.setDate(weekStart.getDate() + mondayOffset);
+    const weekStartISO = weekStart.toISOString();
 
-    if (error) throw error;
-    if (data) {
-      setUserTasks(data);
+    // Fetch today's tasks (daily), this week's tasks (weekly), and all one-time tasks
+    const [dailyResult, weeklyResult, oneTimeResult] = await Promise.all([
+      supabase
+        .from('user_tasks')
+        .select('*')
+        .eq('user_id', user!.id)
+        .gte('completed_at', todayStartISO),
+      supabase
+        .from('user_tasks')
+        .select('*')
+        .eq('user_id', user!.id)
+        .gte('completed_at', weekStartISO)
+        .lt('completed_at', todayStartISO),
+      supabase
+        .from('user_tasks')
+        .select('*')
+        .eq('user_id', user!.id)
+        .lt('completed_at', weekStartISO),
+    ]);
 
-      const { data: checkinTaskData } = await supabase
-        .from('tasks')
-        .select('id')
-        .eq('action_type', 'daily_checkin')
-        .eq('is_active', true)
-        .maybeSingle();
+    if (dailyResult.error) throw dailyResult.error;
+    if (weeklyResult.error) throw weeklyResult.error;
+    if (oneTimeResult.error) throw oneTimeResult.error;
 
-      if (checkinTaskData) {
-        const hasCheckedIn = data.some(
-          ut => ut.task_id === checkinTaskData.id && new Date(ut.completed_at) >= todayStart
-        );
-        setCheckedIn(hasCheckedIn);
+    // Merge all results, keeping one entry per task (most recent)
+    const allTasks = [...(dailyResult.data || []), ...(weeklyResult.data || []), ...(oneTimeResult.data || [])];
+    const taskMap = new Map<string, UserTask>();
+    for (const ut of allTasks) {
+      const existing = taskMap.get(ut.task_id);
+      if (!existing || new Date(ut.completed_at) > new Date(existing.completed_at)) {
+        taskMap.set(ut.task_id, ut);
       }
+    }
+    const mergedTasks = Array.from(taskMap.values());
+    setUserTasks(mergedTasks);
+
+    // Check daily check-in status
+    const { data: checkinTaskData } = await supabase
+      .from('tasks')
+      .select('id')
+      .eq('action_type', 'daily_checkin')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (checkinTaskData) {
+      const hasCheckedIn = (dailyResult.data || []).some(
+        ut => ut.task_id === checkinTaskData.id
+      );
+      setCheckedIn(hasCheckedIn);
     }
   };
 
@@ -151,9 +184,16 @@ export default function TasksScreen() {
     if (!userTask) return false;
 
     if (task.task_type === 'one_time') {
-      return true;
+      return userTask.points_earned > 0;
     }
 
+    if (task.task_type === 'daily') {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      return new Date(userTask.completed_at) >= todayStart && userTask.current_count >= task.required_count;
+    }
+
+    // weekly
     return userTask.current_count >= task.required_count;
   };
 
@@ -228,15 +268,16 @@ export default function TasksScreen() {
 
       if (taskError) throw taskError;
 
-      const { error: pointsError } = await supabase
-        .from('users')
-        .update({ total_points: totalPoints + checkinTask.points })
-        .eq('id', user!.id);
+      const { data: newTotal, error: pointsError } = await supabase
+        .rpc('increment_user_points', {
+          p_user_id: user!.id,
+          p_points: checkinTask.points,
+        });
 
       if (pointsError) throw pointsError;
 
       setCheckedIn(true);
-      setTotalPoints(totalPoints + checkinTask.points);
+      setTotalPoints(newTotal ?? totalPoints + checkinTask.points);
       Alert.alert('Success!', `You earned ${checkinTask.points} point!`);
       await fetchData();
     } catch (error) {

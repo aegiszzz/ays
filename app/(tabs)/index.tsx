@@ -62,9 +62,10 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const feedMaxWidth = 680;
+  const feedMaxWidth = 470;
+  const imageMaxHeight = Math.floor(height * 0.45);
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -480,7 +481,8 @@ export default function HomeScreen() {
       if (selectedMedia.startsWith('data:')) {
         base64 = selectedMedia;
         const base64Data = base64.split(',')[1] || base64;
-        fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
+        const padding = (base64Data.match(/=/g) || []).length;
+        fileSizeBytes = Math.ceil((base64Data.length * 3) / 4) - padding;
       } else if (selectedMedia.startsWith('blob:') || selectedMedia.startsWith('http')) {
         const response = await fetch(selectedMedia);
         const blob = await response.blob();
@@ -583,14 +585,14 @@ export default function HomeScreen() {
         </View>
 
         {item.media_type === 'video' ? (
-          <View style={styles.videoContainer}>
-            <VideoPlayer uri={imageUrl} style={styles.media} />
+          <View style={[styles.videoContainer, { maxHeight: imageMaxHeight }]}>
+            <VideoPlayer uri={imageUrl} style={[styles.media, { maxHeight: imageMaxHeight }]} />
             <View style={styles.videoIndicator}>
               <VideoIcon size={20} color="#FDFDFD" />
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="contain" />
+          <Image source={{ uri: imageUrl }} style={[styles.media, { maxHeight: imageMaxHeight }]} resizeMode="cover" />
         )}
 
         <View style={styles.actions}>
@@ -1098,14 +1100,14 @@ const styles = StyleSheet.create({
   media: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#141417',
-    maxHeight: 600,
+    backgroundColor: '#0D0D0F',
+    maxHeight: 420,
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
     aspectRatio: 1,
-    maxHeight: 600,
+    maxHeight: 420,
   },
   videoIndicator: {
     position: 'absolute',
