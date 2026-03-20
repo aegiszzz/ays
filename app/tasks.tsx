@@ -60,8 +60,70 @@ export default function TasksScreen() {
     }, [user])
   );
 
+  const syncLikeTask = async () => {
+    const { count } = await supabase
+      .from('likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user!.id);
+
+    const likeCount = count || 0;
+
+    const { data: likeTask } = await supabase
+      .from('tasks')
+      .select('id, required_count, points')
+      .eq('action_type', 'like_posts')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!likeTask) return;
+
+    const { data: existingUserTask } = await supabase
+      .from('user_tasks')
+      .select('id, current_count, points_earned')
+      .eq('user_id', user!.id)
+      .eq('task_id', likeTask.id)
+      .maybeSingle();
+
+    const completed = likeCount >= likeTask.required_count;
+
+    if (existingUserTask) {
+      if (existingUserTask.current_count !== likeCount && existingUserTask.points_earned === 0) {
+        await supabase
+          .from('user_tasks')
+          .update({
+            current_count: likeCount,
+            ...(completed ? { completed_at: new Date().toISOString(), points_earned: likeTask.points } : {}),
+          })
+          .eq('id', existingUserTask.id);
+
+        if (completed) {
+          await supabase.rpc('increment_user_points', {
+            p_user_id: user!.id,
+            p_points: likeTask.points,
+          });
+        }
+      }
+    } else if (likeCount > 0) {
+      await supabase.from('user_tasks').insert({
+        user_id: user!.id,
+        task_id: likeTask.id,
+        current_count: likeCount,
+        points_earned: completed ? likeTask.points : 0,
+        ...(completed ? { completed_at: new Date().toISOString() } : { completed_at: new Date().toISOString() }),
+      });
+
+      if (completed) {
+        await supabase.rpc('increment_user_points', {
+          p_user_id: user!.id,
+          p_points: likeTask.points,
+        });
+      }
+    }
+  };
+
   const fetchData = async () => {
     try {
+      await syncLikeTask();
       await Promise.all([
         fetchTasks(),
         fetchUserTasks(),
