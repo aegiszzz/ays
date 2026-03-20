@@ -64,7 +64,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const feedMaxWidth = 470;
+  const feedMaxWidth = 620;
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -602,7 +602,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center' }]}>
+      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center', marginHorizontal: 0 }]}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -751,6 +751,8 @@ export default function HomeScreen() {
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
         contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: isWeb ? 0 : 12,
           paddingBottom: Platform.OS === 'web' ? 70 : 90,
           alignItems: isWeb ? 'center' : undefined,
         }}
@@ -1050,7 +1052,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#141417',
+    borderBottomColor: '#1E1E24',
   },
   headerTop: {
     flexDirection: 'row',
@@ -1105,10 +1107,12 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   card: {
-    backgroundColor: '#0D0D0F',
-    marginBottom: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#141417',
+    backgroundColor: '#111116',
+    marginBottom: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1E1E24',
+    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1190,7 +1194,7 @@ const styles = StyleSheet.create({
   captionContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 14,
     flexWrap: 'wrap',
   },
   captionUsername: {
