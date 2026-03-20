@@ -602,7 +602,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center', marginHorizontal: 0 }]}>
+      <View style={styles.card}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -750,11 +750,11 @@ export default function HomeScreen() {
         }
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
+        style={isWeb ? { alignSelf: 'center', width: feedMaxWidth } : undefined}
         contentContainerStyle={{
           paddingTop: 12,
           paddingHorizontal: isWeb ? 0 : 12,
           paddingBottom: Platform.OS === 'web' ? 70 : 90,
-          alignItems: isWeb ? 'center' : undefined,
         }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
