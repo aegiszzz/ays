@@ -108,6 +108,29 @@ const getSecureItem = async (key: string, userId?: string): Promise<string | nul
   }
 };
 
+// --- Simple symmetric encryption for DB storage ---
+
+export const encryptPrivateKey = (privateKey: string, userId: string): string => {
+  // XOR-based obfuscation + base64 for DB storage
+  const keyBytes = new TextEncoder().encode(privateKey);
+  const saltBytes = new TextEncoder().encode(userId);
+  const encrypted = new Uint8Array(keyBytes.length);
+  for (let i = 0; i < keyBytes.length; i++) {
+    encrypted[i] = keyBytes[i] ^ saltBytes[i % saltBytes.length];
+  }
+  return Buffer.from(encrypted).toString('base64');
+};
+
+export const decryptPrivateKey = (encryptedKey: string, userId: string): string => {
+  const encrypted = Buffer.from(encryptedKey, 'base64');
+  const saltBytes = new TextEncoder().encode(userId);
+  const decrypted = new Uint8Array(encrypted.length);
+  for (let i = 0; i < encrypted.length; i++) {
+    decrypted[i] = encrypted[i] ^ saltBytes[i % saltBytes.length];
+  }
+  return new TextDecoder().decode(decrypted);
+};
+
 // --- Public interfaces ---
 
 export interface WalletInfo {
@@ -206,6 +229,17 @@ export const generateSolanaWallet = async (): Promise<SolanaWallet> => {
   } catch (error) {
     console.error('Error generating Solana wallet:', error);
     throw new Error('Failed to generate Solana wallet');
+  }
+};
+
+export const createSolanaWalletForUser = async (userId: string): Promise<string> => {
+  try {
+    const wallet = await generateSolanaWallet();
+    await setSecureItem(`${SOLANA_PRIVATE_KEY_PREFIX}${userId}`, wallet.privateKey, userId);
+    return wallet.address;
+  } catch (error) {
+    console.error('Error creating Solana wallet:', error);
+    throw new Error('Failed to create Solana wallet');
   }
 };
 

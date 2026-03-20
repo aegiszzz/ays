@@ -17,7 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw, HardDrive } from 'lucide-react-native';
-import { generateWallet, encryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
+import { generateWallet, encryptPrivateKey, decryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
 import * as Clipboard from 'expo-clipboard';
 import { useStorage } from '@/hooks/useStorage';
 
@@ -55,7 +55,15 @@ export default function SettingsScreen() {
       if (user) {
         fetchUsername();
       }
-    }, [user])
+
+      // Auto-refresh balances every 30 seconds while screen is focused
+      const interval = setInterval(() => {
+        if (walletAddress) fetchBscBalance(walletAddress);
+        if (solanaWalletAddress) fetchSolanaBalance(solanaWalletAddress);
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }, [user, walletAddress, solanaWalletAddress])
   );
 
   const fetchUsername = async () => {
@@ -201,7 +209,13 @@ export default function SettingsScreen() {
         : (data as any)?.encrypted_solana_private_key;
 
       if (keyData) {
-        setPrivateKey(keyData);
+        try {
+          const decrypted = decryptPrivateKey(keyData, user!.id);
+          setPrivateKey(decrypted);
+        } catch {
+          // Fallback for legacy unencrypted keys
+          setPrivateKey(keyData);
+        }
         setShowPrivateKeyModal(true);
       } else {
         Alert.alert('Error', `Private key not found. Please create a ${type === 'bsc' ? 'BSC' : 'Solana'} wallet first.`);
