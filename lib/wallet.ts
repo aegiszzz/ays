@@ -245,51 +245,38 @@ export const createSolanaWalletForUser = async (userId: string): Promise<string>
 export const getSolanaBalance = async (address: string): Promise<{ balance: string; error?: string }> => {
   console.log('Fetching Solana balance for address:', address);
 
-  const errors: string[] = [];
+  try {
+    const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const anonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-  for (const rpcUrl of SOLANA_RPC_URLS) {
-    try {
-      console.log('Trying RPC:', rpcUrl);
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
-
-      const response = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getBalance',
-          params: [address, { commitment: 'confirmed' }],
-        }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        errors.push(`${rpcUrl}: HTTP ${response.status}`);
-        continue;
-      }
-
-      const data = await response.json();
-      if (data.error) {
-        errors.push(`${rpcUrl}: ${data.error.message || JSON.stringify(data.error)}`);
-        continue;
-      }
-
-      const lamports = data.result?.value ?? 0;
-      const sol = (lamports / 1_000_000_000).toFixed(4);
-      console.log('✓ Solana balance:', sol, 'SOL via', rpcUrl);
-      return { balance: sol };
-    } catch (error: any) {
-      const msg = error.name === 'AbortError' ? 'timeout' : error.message;
-      errors.push(`${rpcUrl}: ${msg}`);
-      console.error('✗ RPC failed:', rpcUrl, msg);
+    if (!supabaseUrl || !anonKey) {
+      return { balance: '0.0000', error: 'Missing Supabase configuration' };
     }
-  }
 
-  console.error('❌ All Solana RPC endpoints failed:', errors);
-  return { balance: '0.0000', error: errors.join('; ') };
+    const apiUrl = `${supabaseUrl}/functions/v1/get-solana-balance?address=${encodeURIComponent(address)}`;
+    console.log('Calling edge function:', apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${anonKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { balance: '0.0000', error: `Edge function error: ${response.status} - ${data.error || ''}` };
+    }
+
+    console.log('✓ Solana balance:', data.balance, 'SOL');
+    return { balance: data.balance || '0.0000' };
+  } catch (error: any) {
+    console.error('❌ Failed to get Solana balance:', error.message);
+    return { balance: '0.0000', error: error.message };
+  }
 };
 
 export const authenticateWithBiometric = async (): Promise<boolean> => {
