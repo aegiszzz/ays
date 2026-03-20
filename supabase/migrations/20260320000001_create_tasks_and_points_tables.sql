@@ -1,15 +1,5 @@
 /*
   # Create Tasks & Points System Tables
-
-  1. New Tables
-    - `tasks` - Available tasks/missions
-    - `user_tasks` - User task completion tracking
-
-  2. New Columns
-    - `users.total_points` - Cached total points for leaderboard
-
-  3. Seed Data
-    - Default tasks (daily check-in, upload, share, etc.)
 */
 
 -- Add total_points column to users if not exists
@@ -51,59 +41,41 @@ CREATE INDEX IF NOT EXISTS idx_user_tasks_task_id ON user_tasks(task_id);
 CREATE INDEX IF NOT EXISTS idx_user_tasks_completed_at ON user_tasks(completed_at);
 CREATE INDEX IF NOT EXISTS idx_users_total_points ON users(total_points DESC);
 
--- RLS policies for tasks
-DROP POLICY IF EXISTS "Authenticated users can view active tasks" ON tasks;
-DROP POLICY IF EXISTS "Admins have full access to tasks" ON tasks;
+-- RLS policies (using DO blocks to avoid duplicate errors)
+DO $$ BEGIN
+  CREATE POLICY "Authenticated users can view active tasks" ON tasks FOR SELECT TO authenticated USING (is_active = true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE POLICY "Authenticated users can view active tasks"
-  ON tasks FOR SELECT TO authenticated
-  USING (is_active = true);
+DO $$ BEGIN
+  CREATE POLICY "Admins have full access to tasks" ON tasks FOR ALL TO authenticated
+    USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND is_admin = true));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE POLICY "Admins have full access to tasks"
-  ON tasks FOR ALL TO authenticated
-  USING (
-    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND is_admin = true)
-  );
+DO $$ BEGIN
+  CREATE POLICY "Users can view own task completions" ON user_tasks FOR SELECT TO authenticated USING (user_id = auth.uid());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- RLS policies for user_tasks
-DROP POLICY IF EXISTS "Users can view own task completions" ON user_tasks;
-DROP POLICY IF EXISTS "Users can insert own task completions" ON user_tasks;
-DROP POLICY IF EXISTS "Users can update own task completions" ON user_tasks;
+DO $$ BEGIN
+  CREATE POLICY "Users can insert own task completions" ON user_tasks FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE POLICY "Users can view own task completions"
-  ON user_tasks FOR SELECT TO authenticated
-  USING (user_id = auth.uid());
+DO $$ BEGIN
+  CREATE POLICY "Users can update own task completions" ON user_tasks FOR UPDATE TO authenticated
+    USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE POLICY "Users can insert own task completions"
-  ON user_tasks FOR INSERT TO authenticated
-  WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY "Users can update own task completions"
-  ON user_tasks FOR UPDATE TO authenticated
-  USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid());
-
--- Allow reading all users for leaderboard (total_points, username)
 DROP POLICY IF EXISTS "Anyone can view profiles" ON users;
-CREATE POLICY "Anyone can view profiles"
-  ON users FOR SELECT TO authenticated
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Anyone can view profiles" ON users FOR SELECT TO authenticated USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- Atomic points increment function (prevents race conditions)
+-- Atomic points increment function
 CREATE OR REPLACE FUNCTION increment_user_points(p_user_id uuid, p_points integer)
-RETURNS bigint
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-  v_new_total bigint;
+RETURNS bigint LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_new_total bigint;
 BEGIN
-  UPDATE users
-  SET total_points = COALESCE(total_points, 0) + p_points,
-      updated_at = now()
-  WHERE id = p_user_id
-  RETURNING total_points INTO v_new_total;
-
+  UPDATE users SET total_points = COALESCE(total_points, 0) + p_points, updated_at = now()
+  WHERE id = p_user_id RETURNING total_points INTO v_new_total;
   RETURN v_new_total;
 END;
 $$;
