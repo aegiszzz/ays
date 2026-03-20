@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import Constants from 'expo-constants';
+import { supabase } from './supabase';
 
 global.Buffer = global.Buffer || Buffer;
 
@@ -246,33 +247,17 @@ export const getSolanaBalance = async (address: string): Promise<{ balance: stri
   console.log('Fetching Solana balance for address:', address);
 
   try {
-    const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
-    const anonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !anonKey) {
-      return { balance: '0.0000', error: 'Missing Supabase configuration' };
-    }
-
-    const apiUrl = `${supabaseUrl}/functions/v1/get-solana-balance?address=${encodeURIComponent(address)}`;
-    console.log('Calling edge function:', apiUrl);
-
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${anonKey}`,
-        'Content-Type': 'application/json',
-      },
-      signal: AbortSignal.timeout(15000),
+    const { data, error } = await supabase.functions.invoke('get-solana-balance', {
+      body: { address },
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { balance: '0.0000', error: `Edge function error: ${response.status} - ${data.error || ''}` };
+    if (error) {
+      console.error('❌ Edge function error:', error.message);
+      return { balance: '0.0000', error: error.message };
     }
 
-    console.log('✓ Solana balance:', data.balance, 'SOL');
-    return { balance: data.balance || '0.0000' };
+    console.log('✓ Solana balance:', data?.balance, 'SOL');
+    return { balance: data?.balance || '0.0000' };
   } catch (error: any) {
     console.error('❌ Failed to get Solana balance:', error.message);
     return { balance: '0.0000', error: error.message };
