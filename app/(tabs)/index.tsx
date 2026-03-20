@@ -64,8 +64,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
-  const feedMaxWidth = 470;
-  const imageMaxHeight = Math.floor(height * 0.45);
+  const feedMaxWidth = 620;
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -603,7 +602,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center' }]}>
+      <View style={[styles.card, isWeb && { width: feedMaxWidth, alignSelf: 'center', marginHorizontal: 0 }]}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -632,14 +631,14 @@ export default function HomeScreen() {
         </View>
 
         {item.media_type === 'video' ? (
-          <View style={[styles.videoContainer, { maxHeight: imageMaxHeight }]}>
-            <VideoPlayer uri={imageUrl} style={[styles.media, { maxHeight: imageMaxHeight }]} />
+          <View style={styles.videoContainer}>
+            <VideoPlayer uri={imageUrl} style={styles.media} />
             <View style={styles.videoIndicator}>
               <VideoIcon size={20} color="#FDFDFD" />
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={[styles.media, { maxHeight: imageMaxHeight }]} resizeMode="cover" />
+          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
         )}
 
         <View style={styles.actions}>
@@ -752,6 +751,8 @@ export default function HomeScreen() {
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
         contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: isWeb ? 0 : 12,
           paddingBottom: Platform.OS === 'web' ? 70 : 90,
           alignItems: isWeb ? 'center' : undefined,
         }}
@@ -1051,7 +1052,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     backgroundColor: '#0D0D0F',
     borderBottomWidth: 1,
-    borderBottomColor: '#141417',
+    borderBottomColor: '#1E1E24',
   },
   headerTop: {
     flexDirection: 'row',
@@ -1106,10 +1107,12 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   card: {
-    backgroundColor: '#0D0D0F',
-    marginBottom: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#141417',
+    backgroundColor: '#111116',
+    marginBottom: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1E1E24',
+    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1148,13 +1151,11 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     backgroundColor: '#0D0D0F',
-    maxHeight: 420,
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
     aspectRatio: 1,
-    maxHeight: 420,
   },
   videoIndicator: {
     position: 'absolute',
@@ -1193,7 +1194,7 @@ const styles = StyleSheet.create({
   captionContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 14,
     flexWrap: 'wrap',
   },
   captionUsername: {
