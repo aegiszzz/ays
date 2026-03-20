@@ -268,16 +268,36 @@ export default function TasksScreen() {
 
       if (taskError) throw taskError;
 
-      const { data: newTotal, error: pointsError } = await supabase
+      // Try atomic RPC first; fall back to direct update if function not yet available
+      const { data: newTotal, error: rpcError } = await supabase
         .rpc('increment_user_points', {
           p_user_id: user!.id,
           p_points: checkinTask.points,
         });
 
-      if (pointsError) throw pointsError;
+      if (rpcError) {
+        // Fallback: fetch current points and update directly
+        const { data: currentUser, error: fetchError } = await supabase
+          .from('users')
+          .select('total_points')
+          .eq('id', user!.id)
+          .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        const currentPoints = currentUser?.total_points ?? totalPoints;
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ total_points: currentPoints + checkinTask.points })
+          .eq('id', user!.id);
+
+        if (updateError) throw updateError;
+        setTotalPoints(currentPoints + checkinTask.points);
+      } else {
+        setTotalPoints(newTotal ?? totalPoints + checkinTask.points);
+      }
 
       setCheckedIn(true);
-      setTotalPoints(newTotal ?? totalPoints + checkinTask.points);
       Alert.alert('Success!', `You earned ${checkinTask.points} point!`);
       await fetchData();
     } catch (error) {
