@@ -65,7 +65,6 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const feedMaxWidth = 470;
-  const imageMaxHeight = Math.floor(height * 0.45);
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
@@ -632,14 +631,14 @@ export default function HomeScreen() {
         </View>
 
         {item.media_type === 'video' ? (
-          <View style={[styles.videoContainer, { maxHeight: imageMaxHeight }]}>
-            <VideoPlayer uri={imageUrl} style={[styles.media, { maxHeight: imageMaxHeight }]} />
+          <View style={styles.videoContainer}>
+            <VideoPlayer uri={imageUrl} style={styles.media} />
             <View style={styles.videoIndicator}>
               <VideoIcon size={20} color="#FDFDFD" />
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={[styles.media, { maxHeight: imageMaxHeight }]} resizeMode="cover" />
+          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
         )}
 
         <View style={styles.actions}>
@@ -1148,13 +1147,11 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     backgroundColor: '#0D0D0F',
-    maxHeight: 420,
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
     aspectRatio: 1,
-    maxHeight: 420,
   },
   videoIndicator: {
     position: 'absolute',
