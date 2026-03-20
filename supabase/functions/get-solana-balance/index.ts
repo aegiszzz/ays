@@ -1,12 +1,12 @@
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from 'npm:@solana/web3.js@1.95.8';
-
 const SOLANA_RPC_URLS = [
   'https://api.mainnet-beta.solana.com',
-  'https://mainnet.helius-rpc.com/?api-key=public',
-  'https://solana.public-rpc.com',
   'https://rpc.ankr.com/solana',
-  'https://solana-api.projectserum.com'
+  'https://solana.drpc.org',
+  'https://solana-mainnet.rpc.extrnode.com',
+  'https://go.getblock.io/solana-mainnet',
 ];
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,12 +14,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
+async function getBalanceFromRpc(rpcUrl: string, address: string): Promise<number> {
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getBalance',
+      params: [address, { commitment: 'confirmed' }],
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error(data.error.message || 'RPC error');
+  }
+
+  return data.result?.value ?? 0;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
@@ -29,65 +52,45 @@ Deno.serve(async (req: Request) => {
     if (!address) {
       return new Response(
         JSON.stringify({ error: 'Address parameter is required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log('Checking balance for address:', address);
 
+    let lastError: Error | null = null;
+
     for (let i = 0; i < SOLANA_RPC_URLS.length; i++) {
       const rpcUrl = SOLANA_RPC_URLS[i];
       try {
         console.log(`Trying RPC ${i + 1}/${SOLANA_RPC_URLS.length}: ${rpcUrl}`);
-        
-        const connection = new Connection(rpcUrl, 'confirmed');
-        const publicKey = new PublicKey(address);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        
-        const balance = await connection.getBalance(publicKey);
-        clearTimeout(timeoutId);
-        
-        const balanceInSol = balance / LAMPORTS_PER_SOL;
-        
-        console.log('✓ Success! Balance:', balanceInSol, 'SOL');
-        
+        const lamports = await getBalanceFromRpc(rpcUrl, address);
+        const balanceInSol = lamports / LAMPORTS_PER_SOL;
+
+        console.log('✓ Success! Balance:', balanceInSol, 'SOL via', rpcUrl);
+
         return new Response(
           JSON.stringify({
             balance: balanceInSol.toFixed(4),
-            balanceRaw: balance,
-            address: address,
-            rpcUsed: rpcUrl
+            balanceRaw: lamports,
+            address,
+            rpcUsed: rpcUrl,
           }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } catch (error: any) {
         console.error(`✗ Failed with RPC ${rpcUrl}:`, error.message);
-        if (i === SOLANA_RPC_URLS.length - 1) {
-          throw error;
-        }
+        lastError = error;
       }
     }
 
-    throw new Error('All RPC endpoints failed');
-    
+    throw lastError ?? new Error('All RPC endpoints failed');
+
   } catch (error: any) {
     console.error('Error getting balance:', error);
     return new Response(
-      JSON.stringify({
-        error: error.message || 'Failed to get balance',
-        balance: '0.0000'
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ error: error.message || 'Failed to get balance', balance: '0.0000' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
