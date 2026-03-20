@@ -17,8 +17,8 @@
 /**
  * Credit Mapping Configuration
  * - 1 MB = 100 credits
- * - 1 GB = 100,000 credits
- * - 3 GB (free plan) = 300,000 credits
+ * - 1 GiB = 102,400 credits  (1024 MB × 100)
+ * - 3 GiB (free plan) = 307,200 credits
  */
 export const CREDITS_PER_MB = 100;
 export const FREE_PLAN_GB = 3;

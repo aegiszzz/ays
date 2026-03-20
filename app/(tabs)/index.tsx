@@ -481,7 +481,8 @@ export default function HomeScreen() {
       if (selectedMedia.startsWith('data:')) {
         base64 = selectedMedia;
         const base64Data = base64.split(',')[1] || base64;
-        fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
+        const padding = (base64Data.match(/=/g) || []).length;
+        fileSizeBytes = Math.ceil((base64Data.length * 3) / 4) - padding;
       } else if (selectedMedia.startsWith('blob:') || selectedMedia.startsWith('http')) {
         const response = await fetch(selectedMedia);
         const blob = await response.blob();
