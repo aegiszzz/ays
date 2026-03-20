@@ -60,8 +60,70 @@ export default function TasksScreen() {
     }, [user])
   );
 
+  const syncLikeTask = async () => {
+    const { count } = await supabase
+      .from('likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user!.id);
+
+    const likeCount = count || 0;
+
+    const { data: likeTask } = await supabase
+      .from('tasks')
+      .select('id, required_count, points')
+      .eq('action_type', 'like_posts')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!likeTask) return;
+
+    const { data: existingUserTask } = await supabase
+      .from('user_tasks')
+      .select('id, current_count, points_earned')
+      .eq('user_id', user!.id)
+      .eq('task_id', likeTask.id)
+      .maybeSingle();
+
+    const completed = likeCount >= likeTask.required_count;
+
+    if (existingUserTask) {
+      if (existingUserTask.current_count !== likeCount && existingUserTask.points_earned === 0) {
+        await supabase
+          .from('user_tasks')
+          .update({
+            current_count: likeCount,
+            ...(completed ? { completed_at: new Date().toISOString(), points_earned: likeTask.points } : {}),
+          })
+          .eq('id', existingUserTask.id);
+
+        if (completed) {
+          await supabase.rpc('increment_user_points', {
+            p_user_id: user!.id,
+            p_points: likeTask.points,
+          });
+        }
+      }
+    } else if (likeCount > 0) {
+      await supabase.from('user_tasks').insert({
+        user_id: user!.id,
+        task_id: likeTask.id,
+        current_count: likeCount,
+        points_earned: completed ? likeTask.points : 0,
+        ...(completed ? { completed_at: new Date().toISOString() } : { completed_at: new Date().toISOString() }),
+      });
+
+      if (completed) {
+        await supabase.rpc('increment_user_points', {
+          p_user_id: user!.id,
+          p_points: likeTask.points,
+        });
+      }
+    }
+  };
+
   const fetchData = async () => {
     try {
+      await syncLikeTask();
       await Promise.all([
         fetchTasks(),
         fetchUserTasks(),
@@ -268,16 +330,36 @@ export default function TasksScreen() {
 
       if (taskError) throw taskError;
 
-      const { data: newTotal, error: pointsError } = await supabase
+      // Try atomic RPC first; fall back to direct update if function not yet available
+      const { data: newTotal, error: rpcError } = await supabase
         .rpc('increment_user_points', {
           p_user_id: user!.id,
           p_points: checkinTask.points,
         });
 
-      if (pointsError) throw pointsError;
+      if (rpcError) {
+        // Fallback: fetch current points and update directly
+        const { data: currentUser, error: fetchError } = await supabase
+          .from('users')
+          .select('total_points')
+          .eq('id', user!.id)
+          .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        const currentPoints = currentUser?.total_points ?? totalPoints;
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ total_points: currentPoints + checkinTask.points })
+          .eq('id', user!.id);
+
+        if (updateError) throw updateError;
+        setTotalPoints(currentPoints + checkinTask.points);
+      } else {
+        setTotalPoints(newTotal ?? totalPoints + checkinTask.points);
+      }
 
       setCheckedIn(true);
-      setTotalPoints(newTotal ?? totalPoints + checkinTask.points);
       Alert.alert('Success!', `You earned ${checkinTask.points} point!`);
       await fetchData();
     } catch (error) {

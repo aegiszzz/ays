@@ -211,6 +211,53 @@ export default function HomeScreen() {
           });
         }
 
+        // Update like_posts task progress
+        const { data: likeTask } = await supabase
+          .from('tasks')
+          .select('id, required_count, points')
+          .eq('action_type', 'like_posts')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (likeTask) {
+          const { data: existingUserTask } = await supabase
+            .from('user_tasks')
+            .select('id, current_count, points_earned')
+            .eq('user_id', user.id)
+            .eq('task_id', likeTask.id)
+            .maybeSingle();
+
+          if (existingUserTask) {
+            if (existingUserTask.points_earned === 0) {
+              const newCount = (existingUserTask.current_count || 0) + 1;
+              const completed = newCount >= likeTask.required_count;
+              await supabase
+                .from('user_tasks')
+                .update({
+                  current_count: newCount,
+                  ...(completed ? { completed_at: new Date().toISOString(), points_earned: likeTask.points } : {}),
+                })
+                .eq('id', existingUserTask.id);
+
+              if (completed) {
+                await supabase.rpc('increment_user_points', {
+                  p_user_id: user.id,
+                  p_points: likeTask.points,
+                });
+              }
+            }
+          } else {
+            const completed = 1 >= likeTask.required_count;
+            await supabase.from('user_tasks').insert({
+              user_id: user.id,
+              task_id: likeTask.id,
+              current_count: 1,
+              points_earned: completed ? likeTask.points : 0,
+              ...(completed ? { completed_at: new Date().toISOString() } : {}),
+            });
+          }
+        }
+
         setMedia(prev => prev.map(item =>
           item.id === mediaId
             ? { ...item, likes: (item.likes || 0) + 1, is_liked: true }
