@@ -52,6 +52,9 @@ CREATE INDEX IF NOT EXISTS idx_user_tasks_completed_at ON user_tasks(completed_a
 CREATE INDEX IF NOT EXISTS idx_users_total_points ON users(total_points DESC);
 
 -- RLS policies for tasks
+DROP POLICY IF EXISTS "Authenticated users can view active tasks" ON tasks;
+DROP POLICY IF EXISTS "Admins have full access to tasks" ON tasks;
+
 CREATE POLICY "Authenticated users can view active tasks"
   ON tasks FOR SELECT TO authenticated
   USING (is_active = true);
@@ -63,6 +66,10 @@ CREATE POLICY "Admins have full access to tasks"
   );
 
 -- RLS policies for user_tasks
+DROP POLICY IF EXISTS "Users can view own task completions" ON user_tasks;
+DROP POLICY IF EXISTS "Users can insert own task completions" ON user_tasks;
+DROP POLICY IF EXISTS "Users can update own task completions" ON user_tasks;
+
 CREATE POLICY "Users can view own task completions"
   ON user_tasks FOR SELECT TO authenticated
   USING (user_id = auth.uid());
