@@ -13,10 +13,9 @@ const SOLANA_PRIVATE_KEY_PREFIX = 'solana_wallet_private_key_';
 const BSC_RPC_URL = 'https://bsc-dataseed1.binance.org';
 const SOLANA_RPC_URLS = [
   'https://api.mainnet-beta.solana.com',
-  'https://mainnet.helius-rpc.com/?api-key=public',
-  'https://solana.public-rpc.com',
   'https://rpc.ankr.com/solana',
-  'https://solana-api.projectserum.com'
+  'https://solana.drpc.org',
+  'https://solana-mainnet.rpc.extrnode.com',
 ];
 
 // --- Web Crypto AES-GCM encryption helpers ---
@@ -246,37 +245,36 @@ export const createSolanaWalletForUser = async (userId: string): Promise<string>
 export const getSolanaBalance = async (address: string): Promise<string> => {
   console.log('Fetching Solana balance for address:', address);
 
-  try {
-    const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
-    const anonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  for (const rpcUrl of SOLANA_RPC_URLS) {
+    try {
+      console.log('Trying RPC:', rpcUrl);
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getBalance',
+          params: [address, { commitment: 'confirmed' }],
+        }),
+      });
 
-    if (!supabaseUrl || !anonKey) {
-      console.error('Missing Supabase configuration');
-      return '0.0000';
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      if (data.error) continue;
+
+      const lamports = data.result?.value ?? 0;
+      const sol = (lamports / 1_000_000_000).toFixed(4);
+      console.log('✓ Solana balance:', sol, 'SOL via', rpcUrl);
+      return sol;
+    } catch (error: any) {
+      console.error('✗ RPC failed:', rpcUrl, error.message);
     }
-
-    const apiUrl = `${supabaseUrl}/functions/v1/get-solana-balance?address=${encodeURIComponent(address)}`;
-
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${anonKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('✓ Solana balance:', data.balance, 'SOL');
-
-    return data.balance || '0.0000';
-  } catch (error: any) {
-    console.error('❌ Failed to get Solana balance:', error.message);
-    return '0.0000';
   }
+
+  console.error('❌ All Solana RPC endpoints failed');
+  return '0.0000';
 };
 
 export const authenticateWithBiometric = async (): Promise<boolean> => {
