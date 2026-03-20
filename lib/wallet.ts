@@ -242,12 +242,17 @@ export const createSolanaWalletForUser = async (userId: string): Promise<string>
   }
 };
 
-export const getSolanaBalance = async (address: string): Promise<string> => {
+export const getSolanaBalance = async (address: string): Promise<{ balance: string; error?: string }> => {
   console.log('Fetching Solana balance for address:', address);
+
+  const errors: string[] = [];
 
   for (const rpcUrl of SOLANA_RPC_URLS) {
     try {
       console.log('Trying RPC:', rpcUrl);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
       const response = await fetch(rpcUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -257,24 +262,34 @@ export const getSolanaBalance = async (address: string): Promise<string> => {
           method: 'getBalance',
           params: [address, { commitment: 'confirmed' }],
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
-      if (!response.ok) continue;
+      if (!response.ok) {
+        errors.push(`${rpcUrl}: HTTP ${response.status}`);
+        continue;
+      }
 
       const data = await response.json();
-      if (data.error) continue;
+      if (data.error) {
+        errors.push(`${rpcUrl}: ${data.error.message || JSON.stringify(data.error)}`);
+        continue;
+      }
 
       const lamports = data.result?.value ?? 0;
       const sol = (lamports / 1_000_000_000).toFixed(4);
       console.log('✓ Solana balance:', sol, 'SOL via', rpcUrl);
-      return sol;
+      return { balance: sol };
     } catch (error: any) {
-      console.error('✗ RPC failed:', rpcUrl, error.message);
+      const msg = error.name === 'AbortError' ? 'timeout' : error.message;
+      errors.push(`${rpcUrl}: ${msg}`);
+      console.error('✗ RPC failed:', rpcUrl, msg);
     }
   }
 
-  console.error('❌ All Solana RPC endpoints failed');
-  return '0.0000';
+  console.error('❌ All Solana RPC endpoints failed:', errors);
+  return { balance: '0.0000', error: errors.join('; ') };
 };
 
 export const authenticateWithBiometric = async (): Promise<boolean> => {

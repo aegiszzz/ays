@@ -32,6 +32,7 @@ export default function SettingsScreen() {
   const [solanaWalletAddress, setSolanaWalletAddress] = useState<string | null>(null);
   const [bscBalance, setBscBalance] = useState<string>('0.0000');
   const [solanaBalance, setSolanaBalance] = useState<string>('0.0000');
+  const [solanaBalanceError, setSolanaBalanceError] = useState<string | null>(null);
   const [loadingBalances, setLoadingBalances] = useState(false);
   const [creatingWallet, setCreatingWallet] = useState(false);
   const [creatingSolanaWallet, setCreatingSolanaWallet] = useState(false);
@@ -111,11 +112,16 @@ export default function SettingsScreen() {
     try {
       console.log('Settings: Fetching Solana balance for:', address);
       setLoadingBalances(true);
-      const balance = await getSolanaBalance(address);
-      console.log('Settings: Received balance:', balance);
-      setSolanaBalance(balance);
+      setSolanaBalanceError(null);
+      const result = await getSolanaBalance(address);
+      console.log('Settings: Received balance:', result.balance, 'error:', result.error);
+      setSolanaBalance(result.balance);
+      if (result.error) {
+        setSolanaBalanceError(result.error);
+      }
     } catch (error) {
       console.error('Error fetching Solana balance:', error);
+      setSolanaBalanceError('Failed to fetch balance');
     } finally {
       setLoadingBalances(false);
     }
@@ -541,6 +547,11 @@ export default function SettingsScreen() {
                 <Text style={styles.balanceValue}>{solanaBalance} SOL</Text>
               )}
             </View>
+            {solanaBalanceError && (
+              <Text style={{ color: '#FF6B6B', fontSize: 11, marginTop: 4 }}>
+                RPC Error: {solanaBalanceError}
+              </Text>
+            )}
             <Text style={styles.walletNote}>
               Solana network. Compatible with SPL tokens.
             </Text>
