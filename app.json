@@ -18,6 +18,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
+      "favicon": "./ayslogo.png",
       "name": "Ays",
       "shortName": "Ays",
       "description": "A decentralized social media platform with crypto wallet integration",
