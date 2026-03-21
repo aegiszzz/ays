@@ -90,6 +90,7 @@ export default function HomeScreen() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'explore' | 'following'>('explore');
   const [followingIds, setFollowingIds] = useState<string[]>([]);
+  const [mediaAspectRatios, setMediaAspectRatios] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (user) {
@@ -602,7 +603,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, isWeb && styles.cardWeb]}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -638,7 +639,17 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          <Image source={{ uri: imageUrl }} style={styles.media} resizeMode="cover" />
+          <Image
+            source={{ uri: imageUrl }}
+            style={[styles.media, { aspectRatio: mediaAspectRatios[item.id] ?? 1 }]}
+            resizeMode="contain"
+            onLoad={(e: any) => {
+              const { width, height } = e.nativeEvent.source;
+              if (width && height) {
+                setMediaAspectRatios(prev => ({ ...prev, [item.id]: width / height }));
+              }
+            }}
+          />
         )}
 
         <View style={styles.actions}>
@@ -750,7 +761,6 @@ export default function HomeScreen() {
         }
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
-        style={isWeb ? { alignSelf: 'center', width: feedMaxWidth } : undefined}
         contentContainerStyle={{
           paddingTop: 12,
           paddingHorizontal: isWeb ? 0 : 12,
@@ -1114,6 +1124,11 @@ const styles = StyleSheet.create({
     borderColor: '#1E1E24',
     overflow: 'hidden',
   },
+  cardWeb: {
+    maxWidth: 620,
+    width: '100%',
+    marginHorizontal: 'auto' as any,
+  },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1149,13 +1164,12 @@ const styles = StyleSheet.create({
   },
   media: {
     width: '100%',
-    aspectRatio: 1,
     backgroundColor: '#0D0D0F',
   },
   videoContainer: {
     position: 'relative',
     width: '100%',
-    aspectRatio: 1,
+    aspectRatio: 16 / 9,
   },
   videoIndicator: {
     position: 'absolute',

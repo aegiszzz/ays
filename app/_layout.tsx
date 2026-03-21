@@ -7,6 +7,18 @@ import { useEffect } from 'react';
 import InstallPrompt from '../components/InstallPrompt';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a42; }
+    * { scrollbar-width: thin; scrollbar-color: #2a2a30 transparent; }
+  `;
+  document.head.appendChild(style);
+}
+
 function RootNavigator() {
   const { session, loading } = useAuth();
   const segments = useSegments();
