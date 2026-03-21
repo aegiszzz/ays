@@ -602,7 +602,7 @@ export default function HomeScreen() {
     const imageUrl = getIPFSGatewayUrl(item.ipfs_cid);
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, isWeb && styles.cardWeb]}>
         <View style={styles.cardHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -750,7 +750,6 @@ export default function HomeScreen() {
         }
         renderItem={renderMediaItem}
         keyExtractor={item => item.id}
-        style={isWeb ? { alignSelf: 'center', width: feedMaxWidth } : undefined}
         contentContainerStyle={{
           paddingTop: 12,
           paddingHorizontal: isWeb ? 0 : 12,
@@ -1113,6 +1112,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1E1E24',
     overflow: 'hidden',
+  },
+  cardWeb: {
+    maxWidth: 620,
+    width: '100%',
+    marginHorizontal: 'auto' as any,
   },
   cardHeader: {
     flexDirection: 'row',
