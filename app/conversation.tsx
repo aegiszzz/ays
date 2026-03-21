@@ -266,6 +266,11 @@ export default function ConversationScreen() {
     const mediaUrl = item.ipfs_cid ? getIPFSGatewayUrl(item.ipfs_cid) : null;
     const isVideo = item.media_type === 'video';
 
+    const timeStr = new Date(item.created_at).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
     return (
       <View style={[styles.messageContainer, isMine ? styles.myMessage : styles.theirMessage]}>
         {mediaUrl && (
@@ -290,6 +295,9 @@ export default function ConversationScreen() {
             >
               <Download size={13} color="#FDFDFD" />
             </TouchableOpacity>
+            {!item.caption && (
+              <Text style={styles.mediaTimestamp}>{timeStr}</Text>
+            )}
           </View>
         )}
         {item.caption && (
@@ -297,12 +305,9 @@ export default function ConversationScreen() {
             {item.caption}
           </Text>
         )}
-        <Text style={styles.timestamp}>
-          {new Date(item.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
+        {(!mediaUrl || item.caption) && (
+          <Text style={styles.timestamp}>{timeStr}</Text>
+        )}
       </View>
     );
   };
@@ -523,6 +528,17 @@ const styles = StyleSheet.create({
     color: '#7A7A7E',
     paddingHorizontal: 8,
     paddingBottom: 4,
+  },
+  mediaTimestamp: {
+    position: 'absolute',
+    bottom: 6,
+    left: 8,
+    fontSize: 11,
+    color: '#FDFDFD',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
   },
   emptyContainer: {
     padding: 40,

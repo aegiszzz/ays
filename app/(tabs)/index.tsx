@@ -19,6 +19,7 @@ import {
   Switch,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import * as Linking from 'expo-linking';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -444,7 +445,7 @@ export default function HomeScreen() {
 
   const copyLink = () => {
     if (!postToShare) return;
-    const url = getIPFSGatewayUrl(postToShare.ipfs_cid);
+    const url = Linking.createURL(`post/${postToShare.id}`);
     Clipboard.setStringAsync(url);
   };
 
