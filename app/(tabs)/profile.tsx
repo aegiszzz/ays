@@ -76,33 +76,46 @@ export default function ProfileScreen() {
   );
 
   const handleDeletePost = async (postId: string) => {
-    Alert.alert(
-      'Delete Post',
-      'Are you sure you want to delete this post? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { error } = await supabase
-                .from('media_shares')
-                .delete()
-                .eq('id', postId);
+    const performDelete = async () => {
+      try {
+        const { error } = await supabase
+          .from('media_shares')
+          .delete()
+          .eq('id', postId);
 
-              if (error) throw error;
+        if (error) throw error;
 
-              setMediaItems(prev => prev.filter(item => item.id !== postId));
-              Alert.alert('Success', 'Post deleted successfully');
-            } catch (error: any) {
-              console.error('Error deleting post:', error);
-              Alert.alert('Error', 'Failed to delete post');
-            }
-          },
-        },
-      ]
-    );
+        setMediaItems(prev => prev.filter(item => item.id !== postId));
+        if (Platform.OS === 'web') {
+          alert('Post deleted successfully');
+        } else {
+          Alert.alert('Success', 'Post deleted successfully');
+        }
+      } catch (error: any) {
+        console.error('Error deleting post:', error);
+        if (Platform.OS === 'web') {
+          alert('Error: ' + error.message);
+        } else {
+          Alert.alert('Error', 'Failed to delete post');
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
+      if (confirmed) {
+        performDelete();
+      }
+    } else {
+      Alert.alert(
+        'Delete Post',
+        'Are you sure you want to delete this post? This action cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Delete', style: 'destructive', onPress: performDelete },
+        ]
+      );
+    }
   };
 
   const handleEditPost = (post: MediaItem) => {
