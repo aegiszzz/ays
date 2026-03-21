@@ -226,13 +226,21 @@ export default function ConversationScreen() {
 
   const handleDownload = async (url: string) => {
     if (Platform.OS === 'web') {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'media';
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const ext = url.split('?')[0].split('.').pop() || 'jpg';
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `media.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      } catch {
+        window.open(url, '_blank');
+      }
       return;
     }
 
