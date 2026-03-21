@@ -11,14 +11,17 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Modal,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { uploadToIPFS } from '@/lib/ipfs';
-import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon } from 'lucide-react-native';
+import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon, Download, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { VideoPlayer } from '@/components/VideoPlayer';
 
 interface GroupMessage {
@@ -44,6 +47,7 @@ export default function GroupConversationScreen() {
   const [loading, setLoading] = useState(true);
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
+  const [viewerMedia, setViewerMedia] = useState<{ url: string; type: 'image' | 'video' } | null>(null);
 
   useEffect(() => {
     if (user && groupId) {
@@ -221,9 +225,39 @@ export default function GroupConversationScreen() {
     }
   };
 
+  const handleDownload = async (url: string) => {
+    if (Platform.OS === 'web') {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'media';
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Please allow media library access to save files.');
+        return;
+      }
+      const filename = url.split('/').pop() || 'media';
+      const fileUri = FileSystem.documentDirectory + filename;
+      const { uri } = await FileSystem.downloadAsync(url, fileUri);
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert('Saved', 'Media saved to gallery');
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert('Error', 'Failed to download media');
+    }
+  };
+
   const renderMessage = ({ item }: { item: GroupMessage }) => {
     const isOwnMessage = item.sender_id === user?.id;
     const imageUrl = item.ipfs_cid ? getIPFSGatewayUrl(item.ipfs_cid) : null;
+    const isVideo = item.media_type === 'video';
 
     return (
       <View style={[styles.messageContainer, isOwnMessage && styles.ownMessage]}>
@@ -249,11 +283,24 @@ export default function GroupConversationScreen() {
         <View style={[styles.messageBubble, isOwnMessage && styles.ownMessageBubble]}>
           {imageUrl && (
             <View style={styles.mediaContainer}>
-              {item.media_type === 'video' ? (
-                <VideoPlayer uri={imageUrl} style={styles.messageImage} />
-              ) : (
-                <Image source={{ uri: imageUrl }} style={styles.messageImage} resizeMode="cover" />
-              )}
+              <View style={styles.mediaWrapper}>
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => setViewerMedia({ url: imageUrl, type: isVideo ? 'video' : 'image' })}
+                >
+                  {isVideo ? (
+                    <VideoPlayer uri={imageUrl} style={styles.messageImage} />
+                  ) : (
+                    <Image source={{ uri: imageUrl }} style={styles.messageImage} resizeMode="cover" />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.downloadButton}
+                  onPress={() => handleDownload(imageUrl)}
+                >
+                  <Download size={13} color="#FDFDFD" />
+                </TouchableOpacity>
+              </View>
             </View>
           )}
           {item.message_text && (
@@ -331,6 +378,39 @@ export default function GroupConversationScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Full-screen media viewer */}
+      <Modal
+        visible={viewerMedia !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setViewerMedia(null)}
+      >
+        <View style={styles.viewerOverlay}>
+          <TouchableOpacity style={styles.viewerClose} onPress={() => setViewerMedia(null)}>
+            <X size={24} color="#FDFDFD" />
+          </TouchableOpacity>
+          {viewerMedia && (
+            <TouchableOpacity
+              style={styles.viewerDownload}
+              onPress={() => handleDownload(viewerMedia.url)}
+            >
+              <Download size={22} color="#FDFDFD" />
+            </TouchableOpacity>
+          )}
+          {viewerMedia && (
+            viewerMedia.type === 'video' ? (
+              <VideoPlayer uri={viewerMedia.url} style={styles.viewerMedia} />
+            ) : (
+              <Image
+                source={{ uri: viewerMedia.url }}
+                style={styles.viewerMedia}
+                resizeMode="contain"
+              />
+            )
+          )}
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -440,10 +520,24 @@ const styles = StyleSheet.create({
   mediaContainer: {
     marginBottom: 8,
   },
+  mediaWrapper: {
+    position: 'relative',
+  },
   messageImage: {
     width: 200,
     height: 200,
     borderRadius: 12,
+  },
+  downloadButton: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: 14,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   messageText: {
     fontSize: 16,
@@ -485,5 +579,33 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     opacity: 0.4,
+  },
+  viewerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewerClose: {
+    position: 'absolute',
+    top: 56,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  viewerDownload: {
+    position: 'absolute',
+    top: 56,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  viewerMedia: {
+    width: '100%',
+    height: '80%',
   },
 });
