@@ -142,28 +142,31 @@ export default function GroupShareScreen() {
     setCreating(true);
 
     try {
-      console.log('Creating group with user.id:', user.id);
-      console.log('Group name:', groupName.trim());
-
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Current session user:', sessionData.session?.user?.id);
+      const sessionUserId = sessionData.session?.user?.id;
+
+      if (!sessionUserId) {
+        const msg = 'No active session. Please log in again.';
+        Platform.OS === 'web' ? alert(msg) : Alert.alert('Error', msg);
+        return;
+      }
 
       const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .insert({
           name: groupName.trim(),
-          created_by: user.id,
+          created_by: sessionUserId,
         })
         .select()
         .single();
 
       if (groupError) {
-        console.error('Group creation error details:', groupError);
+        console.error('Group creation error:', groupError);
         throw groupError;
       }
 
       const memberInserts = [
-        { group_id: groupData.id, user_id: user.id },
+        { group_id: groupData.id, user_id: sessionUserId },
         ...Array.from(selectedFriends).map((friendId) => ({
           group_id: groupData.id,
           user_id: friendId,
@@ -172,14 +175,17 @@ export default function GroupShareScreen() {
 
       const { error: membersError } = await supabase.from('group_members').insert(memberInserts);
 
-      if (membersError) throw membersError;
+      if (membersError) {
+        console.error('Members insert error:', membersError);
+        throw membersError;
+      }
 
       if (selectedMedia) {
         const cid = await uploadToIPFS(selectedMedia, mediaType);
 
         const { error: messageError } = await supabase.from('group_messages').insert({
           group_id: groupData.id,
-          sender_id: user.id,
+          sender_id: sessionUserId,
           media_type: mediaType,
           ipfs_cid: cid,
         });
@@ -187,11 +193,11 @@ export default function GroupShareScreen() {
         if (messageError) throw messageError;
       }
 
-      Alert.alert('Success', 'Group created successfully!');
       router.replace(`/group-conversation?groupId=${groupData.id}&groupName=${groupData.name}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Group creation error:', error);
-      Alert.alert('Error', 'Failed to create group. Please try again.');
+      const msg = error?.message || 'Failed to create group. Please try again.';
+      Platform.OS === 'web' ? alert(`Error: ${msg}`) : Alert.alert('Error', msg);
     } finally {
       setCreating(false);
     }
