@@ -63,6 +63,7 @@ export default function ProfileScreen() {
   const [feedModalVisible, setFeedModalVisible] = useState(false);
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [deleteConfirmPostId, setDeleteConfirmPostId] = useState<string | null>(null);
 
   const { width } = Dimensions.get('window');
   const ITEM_SIZE = (width - 48) / 3;
@@ -75,46 +76,26 @@ export default function ProfileScreen() {
     }, [user])
   );
 
-  const handleDeletePost = async (postId: string) => {
-    const performDelete = async () => {
-      try {
-        const { error } = await supabase
-          .from('media_shares')
-          .delete()
-          .eq('id', postId);
+  const handleDeletePost = (postId: string) => {
+    setDeleteConfirmPostId(postId);
+  };
 
-        if (error) throw error;
+  const performDelete = async () => {
+    if (!deleteConfirmPostId) return;
+    const postId = deleteConfirmPostId;
+    setDeleteConfirmPostId(null);
+    try {
+      const { error } = await supabase
+        .from('media_shares')
+        .delete()
+        .eq('id', postId);
 
-        setMediaItems(prev => prev.filter(item => item.id !== postId));
-        if (Platform.OS === 'web') {
-          alert('Post deleted successfully');
-        } else {
-          Alert.alert('Success', 'Post deleted successfully');
-        }
-      } catch (error: any) {
-        console.error('Error deleting post:', error);
-        if (Platform.OS === 'web') {
-          alert('Error: ' + error.message);
-        } else {
-          Alert.alert('Error', 'Failed to delete post');
-        }
-      }
-    };
+      if (error) throw error;
 
-    if (Platform.OS === 'web') {
-      const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
-      if (confirmed) {
-        performDelete();
-      }
-    } else {
-      Alert.alert(
-        'Delete Post',
-        'Are you sure you want to delete this post? This action cannot be undone.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Delete', style: 'destructive', onPress: performDelete },
-        ]
-      );
+      setMediaItems(prev => prev.filter(item => item.id !== postId));
+    } catch (error: any) {
+      console.error('Error deleting post:', error);
+      Alert.alert('Error', 'Failed to delete post');
     }
   };
 
@@ -550,6 +531,41 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={deleteConfirmPostId !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteConfirmPostId(null)}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setDeleteConfirmPostId(null)}
+          />
+          <View style={styles.editModalContent}>
+            <Text style={styles.editModalTitle}>Delete Post</Text>
+            <Text style={styles.deleteModalMessage}>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </Text>
+            <View style={styles.editModalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setDeleteConfirmPostId(null)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteConfirmButton}
+                onPress={performDelete}
+              >
+                <Text style={styles.deleteConfirmButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -889,6 +905,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
+  },
+  deleteModalMessage: {
+    fontSize: 15,
+    color: '#FDFDFD',
+    lineHeight: 22,
+    marginBottom: 4,
+  },
+  deleteConfirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#FF3B30',
+    alignItems: 'center',
+  },
+  deleteConfirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FDFDFD',
   },
   feedModalContainer: {
     flex: 1,

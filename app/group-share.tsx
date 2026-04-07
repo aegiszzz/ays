@@ -165,15 +165,12 @@ export default function GroupShareScreen() {
         throw groupError;
       }
 
-      const memberInserts = [
-        { group_id: groupData.id, user_id: sessionUserId },
-        ...Array.from(selectedFriends).map((friendId) => ({
-          group_id: groupData.id,
-          user_id: friendId,
-        })),
-      ];
+      const allMemberIds = [sessionUserId, ...Array.from(selectedFriends)];
 
-      const { error: membersError } = await supabase.from('group_members').insert(memberInserts);
+      const { error: membersError } = await supabase.rpc('insert_group_members', {
+        p_group_id: groupData.id,
+        p_member_ids: allMemberIds,
+      });
 
       if (membersError) {
         console.error('Members insert error:', membersError);
