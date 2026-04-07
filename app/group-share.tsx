@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -178,7 +179,7 @@ export default function GroupShareScreen() {
       }
 
       if (selectedMedia) {
-        const cid = await uploadToIPFS(selectedMedia, mediaType);
+        const cid = await uploadToIPFS(selectedMedia);
 
         const { error: messageError } = await supabase.from('group_messages').insert({
           group_id: groupData.id,

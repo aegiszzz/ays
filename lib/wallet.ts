@@ -20,7 +20,7 @@ const SOLANA_RPC_URLS = [
 
 // --- Web Crypto AES-GCM encryption helpers ---
 
-const getEncryptionKey = async (userId: string, salt: Uint8Array): Promise<CryptoKey> => {
+const getEncryptionKey = async (userId: string, salt: Uint8Array<ArrayBufferLike>): Promise<CryptoKey> => {
   const encoder = new TextEncoder();
   const keyMaterial = await window.crypto.subtle.importKey(
     'raw',
@@ -30,7 +30,7 @@ const getEncryptionKey = async (userId: string, salt: Uint8Array): Promise<Crypt
     ['deriveKey']
   );
   return window.crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 100000, hash: 'SHA-256' },
     keyMaterial,
     { name: 'AES-GCM', length: 256 },
     false,

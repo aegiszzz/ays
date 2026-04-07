@@ -20,7 +20,7 @@ import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { uploadToIPFS } from '@/lib/ipfs';
 import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon, Download, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { VideoPlayer } from '@/components/VideoPlayer';
 
@@ -195,7 +195,7 @@ export default function GroupConversationScreen() {
 
       const asset = result.assets[0];
       const mediaType = asset.type === 'video' ? 'video' : 'image';
-      const cid = await uploadToIPFS(asset.uri, mediaType);
+      const cid = await uploadToIPFS(asset.uri);
 
       const { error } = await supabase.from('group_messages').insert({
         group_id: groupId as string,
