@@ -152,20 +152,15 @@ export default function GroupShareScreen() {
         return;
       }
 
-      const { data: groupData, error: groupError } = await supabase
-        .from('groups')
-        .insert({
-          name: groupName.trim(),
-          created_by: sessionUserId,
-        })
-        .select()
-        .single();
+      const { data: groupId, error: groupError } = await supabase
+        .rpc('create_group', { p_name: groupName.trim() });
 
       if (groupError) {
         console.error('Group creation error:', groupError);
         throw groupError;
       }
 
+      const groupData = { id: groupId };
       const allMemberIds = [sessionUserId, ...Array.from(selectedFriends)];
 
       const { error: membersError } = await supabase.rpc('insert_group_members', {
