@@ -18,7 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
 import { ArrowLeft, Send, Camera, Image as ImageIcon, Download, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { VideoPlayer } from '@/components/VideoPlayer';
 

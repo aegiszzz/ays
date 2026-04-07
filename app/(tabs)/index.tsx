@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Linking,
   Modal,
   TextInput,
   KeyboardAvoidingView,
@@ -19,13 +18,13 @@ import {
   Switch,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import * as Linking from 'expo-linking';
+import { createURL } from 'expo-linking';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Video as VideoIcon, Plus, Camera, Image as ImageIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -445,7 +444,7 @@ export default function HomeScreen() {
 
   const copyLink = () => {
     if (!postToShare) return;
-    const url = Linking.createURL(`post/${postToShare.id}`);
+    const url = createURL(`post/${postToShare.id}`);
     Clipboard.setStringAsync(url);
   };
 

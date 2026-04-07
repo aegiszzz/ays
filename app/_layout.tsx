@@ -44,7 +44,7 @@ function RootNavigator() {
     const publicRoutes = ['verify-email'];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
     const isPublicRoute = publicRoutes.includes(segments[0] as string);
-    const onIndexPage = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
+    const onIndexPage = !segments[0] || (segments[0] as string) === 'index';
 
     if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute) && !isPublicRoute) {
       router.replace('/');
