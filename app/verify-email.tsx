@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Mail } from 'lucide-react-native';
+import { consumePendingPassword } from '@/lib/authTemp';
 
 export default function VerifyEmail() {
   const params = useLocalSearchParams();
@@ -12,12 +13,17 @@ export default function VerifyEmail() {
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_MS = 15 * 60 * 1000;
 
   const email = params.email as string;
   const userId = params.userId as string;
   const username = params.username as string;
-  const encodedPassword = params.password as string;
   const isNewAccount = params.isNewAccount === 'true';
+  const pendingPassword = consumePendingPassword();
 
   useEffect(() => {
     if (countdown > 0) {
@@ -33,6 +39,12 @@ export default function VerifyEmail() {
   }, []);
 
   const verifyCode = async () => {
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const mins = Math.ceil((lockedUntil - Date.now()) / 60000);
+      setError(`Too many attempts. Try again in ${mins} minute${mins > 1 ? 's' : ''}.`);
+      return;
+    }
+
     if (code.length !== 6) {
       setError('Please enter the 6-digit code');
       return;
@@ -57,16 +69,21 @@ export default function VerifyEmail() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Invalid or expired code. Please try again.');
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= MAX_ATTEMPTS) {
+          setLockedUntil(Date.now() + LOCKOUT_MS);
+          setError('Too many failed attempts. Please wait 15 minutes before trying again.');
+        } else {
+          setError(`Invalid or expired code. ${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts > 1 ? 's' : ''} remaining.`);
+        }
         setLoading(false);
         return;
       }
 
-      const password = atob(encodedPassword);
-
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password: pendingPassword || '',
       });
 
       if (signInError) {

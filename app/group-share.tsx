@@ -186,7 +186,7 @@ export default function GroupShareScreen() {
         if (messageError) throw messageError;
       }
 
-      router.replace(`/group-conversation?groupId=${groupData.id}&groupName=${groupData.name}`);
+      router.replace(`/group-conversation?groupId=${groupData.id}&groupName=${groupName.trim()}`);
     } catch (error: any) {
       console.error('Group creation error:', error);
       const msg = error?.message || 'Failed to create group. Please try again.';

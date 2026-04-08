@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, User, Hash } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
+import { setPendingPassword } from '@/lib/authTemp';
 
 export default function LoginScreen() {
   const { signInWithEmail, signUpWithEmail, session } = useAuth();
@@ -93,13 +94,14 @@ export default function LoginScreen() {
           .update({ used: true, used_at: new Date().toISOString() })
           .eq('code', accessCode);
 
+        setPendingPassword(password);
+
         router.push({
           pathname: '/verify-email',
           params: {
             email: result.email,
             userId: result.userId,
             username: result.username,
-            password: btoa(password),
             isNewAccount: 'true',
           },
         });
