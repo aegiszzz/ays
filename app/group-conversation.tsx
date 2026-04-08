@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { uploadToIPFS } from '@/lib/ipfs';
-import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon, Download, X } from 'lucide-react-native';
+import { ArrowLeft, Send, Image as ImageIcon, Users, Video as VideoIcon, Download, X, Settings } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
@@ -52,7 +52,7 @@ export default function GroupConversationScreen() {
   useEffect(() => {
     if (user && groupId) {
       fetchMessages();
-      subscribeToMessages();
+      return subscribeToMessages();
     }
   }, [user, groupId]);
 
@@ -327,15 +327,19 @@ export default function GroupConversationScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
+        <TouchableOpacity
+          style={styles.headerContent}
+          onPress={() => router.push({ pathname: '/group-settings', params: { groupId, groupName } })}
+        >
           <View style={styles.groupIcon}>
             <Users size={20} color="#000" />
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerTitle}>{groupName}</Text>
-            <Text style={styles.headerSubtitle}>Group Chat</Text>
+            <Text style={styles.headerSubtitle}>Tap for settings</Text>
           </View>
-        </View>
+          <Settings size={18} color="#888" style={{ marginLeft: 8 }} />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
