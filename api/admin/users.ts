@@ -1,0 +1,53 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function verifyAdmin(req: VercelRequest): Promise<string | null> {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return null;
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) return null;
+
+  const { data } = await supabaseAdmin
+    .from('users')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!data?.is_admin) return null;
+  return user.id;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Origin', process.env.EXPO_PUBLIC_APP_URL || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const adminId = await verifyAdmin(req);
+  if (!adminId) return res.status(403).json({ error: 'Forbidden' });
+
+  if (req.method === 'GET') {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ users: data.users });
+  }
+
+  if (req.method === 'DELETE') {
+    const { userId } = req.body || {};
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    if (userId === adminId) return res.status(400).json({ error: 'Cannot delete yourself' });
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ success: true });
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
+}

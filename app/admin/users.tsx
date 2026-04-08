@@ -40,15 +40,26 @@ export default function UsersManagement() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching users:', error);
         setUsers([]);
         return;
       }
 
-      const { data: authData } = await supabase.auth.admin.listUsers();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      let authUsers: any[] = [];
+      if (token) {
+        const res = await fetch('/api/admin/users', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          authUsers = data.users || [];
+        }
+      }
 
       const usersWithEmail = dbUsers?.map(dbUser => {
-        const authUser = authData?.users?.find(u => u.id === dbUser.id);
+        const authUser = authUsers.find(u => u.id === dbUser.id);
         return {
           id: dbUser.id,
           email: authUser?.email || 'No email',
@@ -61,7 +72,6 @@ export default function UsersManagement() {
 
       setUsers(usersWithEmail);
     } catch (error) {
-      console.error('Error fetching users:', error);
       setUsers([]);
     } finally {
       setLoading(false);
@@ -106,8 +116,16 @@ export default function UsersManagement() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase.auth.admin.deleteUser(userId);
-              if (error) throw error;
+              const { data: { session } } = await supabase.auth.getSession();
+              const res = await fetch('/api/admin/users', {
+                method: 'DELETE',
+                headers: {
+                  Authorization: `Bearer ${session?.access_token}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId }),
+              });
+              if (!res.ok) throw new Error((await res.json()).error);
               Alert.alert('Success', 'User deleted successfully');
               fetchUsers();
             } catch (error: any) {

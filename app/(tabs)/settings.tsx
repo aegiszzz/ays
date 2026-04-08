@@ -17,7 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye, EyeOff, AlertTriangle, Shield, Lock, RefreshCw, HardDrive } from 'lucide-react-native';
-import { generateWallet, encryptPrivateKey, decryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance } from '../../lib/wallet';
+import { generateWallet, encryptPrivateKey, decryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance, authenticateWithBiometric } from '../../lib/wallet';
 import * as Clipboard from 'expo-clipboard';
 import { useStorage } from '@/hooks/useStorage';
 
@@ -201,6 +201,12 @@ export default function SettingsScreen() {
     setLoadingPrivateKey(true);
     setWalletType(type);
     try {
+      const auth = await authenticateWithBiometric();
+      if (!auth.success) {
+        Alert.alert('Authentication Required', auth.reason || 'Biometric authentication failed.');
+        return;
+      }
+
       const column = type === 'bsc' ? 'encrypted_private_key' : 'encrypted_solana_private_key';
       const { data, error } = await supabase
         .from('users')
@@ -219,16 +225,14 @@ export default function SettingsScreen() {
           const decrypted = decryptPrivateKey(keyData, user!.id);
           setPrivateKey(decrypted);
         } catch {
-          // Fallback for legacy unencrypted keys
           setPrivateKey(keyData);
         }
         setShowPrivateKeyModal(true);
       } else {
         Alert.alert('Error', `Private key not found. Please create a ${type === 'bsc' ? 'BSC' : 'Solana'} wallet first.`);
       }
-    } catch (error) {
-      console.error('Error fetching private key:', error);
-      Alert.alert('Error', 'Failed to retrieve private key');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to retrieve private key');
     } finally {
       setLoadingPrivateKey(false);
     }
