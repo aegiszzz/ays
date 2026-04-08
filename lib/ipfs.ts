@@ -1,18 +1,10 @@
-const PINATA_JWT = process.env.EXPO_PUBLIC_PINATA_JWT;
 const PINATA_GATEWAY = process.env.EXPO_PUBLIC_PINATA_GATEWAY;
 
 export const uploadToIPFS = async (uri: string): Promise<string> => {
   try {
-    if (!PINATA_JWT) {
-      throw new Error('Pinata JWT not configured');
-    }
-
     let blob: Blob;
 
-    if (uri.startsWith('data:')) {
-      const response = await fetch(uri);
-      blob = await response.blob();
-    } else if (uri.startsWith('blob:') || uri.startsWith('http')) {
+    if (uri.startsWith('data:') || uri.startsWith('blob:') || uri.startsWith('http')) {
       const response = await fetch(uri);
       blob = await response.blob();
     } else {
@@ -22,32 +14,21 @@ export const uploadToIPFS = async (uri: string): Promise<string> => {
     const timestamp = Date.now();
     const formData = new FormData();
     formData.append('file', blob as any, `image-${timestamp}.jpg`);
+    formData.append('pinataMetadata', JSON.stringify({ name: `AYS-${timestamp}.jpg` }));
+    formData.append('pinataOptions', JSON.stringify({ cidVersion: 1 }));
 
-    const metadata = JSON.stringify({
-      name: `AYS-${timestamp}.jpg`,
-    });
-    formData.append('pinataMetadata', metadata);
-
-    const options = JSON.stringify({
-      cidVersion: 1,
-    });
-    formData.append('pinataOptions', options);
-
-    const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    const response = await fetch('/api/upload-ipfs', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${PINATA_JWT}`,
-      },
       body: formData as any,
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      throw new Error(`Pinata upload failed: ${errorData}`);
+      throw new Error(`Upload failed: ${errorData}`);
     }
 
     const data = await response.json();
-    return data.IpfsHash;
+    return data.cid;
   } catch (error) {
     console.error('Error uploading to IPFS:', error);
     throw error;
