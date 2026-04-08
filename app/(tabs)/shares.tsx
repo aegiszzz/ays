@@ -94,10 +94,27 @@ export default function SharesScreen() {
         )
         .subscribe();
 
+      const groupMembersChannel = supabase
+        .channel('group_members_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'group_members',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            fetchConversations();
+          }
+        )
+        .subscribe();
+
       return () => {
         supabase.removeChannel(directMessagesChannel);
         supabase.removeChannel(groupMessagesChannel);
         supabase.removeChannel(conversationReadsChannel);
+        supabase.removeChannel(groupMembersChannel);
       };
     }
   }, [user]);

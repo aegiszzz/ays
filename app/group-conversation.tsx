@@ -52,7 +52,7 @@ export default function GroupConversationScreen() {
   useEffect(() => {
     if (user && groupId) {
       fetchMessages();
-      subscribeToMessages();
+      return subscribeToMessages();
     }
   }, [user, groupId]);
 
