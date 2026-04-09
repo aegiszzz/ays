@@ -265,16 +265,16 @@ export const getSolanaBalance = async (address: string): Promise<{ balance: stri
   }
 };
 
-export const authenticateWithBiometric = async (): Promise<boolean> => {
+export const authenticateWithBiometric = async (): Promise<{ success: boolean; reason?: string }> => {
   try {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     if (!hasHardware) {
-      return true;
+      return { success: false, reason: 'This device does not support biometric authentication.' };
     }
 
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
     if (!isEnrolled) {
-      return true;
+      return { success: false, reason: 'No biometrics enrolled. Please set up Face ID or fingerprint in device settings.' };
     }
 
     const result = await LocalAuthentication.authenticateAsync({
@@ -283,26 +283,20 @@ export const authenticateWithBiometric = async (): Promise<boolean> => {
       disableDeviceFallback: false,
     });
 
-    return result.success;
+    return { success: result.success };
   } catch (error) {
     console.error('Biometric auth error:', error);
-    return false;
+    return { success: false, reason: 'Authentication failed.' };
   }
 };
 
 export const exportPrivateKey = async (userId: string): Promise<string | null> => {
-  try {
-    const authenticated = await authenticateWithBiometric();
-    if (!authenticated) {
-      throw new Error('Authentication failed');
-    }
-
-    const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, userId);
-    return privateKey;
-  } catch (error) {
-    console.error('Error exporting private key:', error);
-    return null;
+  const auth = await authenticateWithBiometric();
+  if (!auth.success) {
+    throw new Error(auth.reason || 'Authentication failed');
   }
+  const privateKey = await getSecureItem(`${PRIVATE_KEY_PREFIX}${userId}`, userId);
+  return privateKey;
 };
 
 export const sendTransaction = async (
