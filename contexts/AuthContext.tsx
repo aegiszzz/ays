@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { createWallet, createSolanaWalletForUser, encryptPrivateKey } from '@/lib/wallet';
+import { createWallet, createSolanaWalletForUser } from '@/lib/wallet';
 
 interface AuthContextType {
   session: Session | null;

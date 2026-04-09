@@ -107,27 +107,86 @@ const getSecureItem = async (key: string, userId?: string): Promise<string | nul
   }
 };
 
-// --- Simple symmetric encryption for DB storage ---
+// --- Strong AES-GCM encryption for DB storage ---
+// Cross-platform: works on both web and React Native (Hermes)
 
-export const encryptPrivateKey = (privateKey: string, userId: string): string => {
-  // XOR-based obfuscation + base64 for DB storage
-  const keyBytes = new TextEncoder().encode(privateKey);
-  const saltBytes = new TextEncoder().encode(userId);
-  const encrypted = new Uint8Array(keyBytes.length);
-  for (let i = 0; i < keyBytes.length; i++) {
-    encrypted[i] = keyBytes[i] ^ saltBytes[i % saltBytes.length];
-  }
-  return Buffer.from(encrypted).toString('base64');
+const getSubtle = (): SubtleCrypto => {
+  if (typeof crypto !== 'undefined' && crypto.subtle) return crypto.subtle;
+  if (typeof window !== 'undefined' && window.crypto?.subtle) return window.crypto.subtle;
+  throw new Error('Web Crypto API not available on this platform');
 };
 
-export const decryptPrivateKey = (encryptedKey: string, userId: string): string => {
-  const encrypted = Buffer.from(encryptedKey, 'base64');
-  const saltBytes = new TextEncoder().encode(userId);
-  const decrypted = new Uint8Array(encrypted.length);
-  for (let i = 0; i < encrypted.length; i++) {
-    decrypted[i] = encrypted[i] ^ saltBytes[i % saltBytes.length];
+const getRandomBytes = (length: number): Uint8Array => {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    return crypto.getRandomValues(new Uint8Array(length));
   }
-  return new TextDecoder().decode(decrypted);
+  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+    return window.crypto.getRandomValues(new Uint8Array(length));
+  }
+  throw new Error('No secure random source available');
+};
+
+const deriveKey = async (userId: string, salt: Uint8Array): Promise<CryptoKey> => {
+  const subtle = getSubtle();
+  const encoder = new TextEncoder();
+  const keyMaterial = await subtle.importKey(
+    'raw',
+    encoder.encode(userId),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  return subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 200000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+};
+
+export const encryptPrivateKey = async (privateKey: string, userId: string): Promise<string> => {
+  const subtle = getSubtle();
+  const encoder = new TextEncoder();
+  const salt = getRandomBytes(16);
+  const iv = getRandomBytes(12);
+  const key = await deriveKey(userId, salt);
+  const encrypted = await subtle.encrypt(
+    { name: 'AES-GCM', iv: iv as BufferSource },
+    key,
+    encoder.encode(privateKey)
+  );
+  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, salt.length);
+  combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+  return Buffer.from(combined).toString('base64');
+};
+
+export const decryptPrivateKey = async (encryptedKey: string, userId: string): Promise<string> => {
+  try {
+    const subtle = getSubtle();
+    const combined = Buffer.from(encryptedKey, 'base64');
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const encrypted = combined.slice(28);
+    const key = await deriveKey(userId, salt);
+    const decrypted = await subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encrypted
+    );
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    // Legacy fallback: XOR-based (old keys in DB)
+    const encrypted = Buffer.from(encryptedKey, 'base64');
+    const saltBytes = new TextEncoder().encode(userId);
+    const decrypted = new Uint8Array(encrypted.length);
+    for (let i = 0; i < encrypted.length; i++) {
+      decrypted[i] = encrypted[i] ^ saltBytes[i % saltBytes.length];
+    }
+    return new TextDecoder().decode(decrypted);
+  }
 };
 
 // --- Public interfaces ---

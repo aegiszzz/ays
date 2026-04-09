@@ -133,7 +133,7 @@ export default function SettingsScreen() {
     setCreatingWallet(true);
     try {
       const wallet = await generateWallet();
-      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+      const encryptedKey = await encryptPrivateKey(wallet.privateKey, user!.id);
 
       const { error } = await supabase
         .from('users')
@@ -162,7 +162,7 @@ export default function SettingsScreen() {
     setCreatingSolanaWallet(true);
     try {
       const wallet = await generateSolanaWallet();
-      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+      const encryptedKey = await encryptPrivateKey(wallet.privateKey, user!.id);
 
       const { error } = await supabase
         .from('users')
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
 
       if (keyData) {
         try {
-          const decrypted = decryptPrivateKey(keyData, user!.id);
+          const decrypted = await decryptPrivateKey(keyData, user!.id);
           setPrivateKey(decrypted);
         } catch {
           setPrivateKey(keyData);
