@@ -232,7 +232,7 @@ export default function SettingsScreen() {
         Alert.alert('Error', `Private key not found. Please create a ${type === 'bsc' ? 'BSC' : 'Solana'} wallet first.`);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to retrieve private key');
+      Alert.alert('Error', 'Failed to retrieve private key. Please try again.');
     } finally {
       setLoadingPrivateKey(false);
     }

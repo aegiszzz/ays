@@ -44,12 +44,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!pinataRes.ok) {
       const err = await pinataRes.text();
-      return res.status(502).json({ error: `Pinata error: ${err}` });
+      console.error('Pinata upload failed:', err);
+      return res.status(502).json({ error: 'Upload failed. Please try again.' });
     }
 
     const data = await pinataRes.json();
     return res.status(200).json({ cid: data.IpfsHash });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Upload failed' });
+    console.error('Upload error:', err);
+    return res.status(500).json({ error: 'Upload failed. Please try again.' });
   }
 }

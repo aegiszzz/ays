@@ -194,7 +194,6 @@ Deno.serve(async (req: Request) => {
       timestamp: new Date().toISOString(),
       level: 'info',
       service: 'finalize-upload',
-      user_id: user.id,
       upload_id: upload.id,
       credits_charged: account.credits_charged,
       has_thumbnail: !!thumbnail_cid,

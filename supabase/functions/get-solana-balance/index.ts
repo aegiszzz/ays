@@ -61,18 +61,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('Checking balance for address:', address);
-
     let lastError: Error | null = null;
 
     for (let i = 0; i < SOLANA_RPC_URLS.length; i++) {
       const rpcUrl = SOLANA_RPC_URLS[i];
       try {
-        console.log(`Trying RPC ${i + 1}/${SOLANA_RPC_URLS.length}: ${rpcUrl}`);
         const lamports = await getBalanceFromRpc(rpcUrl, address);
         const balanceInSol = lamports / LAMPORTS_PER_SOL;
 
-        console.log('✓ Success! Balance:', balanceInSol, 'SOL via', rpcUrl);
+        console.log('✓ Balance fetched via', rpcUrl);
 
         return new Response(
           JSON.stringify({

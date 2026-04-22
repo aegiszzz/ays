@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) { console.error('listUsers error:', error); return res.status(500).json({ error: 'Failed to retrieve users' }); }
     return res.status(200).json({ users: data.users });
   }
 
@@ -49,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (userId === adminId) return res.status(400).json({ error: 'Cannot delete yourself' });
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) { console.error('deleteUser error:', error); return res.status(500).json({ error: 'Failed to delete user' }); }
     return res.status(200).json({ success: true });
   }
 
