@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
@@ -26,7 +26,9 @@ Deno.serve(async (req: Request) => {
       throw new Error('Email and userId are required');
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const randomBytes = new Uint8Array(6);
+    crypto.getRandomValues(randomBytes);
+    const code = Array.from(randomBytes).map(b => b % 10).join('');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;

@@ -24,7 +24,9 @@ async function verifyAdmin(req: VercelRequest): Promise<string | null> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.EXPO_PUBLIC_APP_URL || '*');
+  const allowedOrigin = process.env.EXPO_PUBLIC_APP_URL;
+  if (!allowedOrigin) return res.status(500).json({ error: 'Server misconfigured' });
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
 
@@ -42,6 +44,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'DELETE') {
     const { userId } = req.body || {};
     if (!userId) return res.status(400).json({ error: 'userId required' });
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(userId)) return res.status(400).json({ error: 'Invalid userId format' });
     if (userId === adminId) return res.status(400).json({ error: 'Cannot delete yourself' });
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);

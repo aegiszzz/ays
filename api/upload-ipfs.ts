@@ -8,7 +8,7 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || '';
-  if (ALLOWED_ORIGIN && origin && !origin.includes(ALLOWED_ORIGIN.replace('https://', ''))) {
+  if (ALLOWED_ORIGIN && origin !== ALLOWED_ORIGIN) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
