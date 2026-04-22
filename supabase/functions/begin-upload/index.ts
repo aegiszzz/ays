@@ -48,7 +48,13 @@ Deno.serve(async (req: Request) => {
 
     const { file_size_bytes, media_type, idempotency_key } = await req.json();
 
-    if (!file_size_bytes || file_size_bytes <= 0) {
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5 GiB
+    if (
+      typeof file_size_bytes !== 'number' ||
+      !Number.isFinite(file_size_bytes) ||
+      file_size_bytes <= 0 ||
+      file_size_bytes > MAX_FILE_SIZE
+    ) {
       return new Response(
         JSON.stringify({
           error: 'Invalid file size',

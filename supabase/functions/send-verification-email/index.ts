@@ -22,8 +22,17 @@ Deno.serve(async (req: Request) => {
   try {
     const { email, userId }: RequestBody = await req.json();
 
-    if (!email || !userId) {
-      throw new Error('Email and userId are required');
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (
+      !email ||
+      typeof email !== 'string' ||
+      email.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      !userId ||
+      typeof userId !== 'string' ||
+      !UUID_RE.test(userId)
+    ) {
+      throw new Error('Invalid email or userId');
     }
 
     const randomBytes = new Uint8Array(6);

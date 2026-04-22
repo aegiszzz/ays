@@ -54,9 +54,21 @@ Deno.serve(async (req: Request) => {
   try {
     const { userId, code, email, username } = await req.json();
 
-    if (!userId || !code || !email) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (
+      !userId ||
+      typeof userId !== "string" ||
+      !UUID_RE.test(userId) ||
+      !code ||
+      typeof code !== "string" ||
+      !/^\d{4,8}$/.test(code) ||
+      !email ||
+      typeof email !== "string" ||
+      email.length > 254 ||
+      (username !== undefined && (typeof username !== "string" || username.length > 50))
+    ) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Invalid input" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
