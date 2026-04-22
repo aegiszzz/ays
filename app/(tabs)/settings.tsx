@@ -207,18 +207,9 @@ export default function SettingsScreen() {
         return;
       }
 
-      const column = type === 'bsc' ? 'encrypted_private_key' : 'encrypted_solana_private_key';
-      const { data, error } = await supabase
-        .from('users')
-        .select(column)
-        .eq('id', user!.id)
-        .maybeSingle();
+      const { data: keyData, error } = await supabase.rpc('get_my_private_key', { p_type: type });
 
       if (error) throw error;
-
-      const keyData = type === 'bsc'
-        ? (data as any)?.encrypted_private_key
-        : (data as any)?.encrypted_solana_private_key;
 
       if (keyData) {
         try {

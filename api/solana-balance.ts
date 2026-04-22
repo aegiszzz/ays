@@ -10,8 +10,9 @@ const SOLANA_RPC_URLS = [
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const allowedOrigin = process.env.EXPO_PUBLIC_APP_URL || '';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin || '*');
+  const allowedOrigin = process.env.EXPO_PUBLIC_APP_URL;
+  if (!allowedOrigin) return res.status(500).json({ error: 'Server misconfigured' });
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
 
   if (req.method === 'OPTIONS') {
