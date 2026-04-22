@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.58.0';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
@@ -194,7 +194,6 @@ Deno.serve(async (req: Request) => {
       timestamp: new Date().toISOString(),
       level: 'info',
       service: 'finalize-upload',
-      user_id: user.id,
       upload_id: upload.id,
       credits_charged: account.credits_charged,
       has_thumbnail: !!thumbnail_cid,

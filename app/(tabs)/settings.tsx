@@ -133,7 +133,7 @@ export default function SettingsScreen() {
     setCreatingWallet(true);
     try {
       const wallet = await generateWallet();
-      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+      const encryptedKey = await encryptPrivateKey(wallet.privateKey, user!.id);
 
       const { error } = await supabase
         .from('users')
@@ -162,7 +162,7 @@ export default function SettingsScreen() {
     setCreatingSolanaWallet(true);
     try {
       const wallet = await generateSolanaWallet();
-      const encryptedKey = encryptPrivateKey(wallet.privateKey, user!.id);
+      const encryptedKey = await encryptPrivateKey(wallet.privateKey, user!.id);
 
       const { error } = await supabase
         .from('users')
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
 
       if (keyData) {
         try {
-          const decrypted = decryptPrivateKey(keyData, user!.id);
+          const decrypted = await decryptPrivateKey(keyData, user!.id);
           setPrivateKey(decrypted);
         } catch {
           setPrivateKey(keyData);
@@ -232,7 +232,7 @@ export default function SettingsScreen() {
         Alert.alert('Error', `Private key not found. Please create a ${type === 'bsc' ? 'BSC' : 'Solana'} wallet first.`);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to retrieve private key');
+      Alert.alert('Error', 'Failed to retrieve private key. Please try again.');
     } finally {
       setLoadingPrivateKey(false);
     }

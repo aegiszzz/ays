@@ -9,7 +9,7 @@ const SOLANA_RPC_URLS = [
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
@@ -61,18 +61,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('Checking balance for address:', address);
-
     let lastError: Error | null = null;
 
     for (let i = 0; i < SOLANA_RPC_URLS.length; i++) {
       const rpcUrl = SOLANA_RPC_URLS[i];
       try {
-        console.log(`Trying RPC ${i + 1}/${SOLANA_RPC_URLS.length}: ${rpcUrl}`);
         const lamports = await getBalanceFromRpc(rpcUrl, address);
         const balanceInSol = lamports / LAMPORTS_PER_SOL;
 
-        console.log('✓ Success! Balance:', balanceInSol, 'SOL via', rpcUrl);
+        console.log('✓ Balance fetched via', rpcUrl);
 
         return new Response(
           JSON.stringify({

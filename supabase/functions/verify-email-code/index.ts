@@ -2,10 +2,46 @@ import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { ethers } from "npm:ethers@6.15.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Origin": Deno.env.get("SITE_URL") || "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+// AES-256-GCM encryption — matches client-side decryptPrivateKey in wallet.ts
+async function encryptPrivateKey(privateKey: string, userId: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(userId),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  const key = await crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt"]
+  );
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encoder.encode(privateKey)
+  );
+
+  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, salt.length);
+  combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+  return btoa(String.fromCharCode(...combined));
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -31,6 +67,20 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    const { data: rateLimit } = await supabase.rpc("check_rate_limit", {
+      p_user_id: userId,
+      p_endpoint: "verify-email-code",
+    });
+    if (rateLimit && !rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Too many verification attempts. Please wait and try again." }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const { data: verificationCode, error: fetchError } = await supabase
       .from("verification_codes")
@@ -64,7 +114,7 @@ Deno.serve(async (req: Request) => {
 
     const wallet = ethers.Wallet.createRandom();
     const walletAddress = wallet.address;
-    const encryptedPrivateKey = wallet.privateKey;
+    const encryptedPrivateKey = await encryptPrivateKey(wallet.privateKey, userId);
 
     const { error: insertUserError } = await supabase
       .from("users")
