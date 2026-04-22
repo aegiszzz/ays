@@ -2,8 +2,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { ethers } from "npm:ethers@6.15.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Origin": Deno.env.get("SITE_URL") || "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
@@ -67,6 +67,20 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    const { data: rateLimit } = await supabase.rpc("check_rate_limit", {
+      p_user_id: userId,
+      p_endpoint: "verify-email-code",
+    });
+    if (rateLimit && !rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Too many verification attempts. Please wait and try again." }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const { data: verificationCode, error: fetchError } = await supabase
       .from("verification_codes")

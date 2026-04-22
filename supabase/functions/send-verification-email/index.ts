@@ -83,7 +83,8 @@ Deno.serve(async (req: Request) => {
 
         if (resendResponse.ok) {
           emailSent = true;
-          console.log('Email sent successfully to:', email);
+          const masked = email.replace(/(.{2})(.*)(@.*)/, '$1***$3');
+          console.log('Email sent successfully to:', masked);
         } else {
           const errorText = await resendResponse.text();
           console.error('Resend email failed:', errorText);

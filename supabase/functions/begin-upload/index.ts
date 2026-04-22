@@ -98,6 +98,23 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const { data: rateLimit } = await supabase.rpc('check_rate_limit', {
+      p_user_id: user.id,
+      p_endpoint: 'begin-upload',
+    });
+    if (rateLimit && !rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: 'Rate limit exceeded. Please wait before starting another upload.',
+          code: 'RATE_LIMIT_EXCEEDED',
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     // Check for existing upload with same idempotency key
     if (idempotency_key) {
       const { data: existingUpload } = await supabase

@@ -178,7 +178,8 @@ export const decryptPrivateKey = async (encryptedKey: string, userId: string): P
     );
     return new TextDecoder().decode(decrypted);
   } catch {
-    // Legacy fallback: XOR-based (old keys in DB)
+    // Legacy fallback: XOR-based (old keys in DB — weak, migration needed)
+    console.warn('[wallet] AES-GCM decryption failed, falling back to legacy XOR. User should re-save key.');
     const encrypted = Buffer.from(encryptedKey, 'base64');
     const saltBytes = new TextEncoder().encode(userId);
     const decrypted = new Uint8Array(encrypted.length);
