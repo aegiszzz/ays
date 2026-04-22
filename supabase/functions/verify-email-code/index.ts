@@ -7,6 +7,42 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+// AES-256-GCM encryption — matches client-side decryptPrivateKey in wallet.ts
+async function encryptPrivateKey(privateKey: string, userId: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(userId),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  const key = await crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt"]
+  );
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encoder.encode(privateKey)
+  );
+
+  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, salt.length);
+  combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+  return btoa(String.fromCharCode(...combined));
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -64,7 +100,7 @@ Deno.serve(async (req: Request) => {
 
     const wallet = ethers.Wallet.createRandom();
     const walletAddress = wallet.address;
-    const encryptedPrivateKey = wallet.privateKey;
+    const encryptedPrivateKey = await encryptPrivateKey(wallet.privateKey, userId);
 
     const { error: insertUserError } = await supabase
       .from("users")
