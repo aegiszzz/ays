@@ -1,0 +1,2 @@
+-- Migration applied directly via Supabase SQL Editor during development.
+-- Placeholder added to align local migration history with remote.
