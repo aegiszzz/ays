@@ -5,10 +5,12 @@ import { useRouter } from 'expo-router';
 import { Mail, Lock, User, Hash } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { setPendingPassword } from '@/lib/authTemp';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LoginScreen() {
   const { signInWithEmail, signUpWithEmail, session } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,42 +29,42 @@ export default function LoginScreen() {
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError(t.login.fillAllFields);
       return;
     }
 
     if (isSignUp) {
       if (!username) {
-        setError('Please enter a username');
+        setError(t.login.enterUsername);
         return;
       }
 
       if (!confirmPassword) {
-        setError('Please confirm your password');
+        setError(t.login.confirmPasswordPrompt);
         return;
       }
 
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        setError(t.login.passwordsNoMatch);
         return;
       }
 
       if (password.length < 8) {
-        setError('Password must be at least 8 characters');
+        setError(t.login.passwordTooShort);
         return;
       }
       if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-        setError('Password must contain at least one letter and one number');
+        setError(t.login.passwordRequirements);
         return;
       }
 
       if (!accessCode) {
-        setError('Please enter your access code');
+        setError(t.login.enterAccessCode);
         return;
       }
 
       if (accessCode.length !== 6 || !/^[A-Z0-9]+$/.test(accessCode)) {
-        setError('Access code must be 6 characters (letters and numbers)');
+        setError(t.login.accessCodeInvalid);
         return;
       }
     }
@@ -79,15 +81,15 @@ export default function LoginScreen() {
           .maybeSingle();
 
         if (codeError) {
-          throw new Error('Failed to verify access code');
+          throw new Error(t.login.failedVerifyCode);
         }
 
         if (!codeData) {
-          throw new Error('Invalid access code');
+          throw new Error(t.login.invalidAccessCode);
         }
 
         if (codeData.used) {
-          throw new Error('This access code has already been used');
+          throw new Error(t.login.accessCodeUsed);
         }
 
         isSigningUp.current = true;
@@ -114,7 +116,7 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       isSigningUp.current = false;
-      setError(err.message || 'Authentication failed');
+      setError(err.message || t.login.authFailed);
     } finally {
       setLoading(false);
     }
@@ -128,7 +130,7 @@ export default function LoginScreen() {
           <View style={styles.logoDot} />
         </View>
         <Text style={styles.subtitle}>
-          {isSignUp ? 'Create your account' : 'Welcome back'}
+          {isSignUp ? t.login.createAccount : t.login.welcomeBack}
         </Text>
 
         <View style={styles.formContainer}>
@@ -137,7 +139,7 @@ export default function LoginScreen() {
               <User size={18} color="#00A0DC" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder={t.login.username}
                 placeholderTextColor="#4A4A4E"
                 value={username}
                 onChangeText={setUsername}
@@ -149,7 +151,7 @@ export default function LoginScreen() {
             <Mail size={18} color="#00A0DC" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder={t.login.email}
               placeholderTextColor="#4A4A4E"
               value={email}
               onChangeText={setEmail}
@@ -161,7 +163,7 @@ export default function LoginScreen() {
             <Lock size={18} color="#00A0DC" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t.login.password}
               placeholderTextColor="#4A4A4E"
               value={password}
               onChangeText={setPassword}
@@ -174,7 +176,7 @@ export default function LoginScreen() {
                 <Lock size={18} color="#00A0DC" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Confirm Password"
+                  placeholder={t.login.confirmPassword}
                   placeholderTextColor="#4A4A4E"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -185,7 +187,7 @@ export default function LoginScreen() {
                 <Hash size={18} color="#00A0DC" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Access Code (e.g. A7B2K9)"
+                  placeholder={t.login.accessCode}
                   placeholderTextColor="#4A4A4E"
                   value={accessCode}
                   onChangeText={(text) => setAccessCode(text.toUpperCase())}
@@ -193,7 +195,7 @@ export default function LoginScreen() {
                   maxLength={6}
                 />
               </View>
-              <Text style={styles.betaText}>Beta access only — enter your invite code</Text>
+              <Text style={styles.betaText}>{t.login.betaAccess}</Text>
             </>
           )}
 
@@ -209,13 +211,13 @@ export default function LoginScreen() {
             disabled={loading}
           >
             <Text style={styles.buttonText}>
-              {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
+              {loading ? t.login.pleaseWait : isSignUp ? t.login.createAccount : t.login.signIn}
             </Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
+            <Text style={styles.dividerText}>{t.login.or}</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -224,16 +226,16 @@ export default function LoginScreen() {
             onPress={() => { setIsSignUp(!isSignUp); setError(''); }}
           >
             <Text style={styles.switchText}>
-              {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+              {isSignUp ? t.login.alreadyHaveAccount : t.login.noAccount}
               <Text style={styles.switchTextBold}>
-                {isSignUp ? 'Sign in' : 'Sign up'}
+                {isSignUp ? t.login.signInLink : t.login.signUp}
               </Text>
             </Text>
           </TouchableOpacity>
         </View>
 
         <Text style={styles.infoText}>
-          By continuing, you agree to our Terms of Service
+          {t.login.termsOfService}
         </Text>
       </View>
     </View>

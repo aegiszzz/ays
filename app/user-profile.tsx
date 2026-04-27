@@ -37,6 +37,7 @@ import {
   Send,
 } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Comment {
   id: string;
@@ -73,6 +74,7 @@ export default function UserProfileScreen() {
   const userId = params.userId as string;
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const { width } = useWindowDimensions();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -507,12 +509,12 @@ export default function UserProfileScreen() {
               >
                 {isFollowing ? <UserCheck size={16} color="#FDFDFD" /> : <UserPlus size={16} color="#7A7A7E" />}
                 <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
-                  {isFollowing ? 'Following' : 'Follow'}
+                  {isFollowing ? t.userProfile.following : t.userProfile.follow}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.messageButton} onPress={handleMessage}>
                 <MessageCircle size={16} color="#FDFDFD" />
-                <Text style={styles.messageButtonText}>Message</Text>
+                <Text style={styles.messageButtonText}>{t.userProfile.message}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -520,31 +522,31 @@ export default function UserProfileScreen() {
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{mediaItems.length}</Text>
-              <Text style={styles.statLabel}>Posts</Text>
+              <Text style={styles.statLabel}>{t.userProfile.posts}</Text>
             </View>
             <TouchableOpacity
               style={styles.statItem}
               onPress={() => router.push({ pathname: '/followers', params: { userId } })}
             >
               <Text style={styles.statNumber}>{followersCount}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
+              <Text style={styles.statLabel}>{t.userProfile.followers}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.statItem}
               onPress={() => router.push({ pathname: '/following', params: { userId } })}
             >
               <Text style={styles.statNumber}>{followingCount}</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text style={styles.statLabel}>{t.userProfile.following}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Posts</Text>
+          <Text style={styles.sectionTitle}>{t.userProfile.posts}</Text>
           {mediaItems.length === 0 ? (
             <View style={styles.emptyState}>
               <ImageIcon size={48} color="#ccc" />
-              <Text style={styles.emptyText}>No posts yet</Text>
+              <Text style={styles.emptyText}>{t.feed.noPosts}</Text>
             </View>
           ) : (
             <View style={styles.grid}>
@@ -654,7 +656,7 @@ export default function UserProfileScreen() {
           <View style={Platform.OS === 'web' ? styles.webModalBackdrop : { flex: 1 }}>
           <KeyboardAvoidingView style={[styles.postModal, Platform.OS === 'web' && styles.postModalWeb]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <View style={styles.postModalHeader}>
-              <Text style={styles.commentsTitle}>Comments</Text>
+              <Text style={styles.commentsTitle}>{t.feed.comments}</Text>
               <TouchableOpacity onPress={() => setCommentsVisible(false)}>
                 <X size={24} color="#7A7A7E" />
               </TouchableOpacity>
@@ -664,7 +666,7 @@ export default function UserProfileScreen() {
                 <ActivityIndicator size="large" color="#FDFDFD" style={{ padding: 40 }} />
               ) : comments.length === 0 ? (
                 <View style={styles.emptyComments}>
-                  <Text style={styles.emptyCommentsText}>No comments yet</Text>
+                  <Text style={styles.emptyCommentsText}>{t.feed.noComments}</Text>
                 </View>
               ) : (
                 comments.map(comment => (
@@ -685,7 +687,7 @@ export default function UserProfileScreen() {
             <View style={styles.commentInputRow}>
               <TextInput
                 style={styles.commentInput}
-                placeholder="Write a comment..."
+                placeholder={t.feed.addComment}
                 placeholderTextColor="#7A7A7E"
                 value={commentText}
                 onChangeText={setCommentText}

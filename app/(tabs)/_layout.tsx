@@ -2,12 +2,14 @@ import { Tabs, usePathname } from 'expo-router';
 import { Home, User, Bell, Share2, Settings } from 'lucide-react-native';
 import { useWindowDimensions, Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TabLayout() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width > 768;
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   if (isDesktop) {
     return (
@@ -20,11 +22,11 @@ export default function TabLayout() {
 
           <View style={styles.sidebarMenu}>
             {[
-              { icon: Home, label: 'Home', path: '/' },
-              { icon: Share2, label: 'Shares', path: '/shares' },
-              { icon: Bell, label: 'Notifications', path: '/notifications' },
-              { icon: User, label: 'Profile', path: '/profile' },
-              { icon: Settings, label: 'Settings', path: '/settings' },
+              { icon: Home, label: t.tabs.home, path: '/' },
+              { icon: Share2, label: t.tabs.shares, path: '/shares' },
+              { icon: Bell, label: t.tabs.notifications, path: '/notifications' },
+              { icon: User, label: t.tabs.profile, path: '/profile' },
+              { icon: Settings, label: t.tabs.settings, path: '/settings' },
             ].map(({ icon: Icon, label, path }) => {
               const isActive = pathname === path;
               return (
@@ -84,35 +86,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t.tabs.home,
           tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="shares"
         options={{
-          title: 'Shares',
+          title: t.tabs.shares,
           tabBarIcon: ({ size, color }) => <Share2 size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notifications',
+          title: t.tabs.notifications,
           tabBarIcon: ({ size, color }) => <Bell size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t.tabs.profile,
           tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: t.tabs.settings,
           tabBarIcon: ({ size, color }) => <Settings size={size} color={color} />,
         }}
       />

@@ -2,6 +2,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { LanguageProvider } from '../contexts/LanguageContext';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { useEffect } from 'react';
 import InstallPrompt from '../components/InstallPrompt';
@@ -89,10 +90,12 @@ export default function RootLayout() {
   useFrameworkReady();
 
   return (
-    <AuthProvider>
-      <RootNavigator />
-      <StatusBar style="light" />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <RootNavigator />
+        <StatusBar style="light" />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

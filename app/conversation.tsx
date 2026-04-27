@@ -21,6 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Message {
   id: string;
@@ -36,6 +37,7 @@ interface Message {
 export default function ConversationScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const { userId, username } = useLocalSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -347,8 +349,8 @@ export default function ConversationScreen() {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No messages yet</Text>
-              <Text style={styles.emptySubtext}>Send a photo or video to start the conversation</Text>
+              <Text style={styles.emptyText}>{t.conversation.noMessages}</Text>
+              <Text style={styles.emptySubtext}>{t.conversation.startConversation}</Text>
             </View>
           }
         />
@@ -375,7 +377,7 @@ export default function ConversationScreen() {
           </TouchableOpacity>
           <TextInput
             style={styles.input}
-            placeholder="Send message..."
+            placeholder={t.conversation.typeMessage}
             value={caption}
             onChangeText={setCaption}
             multiline
