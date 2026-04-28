@@ -10,12 +10,19 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { Lock, Mail } from 'lucide-react-native';
+import { Lock, Mail, Shield } from 'lucide-react-native';
+
+type Step = 'credentials' | 'totp-enroll' | 'totp-verify';
 
 export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [step, setStep] = useState<Step>('credentials');
+  const [qrUri, setQrUri] = useState('');
+  const [factorId, setFactorId] = useState('');
+  const [challengeId, setChallengeId] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -26,14 +33,12 @@ export default function AdminLogin() {
   const checkExistingSession = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-
       if (user) {
         const { data: userData } = await supabase
           .from('users')
           .select('is_admin')
           .eq('id', user.id)
           .maybeSingle();
-
         if (userData?.is_admin) {
           router.replace('/admin/dashboard');
           return;
@@ -60,10 +65,7 @@ export default function AdminLogin() {
       });
 
       if (authError) throw authError;
-
-      if (!authData.user) {
-        throw new Error('Login failed');
-      }
+      if (!authData.user) throw new Error('Login failed');
 
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -79,9 +81,81 @@ export default function AdminLogin() {
         return;
       }
 
-      router.replace('/admin/dashboard');
+      // Check if TOTP is enrolled for this admin account
+      const { data: factorsData, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+
+      const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
+
+      if (!totpFactor) {
+        // No verified TOTP — enroll now
+        const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+          factorType: 'totp',
+          friendlyName: 'Admin TOTP',
+        });
+        if (enrollError) throw enrollError;
+        setFactorId(enrollData.id);
+        setQrUri(enrollData.totp.qr_code);
+        setStep('totp-enroll');
+      } else {
+        // Already enrolled — challenge
+        setFactorId(totpFactor.id);
+        const { data: challengeData, error: challengeError } =
+          await supabase.auth.mfa.challenge({ factorId: totpFactor.id });
+        if (challengeError) throw challengeError;
+        setChallengeId(challengeData.id);
+        setStep('totp-verify');
+      }
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnrollVerify = async () => {
+    if (!totpCode || totpCode.length !== 6) {
+      Alert.alert('Error', 'Enter the 6-digit code from your authenticator app');
+      return;
+    }
+    setLoading(true);
+    try {
+      // Challenge then verify to finalise enrollment
+      const { data: challengeData, error: challengeError } =
+        await supabase.auth.mfa.challenge({ factorId });
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challengeData.id,
+        code: totpCode,
+      });
+      if (verifyError) throw verifyError;
+
+      router.replace('/admin/dashboard');
+    } catch (error: any) {
+      Alert.alert('Verification Failed', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTotpVerify = async () => {
+    if (!totpCode || totpCode.length !== 6) {
+      Alert.alert('Error', 'Enter the 6-digit code from your authenticator app');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId,
+        code: totpCode,
+      });
+      if (error) throw error;
+      router.replace('/admin/dashboard');
+    } catch (error: any) {
+      Alert.alert('Verification Failed', error.message);
     } finally {
       setLoading(false);
     }
@@ -91,6 +165,95 @@ export default function AdminLogin() {
     return (
       <View style={[styles.container, { justifyContent: 'center' }]}>
         <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  if (step === 'totp-enroll') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <Shield size={48} color="#000" />
+            <Text style={styles.title}>Set Up 2FA</Text>
+            <Text style={styles.subtitle}>Scan this QR code with your authenticator app</Text>
+          </View>
+          {qrUri ? (
+            <View style={styles.qrContainer}>
+              {/* On web, render as img; on native show the uri as text fallback */}
+              {typeof window !== 'undefined' ? (
+                <img src={qrUri} alt="TOTP QR Code" style={{ width: 200, height: 200 }} />
+              ) : (
+                <Text style={styles.qrText} selectable>{qrUri}</Text>
+              )}
+            </View>
+          ) : null}
+          <Text style={styles.hint}>Then enter the 6-digit code to confirm enrollment:</Text>
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Shield size={20} color="#666" />
+              <TextInput
+                style={styles.input}
+                placeholder="6-digit code"
+                value={totpCode}
+                onChangeText={setTotpCode}
+                keyboardType="number-pad"
+                maxLength={6}
+                editable={!loading}
+              />
+            </View>
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              onPress={handleEnrollVerify}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FDFDFD" />
+              ) : (
+                <Text style={styles.loginButtonText}>Confirm & Continue</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  if (step === 'totp-verify') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <Shield size={48} color="#000" />
+            <Text style={styles.title}>Two-Factor Auth</Text>
+            <Text style={styles.subtitle}>Enter the code from your authenticator app</Text>
+          </View>
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Shield size={20} color="#666" />
+              <TextInput
+                style={styles.input}
+                placeholder="6-digit code"
+                value={totpCode}
+                onChangeText={setTotpCode}
+                keyboardType="number-pad"
+                maxLength={6}
+                editable={!loading}
+              />
+            </View>
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              onPress={handleTotpVerify}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FDFDFD" />
+              ) : (
+                <Text style={styles.loginButtonText}>Verify</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
@@ -180,7 +343,23 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
+    textAlign: 'center',
   },
+  hint: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  qrContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  qrText: {
+    fontSize: 10,
+    color: '#333',
+    wordBreak: 'break-all',
+  } as any,
   form: {
     gap: 16,
   },

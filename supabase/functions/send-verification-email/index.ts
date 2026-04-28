@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || '*',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL')!,
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
@@ -35,10 +35,6 @@ Deno.serve(async (req: Request) => {
       throw new Error('Invalid email or userId');
     }
 
-    const randomBytes = new Uint8Array(6);
-    crypto.getRandomValues(randomBytes);
-    const code = Array.from(randomBytes).map(b => b % 10).join('');
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey, {
@@ -47,6 +43,24 @@ Deno.serve(async (req: Request) => {
         persistSession: false,
       },
     });
+
+    const { data: rateLimit } = await supabase.rpc('check_rate_limit', {
+      p_user_id: userId,
+      p_endpoint: 'send-verification-email',
+    });
+    if (rateLimit && !rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many verification emails requested. Please wait and try again.' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const randomBytes = new Uint8Array(6);
+    crypto.getRandomValues(randomBytes);
+    const code = Array.from(randomBytes).map(b => (b % 10)).join('');
 
     const { error: insertError } = await supabase
       .from('verification_codes')
