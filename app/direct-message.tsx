@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, MessageCircle, Plus } from 'lucide-react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Conversation {
   id: string;
@@ -25,6 +26,7 @@ interface Conversation {
 export default function DirectMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -151,7 +153,7 @@ export default function DirectMessageScreen() {
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Messages</Text>
+          <Text style={styles.title}>{t.directMessage.inbox}</Text>
         </View>
         <TouchableOpacity onPress={handleNewMessage} style={styles.newMessageButton}>
           <Plus size={24} color="#FDFDFD" />
@@ -171,8 +173,8 @@ export default function DirectMessageScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <MessageCircle size={48} color="#ccc" />
-              <Text style={styles.emptyText}>No messages yet</Text>
-              <Text style={styles.emptySubtext}>Tap + to start a new conversation</Text>
+              <Text style={styles.emptyText}>{t.directMessage.noMessagesYet}</Text>
+              <Text style={styles.emptySubtext}>{t.directMessage.startConversation}</Text>
             </View>
           }
         />

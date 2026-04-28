@@ -20,12 +20,14 @@ import { LogOut, Mail, Calendar, User as UserIcon, Wallet, Copy, Plus, Key, Eye,
 import { generateWallet, encryptPrivateKey, decryptPrivateKey, shortenAddress, generateSolanaWallet, getWalletBalance, getSolanaBalance, authenticateWithBiometric } from '../../lib/wallet';
 import * as Clipboard from 'expo-clipboard';
 import { useStorage } from '@/hooks/useStorage';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { storageSummary, formatStorage, getStorageStatusColor } = useStorage();
+  const { t, language, setLanguage } = useLanguage();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -332,7 +334,7 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account Information</Text>
+        <Text style={styles.sectionTitle}>{t.settings.accountInfo}</Text>
 
         <View style={styles.infoCard}>
           {username && (
@@ -340,7 +342,7 @@ export default function SettingsScreen() {
               <View style={styles.infoRow}>
                 <UserIcon size={20} color="#666" />
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Username</Text>
+                  <Text style={styles.infoLabel}>{t.settings.username}</Text>
                   <Text style={styles.infoValue}>@{username}</Text>
                 </View>
               </View>
@@ -351,7 +353,7 @@ export default function SettingsScreen() {
           <View style={styles.infoRow}>
             <Mail size={20} color="#666" />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoLabel}>{t.settings.email}</Text>
               <Text style={styles.infoValue}>{user.email || 'Not specified'}</Text>
             </View>
           </View>
@@ -361,7 +363,7 @@ export default function SettingsScreen() {
           <View style={styles.infoRow}>
             <Calendar size={20} color="#666" />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Member Since</Text>
+              <Text style={styles.infoLabel}>{t.settings.memberSince}</Text>
               <Text style={styles.infoValue}>{createdAt}</Text>
             </View>
           </View>
@@ -372,18 +374,18 @@ export default function SettingsScreen() {
           onPress={() => setShowPasswordModal(true)}
         >
           <Lock size={20} color="#007AFF" />
-          <Text style={styles.changePasswordText}>Change Password</Text>
+          <Text style={styles.changePasswordText}>{t.settings.changePassword}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Storage</Text>
+        <Text style={styles.sectionTitle}>{t.settings.storage}</Text>
 
         {storageSummary ? (
           <View style={styles.storageCard}>
             <View style={styles.storageHeader}>
               <HardDrive size={24} color="#007AFF" />
-              <Text style={styles.storageTitle}>Plan: Free (3 GB)</Text>
+              <Text style={styles.storageTitle}>{t.settings.planFree}</Text>
             </View>
 
             <View style={styles.storageProgressContainer}>
@@ -403,15 +405,15 @@ export default function SettingsScreen() {
 
             <View style={styles.storageDetails}>
               <View style={styles.storageDetailRow}>
-                <Text style={styles.storageDetailLabel}>Used</Text>
+                <Text style={styles.storageDetailLabel}>{t.settings.used}</Text>
                 <Text style={styles.storageDetailValue}>{storageSummary.used_gb.toFixed(2)} GB</Text>
               </View>
               <View style={styles.storageDetailRow}>
-                <Text style={styles.storageDetailLabel}>Remaining</Text>
+                <Text style={styles.storageDetailLabel}>{t.settings.remaining}</Text>
                 <Text style={styles.storageDetailValue}>{storageSummary.remaining_gb.toFixed(2)} GB</Text>
               </View>
               <View style={styles.storageDetailRow}>
-                <Text style={styles.storageDetailLabel}>Total</Text>
+                <Text style={styles.storageDetailLabel}>{t.settings.total}</Text>
                 <Text style={styles.storageDetailValue}>{storageSummary.total_gb.toFixed(2)} GB</Text>
               </View>
             </View>
@@ -421,8 +423,8 @@ export default function SettingsScreen() {
                 <AlertTriangle size={16} color="#F59E0B" />
                 <Text style={styles.storageWarningText}>
                   {storageSummary.percentage_used >= 90
-                    ? 'Storage almost full'
-                    : 'Storage running low'}
+                    ? t.settings.storageAlmostFull
+                    : t.settings.storageRunningLow}
                 </Text>
               </View>
             )}
@@ -430,20 +432,20 @@ export default function SettingsScreen() {
         ) : (
           <View style={styles.storageCard}>
             <ActivityIndicator size="small" color="#007AFF" />
-            <Text style={styles.storageLoadingText}>Loading storage info...</Text>
+            <Text style={styles.storageLoadingText}>{t.settings.loadingStorage}</Text>
           </View>
         )}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Crypto Wallets</Text>
+        <Text style={styles.sectionTitle}>{t.settings.cryptoWallets}</Text>
 
         {walletAddress ? (
           <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
               <View style={styles.walletTitleContainer}>
                 <Wallet size={24} color="#F0B90B" />
-                <Text style={styles.walletTitle}>BSC Wallet</Text>
+                <Text style={styles.walletTitle}>{t.settings.bscWallet}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => fetchBscBalance(walletAddress)}
@@ -460,16 +462,14 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.balanceContainer}>
-              <Text style={styles.balanceLabel}>Balance:</Text>
+              <Text style={styles.balanceLabel}>{t.settings.balance}</Text>
               {loadingBalances ? (
                 <ActivityIndicator size="small" color="#FDFDFD" />
               ) : (
                 <Text style={styles.balanceValue}>{bscBalance} BNB</Text>
               )}
             </View>
-            <Text style={styles.walletNote}>
-              Binance Smart Chain network. Compatible with BEP-20 tokens.
-            </Text>
+            <Text style={styles.walletNote}>{t.settings.bscNetwork}</Text>
             <TouchableOpacity
               style={styles.exportKeyButton}
               onPress={() => exportPrivateKey('bsc')}
@@ -480,7 +480,7 @@ export default function SettingsScreen() {
               ) : (
                 <>
                   <Key size={18} color="#FF3B30" />
-                  <Text style={styles.exportKeyText}>Export Private Key</Text>
+                  <Text style={styles.exportKeyText}>{t.settings.exportPrivateKey}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -489,11 +489,9 @@ export default function SettingsScreen() {
           <View style={styles.walletCard}>
             <View style={styles.walletHeader}>
               <Wallet size={24} color="#666" />
-              <Text style={styles.walletTitle}>No BSC Wallet Yet</Text>
+              <Text style={styles.walletTitle}>{t.settings.noBscWallet}</Text>
             </View>
-            <Text style={styles.walletNote}>
-              Create a BSC wallet to receive and send BNB and BEP-20 tokens.
-            </Text>
+            <Text style={styles.walletNote}>{t.settings.bscDesc}</Text>
             <TouchableOpacity
               style={styles.createWalletButton}
               onPress={createWallet}
@@ -501,12 +499,12 @@ export default function SettingsScreen() {
             >
               {creatingWallet ? (
                 <>
-                  <Text style={styles.createWalletButtonText}>Creating...</Text>
+                  <Text style={styles.createWalletButtonText}>{t.settings.creating}</Text>
                 </>
               ) : (
                 <>
                   <Plus size={20} color="#FDFDFD" />
-                  <Text style={styles.createWalletButtonText}>Create BSC Wallet</Text>
+                  <Text style={styles.createWalletButtonText}>{t.settings.createBscWallet}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -518,7 +516,7 @@ export default function SettingsScreen() {
             <View style={styles.walletHeader}>
               <View style={styles.walletTitleContainer}>
                 <Wallet size={24} color="#14F195" />
-                <Text style={styles.walletTitle}>Solana Wallet</Text>
+                <Text style={styles.walletTitle}>{t.settings.solanaWallet}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => fetchSolanaBalance(solanaWalletAddress)}
@@ -535,7 +533,7 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.balanceContainer}>
-              <Text style={styles.balanceLabel}>Balance:</Text>
+              <Text style={styles.balanceLabel}>{t.settings.balance}</Text>
               {loadingBalances ? (
                 <ActivityIndicator size="small" color="#FDFDFD" />
               ) : (
@@ -547,9 +545,7 @@ export default function SettingsScreen() {
                 RPC Error: {solanaBalanceError}
               </Text>
             )}
-            <Text style={styles.walletNote}>
-              Solana network. Compatible with SPL tokens.
-            </Text>
+            <Text style={styles.walletNote}>{t.settings.solanaNetwork}</Text>
             <TouchableOpacity
               style={styles.exportKeyButton}
               onPress={() => exportPrivateKey('solana')}
@@ -560,7 +556,7 @@ export default function SettingsScreen() {
               ) : (
                 <>
                   <Key size={18} color="#FF3B30" />
-                  <Text style={styles.exportKeyText}>Export Private Key</Text>
+                  <Text style={styles.exportKeyText}>{t.settings.exportPrivateKey}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -569,11 +565,9 @@ export default function SettingsScreen() {
           <View style={[styles.walletCard, { marginTop: 12 }]}>
             <View style={styles.walletHeader}>
               <Wallet size={24} color="#666" />
-              <Text style={styles.walletTitle}>No Solana Wallet Yet</Text>
+              <Text style={styles.walletTitle}>{t.settings.noSolanaWallet}</Text>
             </View>
-            <Text style={styles.walletNote}>
-              Create a Solana wallet to receive and send SOL and SPL tokens.
-            </Text>
+            <Text style={styles.walletNote}>{t.settings.solanaDesc}</Text>
             <TouchableOpacity
               style={styles.createWalletButton}
               onPress={createSolanaWallet}
@@ -581,12 +575,12 @@ export default function SettingsScreen() {
             >
               {creatingSolanaWallet ? (
                 <>
-                  <Text style={styles.createWalletButtonText}>Creating...</Text>
+                  <Text style={styles.createWalletButtonText}>{t.settings.creating}</Text>
                 </>
               ) : (
                 <>
                   <Plus size={20} color="#FDFDFD" />
-                  <Text style={styles.createWalletButtonText}>Create Solana Wallet</Text>
+                  <Text style={styles.createWalletButtonText}>{t.settings.createSolanaWallet}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -601,15 +595,39 @@ export default function SettingsScreen() {
             onPress={() => router.push('/admin/dashboard')}
           >
             <Shield size={20} color="#007AFF" />
-            <Text style={styles.adminButtonText}>Admin Panel</Text>
+            <Text style={styles.adminButtonText}>{t.settings.adminPanel}</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <View style={styles.section}>
+        <View style={styles.languageRow}>
+          <Text style={styles.languageLabel}>{t.settings.language}</Text>
+          <View style={styles.languageToggle}>
+            <TouchableOpacity
+              style={[styles.langButton, language === 'en' && styles.langButtonActive]}
+              onPress={() => setLanguage('en')}
+            >
+              <Text style={[styles.langButtonText, language === 'en' && styles.langButtonTextActive]}>
+                {t.settings.languageEnglish}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.langButton, language === 'tr' && styles.langButtonActive]}
+              onPress={() => setLanguage('tr')}
+            >
+              <Text style={[styles.langButtonText, language === 'tr' && styles.langButtonTextActive]}>
+                {t.settings.languageTurkish}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.section}>
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <LogOut size={20} color="#FF3B30" />
-          <Text style={styles.signOutText}>Sign Out</Text>
+          <Text style={styles.signOutText}>{t.settings.signOut}</Text>
         </TouchableOpacity>
       </View>
 
@@ -630,9 +648,7 @@ export default function SettingsScreen() {
               <Text style={styles.modalTitle}>{walletType === 'bsc' ? 'BSC' : 'Solana'} Private Key</Text>
             </View>
 
-            <Text style={styles.warningText}>
-              Keep your private key safe! Anyone with access to it can control your wallet.
-            </Text>
+            <Text style={styles.warningText}>{t.settings.privateKeyWarning}</Text>
 
             <View style={styles.privateKeyContainer}>
               <Text style={styles.privateKeyText}>
@@ -656,14 +672,14 @@ export default function SettingsScreen() {
                 onPress={copyPrivateKey}
               >
                 <Copy size={18} color="#FDFDFD" />
-                <Text style={styles.copyKeyButtonText}>Copy Key</Text>
+                <Text style={styles.copyKeyButtonText}>{t.settings.copyKey}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.closeModalButton}
                 onPress={closePrivateKeyModal}
               >
-                <Text style={styles.closeModalButtonText}>Close</Text>
+                <Text style={styles.closeModalButtonText}>{t.settings.close}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -680,17 +696,17 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Lock size={24} color="#007AFF" />
-              <Text style={styles.modalTitle}>Change Password</Text>
+              <Text style={styles.modalTitle}>{t.settings.changePasswordTitle}</Text>
             </View>
 
             <View style={styles.passwordInputContainer}>
-              <Text style={styles.passwordLabel}>New Password</Text>
+              <Text style={styles.passwordLabel}>{t.settings.newPassword}</Text>
               <View style={styles.passwordInputWrapper}>
                 <TextInput
                   style={styles.passwordInput}
                   value={newPassword}
                   onChangeText={setNewPassword}
-                  placeholder="Enter new password"
+                  placeholder={t.settings.newPassword}
                   secureTextEntry={!showNewPassword}
                   autoCapitalize="none"
                 />
@@ -708,13 +724,13 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.passwordInputContainer}>
-              <Text style={styles.passwordLabel}>Confirm New Password</Text>
+              <Text style={styles.passwordLabel}>{t.settings.confirmNewPassword}</Text>
               <View style={styles.passwordInputWrapper}>
                 <TextInput
                   style={styles.passwordInput}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
-                  placeholder="Confirm new password"
+                  placeholder={t.settings.confirmNewPassword}
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
                 />
@@ -731,9 +747,7 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <Text style={styles.passwordHint}>
-              Password must be at least 8 characters long
-            </Text>
+            <Text style={styles.passwordHint}>{t.settings.passwordMin}</Text>
 
             <View style={styles.modalActions}>
               <TouchableOpacity
@@ -744,7 +758,7 @@ export default function SettingsScreen() {
                 {changingPassword ? (
                   <ActivityIndicator size="small" color="#FDFDFD" />
                 ) : (
-                  <Text style={styles.changePasswordSubmitButtonText}>Change Password</Text>
+                  <Text style={styles.changePasswordSubmitButtonText}>{t.settings.changePassword}</Text>
                 )}
               </TouchableOpacity>
 
@@ -752,7 +766,7 @@ export default function SettingsScreen() {
                 style={styles.closeModalButton}
                 onPress={closePasswordModal}
               >
-                <Text style={styles.closeModalButtonText}>Cancel</Text>
+                <Text style={styles.closeModalButtonText}>{t.settings.cancel}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1219,5 +1233,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FDFDFD',
+  },
+  languageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#141417',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#252528',
+  },
+  languageLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FDFDFD',
+  },
+  languageToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#252528',
+    borderRadius: 8,
+    padding: 2,
+    gap: 2,
+  },
+  langButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  langButtonActive: {
+    backgroundColor: '#00A0DC',
+  },
+  langButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#7A7A7E',
+  },
+  langButtonTextActive: {
+    color: '#FDFDFD',
+    fontWeight: '700',
   },
 });

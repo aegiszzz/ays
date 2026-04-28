@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Mail } from 'lucide-react-native';
 import { consumePendingPassword } from '@/lib/authTemp';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function VerifyEmail() {
   const params = useLocalSearchParams();
@@ -16,6 +17,7 @@ export default function VerifyEmail() {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
 
+  const { t } = useLanguage();
   const MAX_ATTEMPTS = 5;
   const LOCKOUT_MS = 15 * 60 * 1000;
 
@@ -41,12 +43,12 @@ export default function VerifyEmail() {
   const verifyCode = async () => {
     if (lockedUntil && Date.now() < lockedUntil) {
       const mins = Math.ceil((lockedUntil - Date.now()) / 60000);
-      setError(`Too many attempts. Try again in ${mins} minute${mins > 1 ? 's' : ''}.`);
+      setError(`${t.verify.tooManyAttempts} ${mins} ${mins > 1 ? t.verify.minutes : t.verify.minute}.`);
       return;
     }
 
     if (code.length !== 6) {
-      setError('Please enter the 6-digit code');
+      setError(t.verify.enterCode);
       return;
     }
 
@@ -73,9 +75,10 @@ export default function VerifyEmail() {
         setFailedAttempts(newAttempts);
         if (newAttempts >= MAX_ATTEMPTS) {
           setLockedUntil(Date.now() + LOCKOUT_MS);
-          setError('Too many failed attempts. Please wait 15 minutes before trying again.');
+          setError(t.verify.tooManyFailed);
         } else {
-          setError(`Invalid or expired code. ${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts > 1 ? 's' : ''} remaining.`);
+          const left = MAX_ATTEMPTS - newAttempts;
+          setError(`${t.verify.invalidCode}. ${left} ${left > 1 ? t.verify.attemptsRemainingPlural : t.verify.attemptsRemaining} ${t.verify.remaining}.`);
         }
         setLoading(false);
         return;
@@ -136,9 +139,9 @@ export default function VerifyEmail() {
           <Mail size={48} color="#007AFF" />
         </View>
 
-        <Text style={styles.title}>Verify Your Email</Text>
+        <Text style={styles.title}>{t.verify.title}</Text>
         <Text style={styles.subtitle}>
-          We sent a 6-digit code to{'\n'}
+          {t.verify.sentCode}{'\n'}
           <Text style={styles.emailText}>{email}</Text>
         </Text>
 
@@ -166,7 +169,7 @@ export default function VerifyEmail() {
           {loading ? (
             <ActivityIndicator color="#FDFDFD" />
           ) : (
-            <Text style={styles.buttonText}>Verify Email</Text>
+            <Text style={styles.buttonText}>{t.verify.verify}</Text>
           )}
         </TouchableOpacity>
 
@@ -179,13 +182,13 @@ export default function VerifyEmail() {
             <ActivityIndicator color="#007AFF" size="small" />
           ) : (
             <Text style={[styles.resendText, countdown > 0 && styles.resendTextDisabled]}>
-              {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend verification code'}
+              {countdown > 0 ? `${t.verify.resendIn} ${countdown}s` : t.verify.resendCode}
             </Text>
           )}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={styles.cancelText}>{t.verify.cancel}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { ArrowLeft, Camera, Link as LinkIcon, User as UserIcon } from 'lucide-react-native';
 import { uploadToIPFS } from '@/lib/ipfs';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UserProfile {
   username: string;
@@ -31,6 +32,7 @@ interface UserProfile {
 export default function EditProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -167,10 +169,10 @@ export default function EditProfileScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <Text style={styles.headerTitle}>{t.editProfile.title}</Text>
         <TouchableOpacity onPress={handleSave} disabled={saving}>
           <Text style={[styles.saveButton, saving && styles.saveButtonDisabled]}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? t.common.loading : t.editProfile.save}
           </Text>
         </TouchableOpacity>
       </View>
@@ -231,34 +233,33 @@ export default function EditProfileScreen() {
 
         <View style={styles.form}>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>{t.settings.username}</Text>
             <View style={styles.disabledInput}>
               <Text style={styles.disabledInputText}>@{username || 'username'}</Text>
             </View>
-            <Text style={styles.helper}>Username cannot be changed</Text>
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Name</Text>
+            <Text style={styles.label}>{t.editProfile.name}</Text>
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
-              placeholder="Enter your name"
+              placeholder={t.editProfile.namePlaceholder}
               maxLength={50}
             />
           </View>
 
           <View style={styles.formGroup}>
             <View style={styles.labelRow}>
-              <Text style={styles.label}>Bio</Text>
+              <Text style={styles.label}>{t.editProfile.bio}</Text>
               <Text style={styles.charCount}>{bio.length}/200</Text>
             </View>
             <TextInput
               style={[styles.input, styles.textArea]}
               value={bio}
               onChangeText={setBio}
-              placeholder="Tell us about yourself"
+              placeholder={t.editProfile.bioPlaceholder}
               multiline
               maxLength={200}
               numberOfLines={4}
@@ -267,14 +268,14 @@ export default function EditProfileScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Website</Text>
+            <Text style={styles.label}>{t.editProfile.website}</Text>
             <View style={styles.inputWithIcon}>
               <LinkIcon size={20} color="#666" />
               <TextInput
                 style={styles.inputField}
                 value={website}
                 onChangeText={setWebsite}
-                placeholder="https://example.com"
+                placeholder={t.editProfile.websitePlaceholder}
                 autoCapitalize="none"
                 keyboardType="url"
                 maxLength={100}

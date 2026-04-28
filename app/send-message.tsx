@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Search, MessageCircle } from 'lucide-react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -21,6 +22,7 @@ interface User {
 export default function SendMessageScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,8 +84,8 @@ export default function SendMessageScreen() {
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>New Message</Text>
-          <Text style={styles.subtitle}>Select a person to chat with</Text>
+          <Text style={styles.title}>{t.directMessage.title}</Text>
+          <Text style={styles.subtitle}>{t.directMessage.searchPlaceholder}</Text>
         </View>
       </View>
 
@@ -91,7 +93,7 @@ export default function SendMessageScreen() {
         <Search size={20} color="#8e8e93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by username..."
+          placeholder={t.directMessage.searchPlaceholder}
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoFocus

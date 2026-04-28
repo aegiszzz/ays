@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Search, UserPlus, Check, Users } from 'lucide-react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface User {
   id: string;
@@ -26,6 +27,7 @@ interface Friend {
 export default function SearchUsersScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [friends, setFriends] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -169,7 +171,7 @@ export default function SearchUsersScreen() {
         <Search size={20} color="#8e8e93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by username..."
+          placeholder={t.searchUsers.placeholder}
           placeholderTextColor="#4A4A4E"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -196,15 +198,15 @@ export default function SearchUsersScreen() {
             !isSearching && users.length > 0 ? (
               <View style={styles.sectionHeader}>
                 <Users size={16} color="#7A7A7E" />
-                <Text style={styles.sectionTitle}>Keşfet</Text>
-                <Text style={styles.sectionCount}>{users.length} kullanıcı</Text>
+                <Text style={styles.sectionTitle}>{t.searchUsers.explore}</Text>
+                <Text style={styles.sectionCount}>{users.length} {t.searchUsers.users}</Text>
               </View>
             ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {isSearching ? `"${searchQuery}" için sonuç bulunamadı` : 'Henüz kayıtlı kullanıcı yok'}
+                {isSearching ? `"${searchQuery}" ${t.searchUsers.noResultsFor}` : t.searchUsers.noRegisteredUsers}
               </Text>
             </View>
           }

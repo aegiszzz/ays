@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Heart, MessageCircle, UserPlus, Users, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Notification {
   id: string;
@@ -33,6 +34,7 @@ export default function NotificationsScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -217,17 +219,17 @@ export default function NotificationsScreen() {
     switch (notification.type) {
       case 'friend_add':
       case 'follow':
-        return `${username} started following you`;
+        return `${username} ${t.notifications.startedFollowing}`;
       case 'like':
-        return `${username} liked your post`;
+        return `${username} ${t.notifications.likedPost}`;
       case 'comment':
-        return `${username} commented: ${notification.content || ''}`;
+        return `${username} ${t.notifications.commented}: ${notification.content || ''}`;
       case 'message':
-        return `${username} sent you a message`;
+        return `${username} ${t.notifications.sentMessage}`;
       case 'group_invite':
-        return `${username} added you to a group`;
+        return `${username} ${t.notifications.addedToGroup}`;
       default:
-        return 'New notification';
+        return t.notifications.newNotification;
     }
   };
 
@@ -236,10 +238,10 @@ export default function NotificationsScreen() {
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (seconds < 60) return 'just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    if (seconds < 60) return t.notifications.justNow;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${t.notifications.ago}`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ${t.notifications.ago}`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ${t.notifications.ago}`;
     return date.toLocaleDateString();
   };
 
@@ -282,17 +284,17 @@ export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <Text style={styles.title}>Notifications</Text>
+          <Text style={styles.title}>{t.notifications.title}</Text>
           {unreadCount > 0 && (
             <TouchableOpacity onPress={markAllAsRead}>
-              <Text style={styles.markAllButton}>Mark all as read</Text>
+              <Text style={styles.markAllButton}>{t.notifications.markAllRead}</Text>
             </TouchableOpacity>
           )}
         </View>
 
         {notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No notifications yet</Text>
+            <Text style={styles.emptyText}>{t.notifications.noNotifications}</Text>
           </View>
         ) : (
           <FlatList

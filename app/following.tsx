@@ -10,6 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft } from 'lucide-react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Following {
   id: string;
@@ -20,6 +21,7 @@ interface Following {
 export default function FollowingScreen() {
   const router = useRouter();
   const { userId } = useLocalSearchParams();
+  const { t } = useLanguage();
   const [following, setFollowing] = useState<Following[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,7 +82,7 @@ export default function FollowingScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#FDFDFD" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Following</Text>
+        <Text style={styles.headerTitle}>{t.following.title}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -90,7 +92,7 @@ export default function FollowingScreen() {
         </View>
       ) : following.length === 0 ? (
         <View style={styles.centerContainer}>
-          <Text style={styles.emptyText}>Not following anyone yet</Text>
+          <Text style={styles.emptyText}>{t.following.noFollowing}</Text>
         </View>
       ) : (
         <FlatList

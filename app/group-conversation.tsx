@@ -23,6 +23,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GroupMessage {
   id: string;
@@ -40,6 +41,7 @@ interface GroupMessage {
 export default function GroupConversationScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const { groupId, groupName } = useLocalSearchParams();
   const flatListRef = useRef<FlatList>(null);
 
@@ -336,7 +338,7 @@ export default function GroupConversationScreen() {
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerTitle}>{groupName}</Text>
-            <Text style={styles.headerSubtitle}>Tap for settings</Text>
+            <Text style={styles.headerSubtitle}>{t.group.settings}</Text>
           </View>
           <Settings size={18} color="#888" style={{ marginLeft: 8 }} />
         </TouchableOpacity>
@@ -365,7 +367,7 @@ export default function GroupConversationScreen() {
           style={styles.input}
           value={messageText}
           onChangeText={setMessageText}
-          placeholder="Type a message..."
+          placeholder={t.group.typeMessage}
           multiline
           maxLength={1000}
           editable={!sending}

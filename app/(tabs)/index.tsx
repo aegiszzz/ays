@@ -30,6 +30,7 @@ import { Heart, MessageCircle, Share, Search, Download, X, Send, Copy, Users, Vi
 import { useRouter } from 'expo-router';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useStorage } from '@/hooks/useStorage';
 
 interface Comment {
@@ -66,6 +67,7 @@ export default function HomeScreen() {
   const isWeb = Platform.OS === 'web';
   const feedMaxWidth = 620;
   const { beginUpload, finalizeUpload, failUpload } = useStorage();
+  const { t } = useLanguage();
   const [media, setMedia] = useState<MediaShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -740,14 +742,14 @@ export default function HomeScreen() {
             style={styles.tabItem}
             onPress={() => setActiveTab('explore')}
           >
-            <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>Explore</Text>
+            <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>{t.feed.explore}</Text>
             {activeTab === 'explore' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.tabItem}
             onPress={() => setActiveTab('following')}
           >
-            <Text style={[styles.tabText, activeTab === 'following' && styles.tabTextActive]}>Following</Text>
+            <Text style={[styles.tabText, activeTab === 'following' && styles.tabTextActive]}>{t.feed.following}</Text>
             {activeTab === 'following' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
         </View>
@@ -770,12 +772,12 @@ export default function HomeScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {activeTab === 'following' ? 'No content yet' : 'No posts yet'}
+              {activeTab === 'following' ? t.feed.noContent : t.feed.noPosts}
             </Text>
             <Text style={styles.emptySubtext}>
               {activeTab === 'following'
-                ? 'Posts from people you follow will appear here'
-                : 'Start by uploading your first photo or video!'}
+                ? t.feed.followingEmpty
+                : t.feed.startUploading}
             </Text>
           </View>
         }
@@ -792,7 +794,7 @@ export default function HomeScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Comments</Text>
+            <Text style={styles.modalTitle}>{t.feed.comments}</Text>
             <TouchableOpacity onPress={() => setCommentsModalVisible(false)}>
               <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
@@ -805,8 +807,8 @@ export default function HomeScreen() {
               </View>
             ) : comments.length === 0 ? (
               <View style={styles.emptyCommentsContainer}>
-                <Text style={styles.emptyCommentsText}>No comments yet</Text>
-                <Text style={styles.emptyCommentsSubtext}>Be the first to comment!</Text>
+                <Text style={styles.emptyCommentsText}>{t.feed.noComments}</Text>
+                <Text style={styles.emptyCommentsSubtext}>{t.feed.beFirst}</Text>
               </View>
             ) : (
               comments.map((comment) => (
@@ -851,7 +853,7 @@ export default function HomeScreen() {
           <View style={styles.commentInputContainer}>
             <TextInput
               style={styles.commentInput}
-              placeholder="Add a comment..."
+              placeholder={t.feed.addComment}
               value={commentText}
               onChangeText={setCommentText}
               multiline
@@ -887,7 +889,7 @@ export default function HomeScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Upload Media</Text>
+            <Text style={styles.modalTitle}>{t.feed.uploadMedia}</Text>
             <TouchableOpacity onPress={() => {
               setUploadModalVisible(false);
               setSelectedMedia(null);
@@ -901,12 +903,12 @@ export default function HomeScreen() {
             <View style={styles.uploadPickerContainer}>
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromCamera}>
                 <Camera size={32} color="#FDFDFD" />
-                <Text style={styles.uploadPickerButtonText}>Take Photo/Video</Text>
+                <Text style={styles.uploadPickerButtonText}>{t.feed.takePhoto}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.uploadPickerButton} onPress={pickFromGallery}>
                 <ImageIcon size={32} color="#FDFDFD" />
-                <Text style={styles.uploadPickerButtonText}>Choose from Gallery</Text>
+                <Text style={styles.uploadPickerButtonText}>{t.feed.chooseGallery}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -915,8 +917,8 @@ export default function HomeScreen() {
                 {uploadMediaType === 'video' ? (
                   <View style={styles.videoPlaceholder}>
                     <VideoIcon size={48} color="#666" />
-                    <Text style={styles.videoText}>Video selected</Text>
-                    <Text style={styles.videoSubtext}>Ready to upload</Text>
+                    <Text style={styles.videoText}>{t.feed.videoSelected}</Text>
+                    <Text style={styles.videoSubtext}>{t.feed.readyToUpload}</Text>
                   </View>
                 ) : (
                   <Image source={{ uri: selectedMedia }} style={styles.uploadPreview} resizeMode="cover" />
@@ -929,26 +931,26 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.uploadForm}>
-                <Text style={styles.uploadLabel}>Caption (optional)</Text>
+                <Text style={styles.uploadLabel}>{t.feed.caption}</Text>
                 <TextInput
                   style={styles.uploadInput}
                   value={uploadCaption}
                   onChangeText={setUploadCaption}
-                  placeholder="Add a caption..."
+                  placeholder={t.feed.caption}
                   placeholderTextColor="#999"
                   multiline
                   maxLength={500}
                 />
 
                 <View style={styles.uploadSwitchContainer}>
-                  <Text style={styles.uploadLabel}>Public</Text>
+                  <Text style={styles.uploadLabel}>{t.feed.public}</Text>
                   <Switch value={isPublic} onValueChange={setIsPublic} />
                 </View>
 
                 <Text style={styles.uploadHelperText}>
                   {isPublic
-                    ? 'Anyone can view this media'
-                    : 'Only users you share with can view'}
+                    ? t.feed.publicDesc
+                    : t.feed.privateDesc}
                 </Text>
 
                 {uploadError && (
@@ -959,7 +961,7 @@ export default function HomeScreen() {
 
                 {uploadSuccess ? (
                   <View style={styles.uploadSuccessContainer}>
-                    <Text style={styles.uploadSuccessText}>✓ Uploaded successfully!</Text>
+                    <Text style={styles.uploadSuccessText}>{t.feed.uploadedSuccess}</Text>
                   </View>
                 ) : (
                   <TouchableOpacity
@@ -969,7 +971,7 @@ export default function HomeScreen() {
                     {uploading ? (
                       <ActivityIndicator color="#FDFDFD" />
                     ) : (
-                      <Text style={styles.uploadButtonText}>Upload to IPFS</Text>
+                      <Text style={styles.uploadButtonText}>{t.feed.uploadToIPFS}</Text>
                     )}
                   </TouchableOpacity>
                 )}
@@ -993,7 +995,7 @@ export default function HomeScreen() {
         <View style={styles.shareModalContainer}>
           <View style={styles.shareModalHandle} />
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Share</Text>
+            <Text style={styles.modalTitle}>{t.feed.share}</Text>
             <TouchableOpacity onPress={() => setShareModalVisible(false)}>
               <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
@@ -1004,13 +1006,13 @@ export default function HomeScreen() {
               <View style={styles.shareOptionIcon}>
                 <Copy size={24} color="#00A0DC" />
               </View>
-              <Text style={styles.shareOptionText}>Copy Link</Text>
+              <Text style={styles.shareOptionText}>{t.feed.copyLink}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.friendsSectionHeader}>
             <Users size={20} color="#666" />
-            <Text style={styles.friendsSectionTitle}>Send to Friends</Text>
+            <Text style={styles.friendsSectionTitle}>{t.feed.sendToFriends}</Text>
           </View>
 
           <ScrollView style={styles.friendsList}>
@@ -1020,8 +1022,8 @@ export default function HomeScreen() {
               </View>
             ) : friends.length === 0 ? (
               <View style={styles.emptyCommentsContainer}>
-                <Text style={styles.emptyCommentsText}>No friends yet</Text>
-                <Text style={styles.emptyCommentsSubtext}>Add friends to share photos with them!</Text>
+                <Text style={styles.emptyCommentsText}>{t.feed.noFriends}</Text>
+                <Text style={styles.emptyCommentsSubtext}>{t.feed.addFriends}</Text>
               </View>
             ) : (
               friends.map((friend) => (

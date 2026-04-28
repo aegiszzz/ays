@@ -22,6 +22,7 @@ import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl } from '@/lib/ipfs';
 import { ImageIcon, X, Download, Edit, MapPin, Link as LinkIcon, Video as VideoIcon, Play, Heart, MessageCircle, Share, Trash2, Edit2, Star } from 'lucide-react-native';
 import { VideoPlayer } from '@/components/VideoPlayer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MediaItem {
   id: string;
@@ -49,6 +50,7 @@ export default function ProfileScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -331,7 +333,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/tasks')}
             >
               <Star size={18} color="#FFD700" fill="#FFD700" />
-              <Text style={styles.pointsText}>Points</Text>
+              <Text style={styles.pointsText}>{t.profile.points}</Text>
             </TouchableOpacity>
           </View>
           {userAvatar ? (
@@ -379,41 +381,41 @@ export default function ProfileScreen() {
             onPress={() => router.push('/edit-profile')}
           >
             <Edit size={16} color="#7A7A7E" />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
+            <Text style={styles.editButtonText}>{t.profile.editProfile}</Text>
           </TouchableOpacity>
 
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{mediaItems.length}</Text>
-              <Text style={styles.statLabel}>Posts</Text>
+              <Text style={styles.statLabel}>{t.profile.posts}</Text>
             </View>
             <TouchableOpacity
               style={styles.statItem}
               onPress={() => router.push({ pathname: '/followers', params: { userId: user.id } })}
             >
               <Text style={styles.statNumber}>{followersCount}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
+              <Text style={styles.statLabel}>{t.profile.followers}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.statItem}
               onPress={() => router.push({ pathname: '/following', params: { userId: user.id } })}
             >
               <Text style={styles.statNumber}>{followingCount}</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text style={styles.statLabel}>{t.profile.following}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Uploads</Text>
+          <Text style={styles.sectionTitle}>{t.profile.myUploads}</Text>
           {loading ? (
             <ActivityIndicator size="large" color="#7A7A7E" style={styles.loader} />
           ) : mediaItems.length === 0 ? (
             <View style={styles.emptyState}>
               <ImageIcon size={48} color="#ccc" />
-              <Text style={styles.emptyText}>No uploads yet</Text>
+              <Text style={styles.emptyText}>{t.profile.noUploads}</Text>
               <Text style={styles.emptySubtext}>
-                Your uploaded photos and videos will appear here
+                {t.profile.uploadsWillAppear}
               </Text>
             </View>
           ) : (
@@ -468,7 +470,7 @@ export default function ProfileScreen() {
             >
               <X size={24} color="#7A7A7E" />
             </TouchableOpacity>
-            <Text style={styles.feedModalTitle}>Posts</Text>
+            <Text style={styles.feedModalTitle}>{t.profile.posts}</Text>
             <View style={{ width: 24 }} />
           </View>
           <FlatList
@@ -499,12 +501,12 @@ export default function ProfileScreen() {
             onPress={() => setEditModalVisible(false)}
           />
           <View style={styles.editModalContent}>
-            <Text style={styles.editModalTitle}>Edit Post</Text>
+            <Text style={styles.editModalTitle}>{t.profile.editPost}</Text>
             <TextInput
               style={styles.editInput}
               value={editCaption}
               onChangeText={setEditCaption}
-              placeholder="Enter caption..."
+              placeholder={t.profile.enterCaption}
               multiline
               maxLength={500}
             />
@@ -514,7 +516,7 @@ export default function ProfileScreen() {
                 style={styles.cancelButton}
                 onPress={() => setEditModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t.profile.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.updateButton}
@@ -524,7 +526,7 @@ export default function ProfileScreen() {
                 {updatingPost ? (
                   <ActivityIndicator size="small" color="#FDFDFD" />
                 ) : (
-                  <Text style={styles.updateButtonText}>Update</Text>
+                  <Text style={styles.updateButtonText}>{t.profile.update}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -545,22 +547,22 @@ export default function ProfileScreen() {
             onPress={() => setDeleteConfirmPostId(null)}
           />
           <View style={styles.editModalContent}>
-            <Text style={styles.editModalTitle}>Delete Post</Text>
+            <Text style={styles.editModalTitle}>{t.profile.deletePost}</Text>
             <Text style={styles.deleteModalMessage}>
-              Are you sure you want to delete this post? This action cannot be undone.
+              {t.profile.deleteConfirm}
             </Text>
             <View style={styles.editModalActions}>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => setDeleteConfirmPostId(null)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t.profile.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteConfirmButton}
                 onPress={performDelete}
               >
-                <Text style={styles.deleteConfirmButtonText}>Delete</Text>
+                <Text style={styles.deleteConfirmButtonText}>{t.profile.delete}</Text>
               </TouchableOpacity>
             </View>
           </View>
