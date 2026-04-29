@@ -30,7 +30,7 @@ const getEncryptionKey = async (userId: string, salt: Uint8Array<ArrayBufferLike
     ['deriveKey']
   );
   return window.crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 100000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 200000, hash: 'SHA-256' },
     keyMaterial,
     { name: 'AES-GCM', length: 256 },
     false,
@@ -178,15 +178,7 @@ export const decryptPrivateKey = async (encryptedKey: string, userId: string): P
     );
     return new TextDecoder().decode(decrypted);
   } catch {
-    // Legacy fallback: XOR-based (old keys in DB — weak, migration needed)
-    console.warn('[wallet] AES-GCM decryption failed, falling back to legacy XOR. User should re-save key.');
-    const encrypted = Buffer.from(encryptedKey, 'base64');
-    const saltBytes = new TextEncoder().encode(userId);
-    const decrypted = new Uint8Array(encrypted.length);
-    for (let i = 0; i < encrypted.length; i++) {
-      decrypted[i] = encrypted[i] ^ saltBytes[i % saltBytes.length];
-    }
-    return new TextDecoder().decode(decrypted);
+    throw new Error('Failed to decrypt private key. Key may be corrupted or belong to a different account.');
   }
 };
 

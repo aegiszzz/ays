@@ -23,6 +23,25 @@ async function verifyAdmin(req: VercelRequest): Promise<string | null> {
   return user.id;
 }
 
+async function logAdminAction(
+  adminId: string,
+  action: string,
+  targetId: string | null,
+  targetType: string | null,
+  details: Record<string, unknown> | null,
+  req: VercelRequest
+): Promise<void> {
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? null;
+  await supabaseAdmin.from('admin_audit_logs').insert({
+    admin_id: adminId,
+    action,
+    target_id: targetId,
+    target_type: targetType,
+    details,
+    ip_address: ip,
+  });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const allowedOrigin = process.env.EXPO_PUBLIC_APP_URL;
   if (!allowedOrigin) return res.status(500).json({ error: 'Server misconfigured' });
@@ -38,6 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin.auth.admin.listUsers();
     if (error) { console.error('listUsers error:', error); return res.status(500).json({ error: 'Failed to retrieve users' }); }
+    await logAdminAction(adminId, 'list_users', null, 'user', null, req);
     return res.status(200).json({ users: data.users });
   }
 
@@ -50,6 +70,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (error) { console.error('deleteUser error:', error); return res.status(500).json({ error: 'Failed to delete user' }); }
+    await logAdminAction(adminId, 'delete_user', userId, 'user', null, req);
     return res.status(200).json({ success: true });
   }
 
