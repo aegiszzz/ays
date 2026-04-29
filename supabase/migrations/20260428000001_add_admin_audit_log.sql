@@ -10,25 +10,21 @@ CREATE TABLE IF NOT EXISTS admin_audit_logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Only admins (via service role) can insert; nobody can update/delete
 ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Service role only insert"
-  ON admin_audit_logs
-  FOR INSERT
-  TO service_role
-  WITH CHECK (true);
+DO $$ BEGIN
+  CREATE POLICY "Service role only insert"
+    ON admin_audit_logs FOR INSERT TO service_role WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Admins can view logs"
-  ON admin_audit_logs
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM users WHERE id = (SELECT auth.uid()) AND is_admin = true
-    )
-  );
+DO $$ BEGIN
+  CREATE POLICY "Admins can view logs"
+    ON admin_audit_logs FOR SELECT
+    USING (EXISTS (SELECT 1 FROM users WHERE id = (SELECT auth.uid()) AND is_admin = true));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- Register send-verification-email endpoint in rate limiting config
 INSERT INTO rate_limit_config (endpoint, max_requests, window_minutes, description)
 VALUES ('send-verification-email', 5, 60, 'Verification email send limit')
 ON CONFLICT (endpoint) DO NOTHING;

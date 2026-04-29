@@ -13,15 +13,15 @@ CREATE TABLE IF NOT EXISTS weekly_media_usage (
 
 ALTER TABLE weekly_media_usage ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users view own weekly usage"
-  ON weekly_media_usage FOR SELECT
-  USING (user_id = (SELECT auth.uid()));
+DO $$ BEGIN
+  CREATE POLICY "Users view own weekly usage"
+    ON weekly_media_usage FOR SELECT USING (user_id = (SELECT auth.uid()));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE POLICY "Service role manages weekly usage"
-  ON weekly_media_usage FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$ BEGIN
+  CREATE POLICY "Service role manages weekly usage"
+    ON weekly_media_usage FOR ALL TO service_role USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- 3. Combined upload limit check (daily: 3, weekly: 10)
 CREATE OR REPLACE FUNCTION check_combined_upload_limits(p_user_id UUID)
