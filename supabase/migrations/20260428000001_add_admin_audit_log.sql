@@ -29,8 +29,8 @@ CREATE POLICY "Admins can view logs"
   );
 
 -- Register send-verification-email endpoint in rate limiting config
-INSERT INTO rate_limit_config (endpoint, max_requests, window_seconds)
-VALUES ('send-verification-email', 5, 3600)
+INSERT INTO rate_limit_config (endpoint, max_requests, window_minutes, description)
+VALUES ('send-verification-email', 5, 60, 'Verification email send limit')
 ON CONFLICT (endpoint) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_admin_id ON admin_audit_logs (admin_id);
