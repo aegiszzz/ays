@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { getIPFSGatewayUrl, uploadToIPFS } from '@/lib/ipfs';
+import { captureVideoThumbnail } from '@/lib/videoThumbnail';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
@@ -561,6 +562,19 @@ export default function HomeScreen() {
 
       const cid = await uploadToIPFS(base64);
 
+      // For videos: capture first-frame thumbnail in browser, upload as poster
+      let videoPosterCid: string | null = null;
+      if (uploadMediaType === 'video') {
+        try {
+          const thumbDataUrl = await captureVideoThumbnail(selectedMedia);
+          if (thumbDataUrl) {
+            videoPosterCid = await uploadToIPFS(thumbDataUrl);
+          }
+        } catch (e) {
+          console.warn('Video thumbnail capture failed, continuing without poster:', e);
+        }
+      }
+
       const { data: mediaShare, error } = await supabase
         .from('media_shares')
         .insert({
@@ -569,6 +583,7 @@ export default function HomeScreen() {
           media_type: uploadMediaType,
           caption: uploadCaption.trim() || null,
           is_public: isPublic,
+          ...(videoPosterCid ? { video_poster_cid: videoPosterCid, thumbnail_cid: videoPosterCid } : {}),
         })
         .select()
         .single();
