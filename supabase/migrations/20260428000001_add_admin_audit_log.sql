@@ -17,7 +17,7 @@ CREATE POLICY "Service role only insert"
   ON admin_audit_logs
   FOR INSERT
   TO service_role
-  USING (true);
+  WITH CHECK (true);
 
 CREATE POLICY "Admins can view logs"
   ON admin_audit_logs
