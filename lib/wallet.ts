@@ -163,7 +163,22 @@ export const encryptPrivateKey = async (privateKey: string, userId: string): Pro
   return Buffer.from(combined).toString('base64');
 };
 
+// Legacy XOR decrypt — for one-time migration of old keys to AES-GCM
+const decryptLegacyXor = (encryptedKey: string, userId: string): string => {
+  const encrypted = Buffer.from(encryptedKey, 'base64');
+  const saltBytes = new TextEncoder().encode(userId);
+  const decrypted = new Uint8Array(encrypted.length);
+  for (let i = 0; i < encrypted.length; i++) {
+    decrypted[i] = encrypted[i] ^ saltBytes[i % saltBytes.length];
+  }
+  return new TextDecoder().decode(decrypted);
+};
+
+// Validate decrypted output looks like a real Ethereum private key (0x + 64 hex chars)
+const isValidPrivateKey = (key: string): boolean => /^0x[0-9a-fA-F]{64}$/.test(key.trim());
+
 export const decryptPrivateKey = async (encryptedKey: string, userId: string): Promise<string> => {
+  // Try modern AES-GCM first
   try {
     const subtle = getSubtle();
     const combined = Buffer.from(encryptedKey, 'base64');
@@ -177,6 +192,26 @@ export const decryptPrivateKey = async (encryptedKey: string, userId: string): P
       encrypted
     );
     return new TextDecoder().decode(decrypted);
+  } catch {
+    // Fall through to legacy migration
+  }
+
+  // Legacy XOR migration: decrypt with XOR, validate, re-encrypt with AES-GCM, save
+  try {
+    const legacyDecrypted = decryptLegacyXor(encryptedKey, userId);
+    if (!isValidPrivateKey(legacyDecrypted)) {
+      throw new Error('Decrypted value is not a valid private key');
+    }
+    console.warn('[wallet] Migrating legacy XOR-encrypted key to AES-GCM');
+    const reencrypted = await encryptPrivateKey(legacyDecrypted, userId);
+    // Persist re-encrypted version to DB
+    try {
+      const { supabase } = await import('./supabase');
+      await supabase.from('users').update({ encrypted_private_key: reencrypted }).eq('id', userId);
+    } catch (e) {
+      console.error('[wallet] Failed to persist re-encrypted key, will retry on next decrypt:', e);
+    }
+    return legacyDecrypted;
   } catch {
     throw new Error('Failed to decrypt private key. Key may be corrupted or belong to a different account.');
   }

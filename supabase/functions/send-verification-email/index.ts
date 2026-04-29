@@ -44,6 +44,21 @@ Deno.serve(async (req: Request) => {
       },
     });
 
+    // Per-IP rate limit (covers signup spam from same network)
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '';
+    if (clientIp) {
+      const { data: ipCheck } = await supabase.rpc('check_ip_rate_limit', {
+        p_ip: clientIp,
+        p_endpoint: 'send-verification-email',
+      });
+      if (ipCheck && !ipCheck.allowed) {
+        return new Response(
+          JSON.stringify({ error: ipCheck.message ?? 'Too many requests from your network' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     const { data: rateLimit } = await supabase.rpc('check_rate_limit', {
       p_user_id: userId,
       p_endpoint: 'send-verification-email',
