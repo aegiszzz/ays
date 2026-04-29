@@ -27,7 +27,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { storageSummary, formatStorage, getStorageStatusColor } = useStorage();
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -599,30 +599,6 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       )}
-
-      <View style={styles.section}>
-        <View style={styles.languageRow}>
-          <Text style={styles.languageLabel}>{t.settings.language}</Text>
-          <View style={styles.languageToggle}>
-            <TouchableOpacity
-              style={[styles.langButton, language === 'en' && styles.langButtonActive]}
-              onPress={() => setLanguage('en')}
-            >
-              <Text style={[styles.langButtonText, language === 'en' && styles.langButtonTextActive]}>
-                {t.settings.languageEnglish}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.langButton, language === 'tr' && styles.langButtonActive]}
-              onPress={() => setLanguage('tr')}
-            >
-              <Text style={[styles.langButtonText, language === 'tr' && styles.langButtonTextActive]}>
-                {t.settings.languageTurkish}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
 
       <View style={styles.section}>
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -1233,44 +1209,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FDFDFD',
-  },
-  languageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#141417',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#252528',
-  },
-  languageLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FDFDFD',
-  },
-  languageToggle: {
-    flexDirection: 'row',
-    backgroundColor: '#252528',
-    borderRadius: 8,
-    padding: 2,
-    gap: 2,
-  },
-  langButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  langButtonActive: {
-    backgroundColor: '#00A0DC',
-  },
-  langButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#7A7A7E',
-  },
-  langButtonTextActive: {
-    color: '#FDFDFD',
-    fontWeight: '700',
   },
 });
