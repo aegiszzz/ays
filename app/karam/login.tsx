@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { Lock, Mail } from 'lucide-react-native';
+import { Lock, Mail, AlertCircle } from 'lucide-react-native';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -18,6 +17,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [error, setError] = useState('');
 
   React.useEffect(() => {
     checkExistingSession();
@@ -33,20 +33,21 @@ export default function AdminLogin() {
           .eq('id', user.id)
           .maybeSingle();
         if (userData?.is_admin) {
-          router.replace('/karam/dashboard');
+          window.location.href = '/karam/dashboard';
           return;
         }
       }
-    } catch (error) {
-      console.error('Error checking session:', error);
+    } catch (e) {
+      console.error('Session check error:', e);
     } finally {
       setChecking(false);
     }
   };
 
   const handleLogin = async () => {
+    setError('');
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
 
@@ -57,8 +58,14 @@ export default function AdminLogin() {
         password,
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Login failed');
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+      if (!authData.user) {
+        setError('Login failed — no user returned');
+        return;
+      }
 
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -66,21 +73,20 @@ export default function AdminLogin() {
         .eq('id', authData.user.id)
         .maybeSingle();
 
-      if (userError) throw userError;
-
-      if (!userData?.is_admin) {
-        await supabase.auth.signOut();
-        Alert.alert('Access Denied', 'You do not have admin privileges');
+      if (userError) {
+        setError(userError.message);
         return;
       }
 
-      if (typeof window !== 'undefined') {
-        window.location.href = '/karam/dashboard';
-      } else {
-        router.replace('/karam/dashboard');
+      if (!userData?.is_admin) {
+        await supabase.auth.signOut();
+        setError('Access denied: no admin privileges');
+        return;
       }
-    } catch (error: any) {
-      Alert.alert('Login Failed', error.message);
+
+      window.location.href = '/karam/dashboard';
+    } catch (e: any) {
+      setError(e?.message ?? 'Unexpected error');
     } finally {
       setLoading(false);
     }
@@ -104,6 +110,13 @@ export default function AdminLogin() {
         </View>
 
         <View style={styles.form}>
+          {error ? (
+            <View style={styles.errorBox}>
+              <AlertCircle size={16} color="#FF3B30" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.inputContainer}>
             <Mail size={20} color="#666" />
             <TextInput
@@ -126,6 +139,7 @@ export default function AdminLogin() {
               onChangeText={setPassword}
               secureTextEntry
               editable={!loading}
+              onSubmitEditing={handleLogin}
             />
           </View>
 
@@ -182,6 +196,21 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFF0EE',
+    borderWidth: 1,
+    borderColor: '#FF3B30',
+    borderRadius: 8,
+    padding: 12,
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 14,
+    flex: 1,
   },
   inputContainer: {
     flexDirection: 'row',
