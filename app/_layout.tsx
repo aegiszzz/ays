@@ -29,7 +29,6 @@ function RootNavigator() {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(tabs)';
-    const inAdminGroup = segments[0] === 'admin';
     const allowedAuthenticatedRoutes = [
       'conversation',
       'direct-message',
@@ -42,12 +41,13 @@ function RootNavigator() {
       'edit-profile',
       'user-profile',
     ];
-    const publicRoutes = ['verify-email'];
+    // karam (admin panel) manages its own auth — excluded from global guard
+    const publicRoutes = ['verify-email', 'karam'];
     const isAllowedRoute = allowedAuthenticatedRoutes.includes(segments[0] as string);
     const isPublicRoute = publicRoutes.includes(segments[0] as string);
     const onIndexPage = !segments[0] || (segments[0] as string) === 'index';
 
-    if (!session && (inAuthGroup || inAdminGroup || isAllowedRoute) && !isPublicRoute) {
+    if (!session && (inAuthGroup || isAllowedRoute) && !isPublicRoute) {
       router.replace('/');
     } else if (session && onIndexPage) {
       router.replace('/(tabs)/');
@@ -68,7 +68,7 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="admin" />
+        <Stack.Screen name="karam" />
         <Stack.Screen name="conversation" />
         <Stack.Screen name="direct-message" />
         <Stack.Screen name="send-message" />

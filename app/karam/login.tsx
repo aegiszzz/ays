@@ -40,7 +40,7 @@ export default function AdminLogin() {
           .eq('id', user.id)
           .maybeSingle();
         if (userData?.is_admin) {
-          router.replace('/admin/dashboard');
+          router.replace('/karam/dashboard');
           return;
         }
       }
@@ -132,7 +132,7 @@ export default function AdminLogin() {
       });
       if (verifyError) throw verifyError;
 
-      router.replace('/admin/dashboard');
+      router.replace('/karam/dashboard');
     } catch (error: any) {
       Alert.alert('Verification Failed', error.message);
     } finally {
@@ -153,7 +153,7 @@ export default function AdminLogin() {
         code: totpCode,
       });
       if (error) throw error;
-      router.replace('/admin/dashboard');
+      router.replace('/karam/dashboard');
     } catch (error: any) {
       Alert.alert('Verification Failed', error.message);
     } finally {

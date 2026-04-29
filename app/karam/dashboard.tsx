@@ -38,7 +38,7 @@ export default function AdminDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        router.replace('/admin/login');
+        router.replace('/karam/login');
         return;
       }
 
@@ -49,14 +49,14 @@ export default function AdminDashboard() {
         .maybeSingle();
 
       if (!userData?.is_admin) {
-        router.replace('/admin/login');
+        router.replace('/karam/login');
         return;
       }
 
       await fetchStats();
     } catch (error) {
       console.error('Error checking admin status:', error);
-      router.replace('/admin/login');
+      router.replace('/karam/login');
     }
   };
 
@@ -92,10 +92,10 @@ export default function AdminDashboard() {
 
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        window.location.href = '/admin/login';
+        window.location.href = '/karam/login';
       }, 50);
     } else {
-      router.replace('/admin/login');
+      router.replace('/karam/login');
     }
   };
 
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
         <View style={styles.menuGrid}>
           <TouchableOpacity
             style={styles.menuCard}
-            onPress={() => router.push('/admin/users')}
+            onPress={() => router.push('/karam/users')}
           >
             <Users size={40} color="#000" />
             <Text style={styles.menuTitle}>User Management</Text>
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
 
           <TouchableOpacity
             style={styles.menuCard}
-            onPress={() => router.push('/admin/content')}
+            onPress={() => router.push('/karam/content')}
           >
             <ImageIcon size={40} color="#000" />
             <Text style={styles.menuTitle}>Content Moderation</Text>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
 
           <TouchableOpacity
             style={styles.menuCard}
-            onPress={() => router.push('/admin/analytics')}
+            onPress={() => router.push('/karam/analytics')}
           >
             <BarChart3 size={40} color="#000" />
             <Text style={styles.menuTitle}>Analytics</Text>

@@ -49,7 +49,7 @@ export default function UsersManagement() {
 
       let authUsers: any[] = [];
       if (token) {
-        const res = await fetch('/api/admin/users', {
+        const res = await fetch('/api/karam/users', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -117,7 +117,7 @@ export default function UsersManagement() {
           onPress: async () => {
             try {
               const { data: { session } } = await supabase.auth.getSession();
-              const res = await fetch('/api/admin/users', {
+              const res = await fetch('/api/karam/users', {
                 method: 'DELETE',
                 headers: {
                   Authorization: `Bearer ${session?.access_token}`,
