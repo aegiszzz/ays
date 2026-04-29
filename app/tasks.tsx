@@ -109,7 +109,7 @@ export default function TasksScreen() {
         task_id: likeTask.id,
         current_count: likeCount,
         points_earned: completed ? likeTask.points : 0,
-        ...(completed ? { completed_at: new Date().toISOString() } : { completed_at: new Date().toISOString() }),
+        ...(completed ? { completed_at: new Date().toISOString() } : {}),
       });
 
       if (completed) {
@@ -151,54 +151,18 @@ export default function TasksScreen() {
   };
 
   const fetchUserTasks = async () => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    const todayStartISO = todayStart.toISOString();
+    const { data, error } = await supabase
+      .from('user_tasks')
+      .select('*')
+      .eq('user_id', user!.id);
 
-    // Calculate start of current week (Monday)
-    const weekStart = new Date(todayStart);
-    const dayOfWeek = weekStart.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    weekStart.setDate(weekStart.getDate() + mondayOffset);
-    const weekStartISO = weekStart.toISOString();
-
-    // Fetch today's tasks (daily), this week's tasks (weekly), and all one-time tasks
-    const [dailyResult, weeklyResult, oneTimeResult] = await Promise.all([
-      supabase
-        .from('user_tasks')
-        .select('*')
-        .eq('user_id', user!.id)
-        .gte('completed_at', todayStartISO),
-      supabase
-        .from('user_tasks')
-        .select('*')
-        .eq('user_id', user!.id)
-        .gte('completed_at', weekStartISO)
-        .lt('completed_at', todayStartISO),
-      supabase
-        .from('user_tasks')
-        .select('*')
-        .eq('user_id', user!.id)
-        .lt('completed_at', weekStartISO),
-    ]);
-
-    if (dailyResult.error) throw dailyResult.error;
-    if (weeklyResult.error) throw weeklyResult.error;
-    if (oneTimeResult.error) throw oneTimeResult.error;
-
-    // Merge all results, keeping one entry per task (most recent)
-    const allTasks = [...(dailyResult.data || []), ...(weeklyResult.data || []), ...(oneTimeResult.data || [])];
-    const taskMap = new Map<string, UserTask>();
-    for (const ut of allTasks) {
-      const existing = taskMap.get(ut.task_id);
-      if (!existing || new Date(ut.completed_at) > new Date(existing.completed_at)) {
-        taskMap.set(ut.task_id, ut);
-      }
-    }
-    const mergedTasks = Array.from(taskMap.values());
-    setUserTasks(mergedTasks);
+    if (error) throw error;
+    setUserTasks(data || []);
 
     // Check daily check-in status
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
     const { data: checkinTaskData } = await supabase
       .from('tasks')
       .select('id')
@@ -207,8 +171,10 @@ export default function TasksScreen() {
       .maybeSingle();
 
     if (checkinTaskData) {
-      const hasCheckedIn = (dailyResult.data || []).some(
-        ut => ut.task_id === checkinTaskData.id
+      const hasCheckedIn = (data || []).some(
+        ut => ut.task_id === checkinTaskData.id &&
+          ut.completed_at &&
+          new Date(ut.completed_at) >= todayStart
       );
       setCheckedIn(hasCheckedIn);
     }
@@ -252,11 +218,22 @@ export default function TasksScreen() {
     if (task.task_type === 'daily') {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
-      return new Date(userTask.completed_at) >= todayStart && userTask.current_count >= task.required_count;
+      return !!userTask.completed_at &&
+        new Date(userTask.completed_at) >= todayStart &&
+        userTask.current_count >= task.required_count;
     }
 
-    // weekly
-    return userTask.current_count >= task.required_count;
+    if (task.task_type === 'weekly') {
+      const weekStart = new Date();
+      weekStart.setHours(0, 0, 0, 0);
+      const day = weekStart.getDay();
+      weekStart.setDate(weekStart.getDate() + (day === 0 ? -6 : 1 - day));
+      return !!userTask.completed_at &&
+        new Date(userTask.completed_at) >= weekStart &&
+        userTask.current_count >= task.required_count;
+    }
+
+    return false;
   };
 
   const getTaskProgress = (task: Task) => {
