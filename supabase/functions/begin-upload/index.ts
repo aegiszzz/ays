@@ -146,19 +146,18 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Check daily media limit first
-    const { data: dailyLimitCheck, error: dailyLimitError } = await supabase.rpc('check_daily_media_limit', {
+    // Check combined daily (3) + weekly (10) upload limits
+    const { data: limitCheck, error: limitError } = await supabase.rpc('check_combined_upload_limits', {
       p_user_id: user.id,
-      p_media_type: media_type,
     });
 
-    if (dailyLimitError) {
-      console.error('Daily limit check error:', dailyLimitError);
+    if (limitError) {
+      console.error('Upload limit check error:', limitError);
       return new Response(
         JSON.stringify({
-          error: 'Failed to check daily limit',
+          error: 'Failed to check upload limit',
           code: ErrorCodes.INTERNAL_ERROR,
-          details: dailyLimitError.message,
+          details: limitError.message,
         }),
         {
           status: 500,
@@ -167,13 +166,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (!dailyLimitCheck.allowed) {
+    if (!limitCheck.allowed) {
       return new Response(
         JSON.stringify({
-          error: dailyLimitCheck.message,
-          code: ErrorCodes.DAILY_LIMIT_EXCEEDED,
-          current_count: dailyLimitCheck.current_count,
-          max_limit: dailyLimitCheck.max_limit,
+          error: limitCheck.message,
+          code: limitCheck.reason === 'WEEKLY_LIMIT_EXCEEDED'
+            ? 'WEEKLY_LIMIT_EXCEEDED'
+            : ErrorCodes.DAILY_LIMIT_EXCEEDED,
           can_upload: false,
         }),
         {
